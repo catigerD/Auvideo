@@ -1,9 +1,12 @@
 package com.dengchong.core.test
 
 import android.content.Context
+import android.os.Environment
 import android.util.AttributeSet
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import com.dengchong.core.tools.logd
+import java.io.File
 
 class EGLSurfaceView(
     context: Context?,
@@ -29,7 +32,9 @@ class EGLSurfaceView(
     }
 
     override fun surfaceCreated(holder: SurfaceHolder?) {
-        EGLTestMgr.prepareEglContext(holder?.surface, width, height)
+        val imagePath = "${Environment.getExternalStorageDirectory()}${File.separator}container.jpg"
+        logd("${imagePath}  isExit : ${File(imagePath).exists()}")
+        EGLTestMgr.prepareEglContext(holder?.surface, width, height, imagePath)
     }
 
 }

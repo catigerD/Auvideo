@@ -2,17 +2,17 @@
 // Created by dengchong on 2019-09-25.
 //
 
-#include "EglCore.h"
+#include "EGLCore.h"
 
 #define LOG_TAG "EglCore"
 
-EglCore::EglCore() = default;
+EGLCore::EGLCore() = default;
 
-EglCore::~EglCore() {
+EGLCore::~EGLCore() {
     release();
 }
 
-bool EglCore::init(EGLContext sharedContext) {
+bool EGLCore::init(EGLContext sharedContext) {
     display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     if (EGL_NO_DISPLAY == display) {
         LOGE("eglGetDisplay() return error %d", eglGetError());
@@ -51,12 +51,12 @@ bool EglCore::init(EGLContext sharedContext) {
     return true;
 }
 
-bool EglCore::initWithSharedContext() {
+bool EGLCore::initWithSharedContext() {
     //todo
     return false;
 }
 
-EGLSurface EglCore::createWindowSurface(shared_ptr<ANativeWindow> window) {
+EGLSurface EGLCore::createWindowSurface(shared_ptr<ANativeWindow> window) {
     EGLSurface surface = EGL_NO_SURFACE;
     if (!window) {
         LOGE("EglCore::createWindowSurface() error , window is null");
@@ -76,7 +76,7 @@ EGLSurface EglCore::createWindowSurface(shared_ptr<ANativeWindow> window) {
     return surface;
 }
 
-EGLSurface EglCore::createOffscreenSurface(int width, int height) {
+EGLSurface EGLCore::createOffscreenSurface(int width, int height) {
     EGLSurface surface = EGL_NO_SURFACE;
     EGLint pBufferAttrs[] = {
             EGL_WIDTH, width,
@@ -90,30 +90,30 @@ EGLSurface EglCore::createOffscreenSurface(int width, int height) {
     return surface;
 }
 
-bool EglCore::makeCurrent(EGLSurface surface) {
+bool EGLCore::makeCurrent(EGLSurface surface) {
     return static_cast<bool>(eglMakeCurrent(display, surface, surface, context));
 }
 
-void EglCore::doneCurrent() {
+void EGLCore::doneCurrent() {
     eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 }
 
-bool EglCore::swapBuffers(EGLSurface surface) {
+bool EGLCore::swapBuffers(EGLSurface surface) {
     return static_cast<bool>(eglSwapBuffers(display, surface));
 }
 
-int EglCore::querySurface(EGLSurface surface, int what) {
+int EGLCore::querySurface(EGLSurface surface, int what) {
     EGLint value = -1;
     eglGetConfigAttrib(display, config, what, &value);
     return value;
 }
 
-void EglCore::releaseSurface(EGLSurface surface) {
+void EGLCore::releaseSurface(EGLSurface surface) {
     eglDestroySurface(display, surface);
     surface = EGL_NO_SURFACE;
 }
 
-void EglCore::release() {
+void EGLCore::release() {
     if (display != EGL_NO_DISPLAY && context != EGL_NO_CONTEXT) {
         doneCurrent();
         eglDestroyContext(display, context);

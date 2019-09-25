@@ -15,11 +15,11 @@
 
 using namespace std;
 
-class EglCore {
+class EGLCore {
 public:
-    EglCore();
+    EGLCore();
 
-    ~EglCore();
+    ~EGLCore();
 
     bool init(EGLContext sharedContext = EGL_NO_CONTEXT);
 

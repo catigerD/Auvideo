@@ -10,8 +10,9 @@
 #include "EglTest.h"
 #include <android/native_window.h>
 #include <android/native_window_jni.h>
+#include "GLSurfaceRenderTest.h"
 
-shared_ptr<EglTest> eglTest;
+shared_ptr<GLSurfaceRenderTest> eglTest;
 
 static void releaseWindow(ANativeWindow *window) {
     ANativeWindow_release(window);
@@ -21,11 +22,13 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_com_dengchong_core_test_EGLTestMgr_prepareEglContext(JNIEnv *env, jclass clazz,
                                                           jobject surface, jint width,
-                                                          jint height) {
+                                                          jint height, jstring image_path) {
     shared_ptr<ANativeWindow> window = shared_ptr<ANativeWindow>(
             ANativeWindow_fromSurface(env, surface),
             releaseWindow);
-    eglTest = make_shared<EglTest>(window, width, height);
+    const char *imagePath = env->GetStringUTFChars(image_path, nullptr);
+    eglTest = make_shared<GLSurfaceRenderTest>(window, width, height, imagePath);
+    env->ReleaseStringUTFChars(image_path, imagePath);
 }
 
 extern "C"

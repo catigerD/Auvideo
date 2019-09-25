@@ -5,7 +5,7 @@
 #ifndef AUVIDEO_EGLTEST_H
 #define AUVIDEO_EGLTEST_H
 
-#include "EglCore.h"
+#include "EGLCore.h"
 #include <pthread.h>
 #include "GLTools.h"
 #include <memory>
@@ -16,20 +16,20 @@ class EglTest {
 public:
     EglTest(shared_ptr<ANativeWindow> window, int width, int height);
 
-    ~EglTest();
+    virtual ~EglTest();
 
     void resetRenderSize(int width, int height);
 
-private:
+protected:
 
     void initEglContext();
 
-    void drawRect();
+    virtual void drawRect();
 
     void destroyEglContext();
 
-private:
-    shared_ptr<EglCore> eglCore;
+protected:
+    shared_ptr<EGLCore> eglCore;
     EGLSurface surface;
 
     shared_ptr<ANativeWindow> window;

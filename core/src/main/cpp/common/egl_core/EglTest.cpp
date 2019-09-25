@@ -45,7 +45,7 @@ void EglTest::startLoop() {
 }
 
 void EglTest::initEglContext() {
-    eglCore = make_shared<EglCore>();
+    eglCore = make_shared<EGLCore>();
     eglCore->init();
     surface = eglCore->createWindowSurface(window);
     eglCore->makeCurrent(surface);
