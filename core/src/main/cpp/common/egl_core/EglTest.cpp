@@ -13,7 +13,7 @@ EglTest::EglTest(shared_ptr<ANativeWindow> window, int width, int height)
 }
 
 EglTest::~EglTest() {
-    destroyEglContext();
+
 };
 
 void *EglTest::startLoopThread(void *context) {
@@ -30,7 +30,12 @@ void EglTest::startLoop() {
                 initEglContext();
                 break;
             case MSG_QUIT_LOOP:
+                //解决应用退回后台崩溃 bug:eglcore is null pointer
                 enableLoop = false;
+                if (eglCore) {
+                    eglCore->releaseSurface(surface);
+                }
+                eglCore = nullptr;
                 break;
             default:
                 break;
@@ -62,9 +67,5 @@ void EglTest::drawRect() {
 }
 
 void EglTest::destroyEglContext() {
-    if (eglCore) {
-        eglCore->releaseSurface(surface);
-        eglCore->release();
-    }
-    eglCore = nullptr;
+    msg = MSG_QUIT_LOOP;
 }

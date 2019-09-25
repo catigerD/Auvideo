@@ -42,6 +42,13 @@ static const GLfloat OUTPUT_VIEW_TEXTURE_COORD[] = {
         1.0f, 1.0f
 };
 
+static const GLfloat OUTPUT_VIEW_VFLIP_TEXTURE_COORD[] = {
+        0.0f, 1.0f,
+        1.0f, 1.0f,
+        0.0f, 0.0f,
+        1.0f, 0.0f
+};
+
 /*
  * 1.使用自定义 FrameBuffer 绘制输入纹理到目标纹理。
  * 2.使用默认 FrameBuffer 绘制输入纹理到 Surface上。
@@ -57,9 +64,25 @@ public:
 
     void resetRenderSize(int left, int top, int width, int height);
 
+    void renderToView(GLuint texId);
+
+    void renderToView(GLuint texId, int screenWidth, int screenHeight);
+
+    void renderToViewWithAutoFit(GLuint texId, int screenWidth, int screenHeight, int texWidth,
+                                 int texHeight);
+
+    void renderToViewWithAutoFill(GLuint texId, int screenWidth, int screenHeight, int texWidth,
+                                  int texHeight);
+
     void renderToTexture(GLuint inputTexId, GLuint outputTexId);
 
-    void renderToView(GLuint texId);
+    void renderToVFlipTexture(GLuint inputTexId, GLuint outputTexId);
+
+    void renderToAutoFitTexture(GLuint inputTexId, int inputWidth, int inputHeight,
+                                GLuint outputTexId);
+
+    void renderToAutoFillTexture(GLuint inputTexId, int inputWidth, int inputHeight,
+                                 GLuint outputTexId);
 
 private:
     GLint left{};

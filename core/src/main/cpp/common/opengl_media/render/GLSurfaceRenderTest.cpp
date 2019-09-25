@@ -30,11 +30,24 @@ void GLSurfaceRenderTest::loadImage() {
                  data);
     glBindTexture(GL_TEXTURE_2D, 0);
     isLoadedImage = true;
+
+    glGenTextures(1, &outputTexId);
+    glBindTexture(GL_TEXTURE_2D, outputTexId);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glGenFramebuffers(1, &FBO);
 }
 
 void GLSurfaceRenderTest::drawRect() {
     if (!isLoadedImage) {
         loadImage();
     }
-    render->renderToView(imageTex);
+    glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+    render->renderToAutoFillTexture(imageTex, imageWidth, imageHeight, outputTexId);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    render->renderToViewWithAutoFit(outputTexId, width, height, width, height);
 }

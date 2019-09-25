@@ -28,6 +28,8 @@ class EGLSurfaceView(
     }
 
     override fun surfaceDestroyed(holder: SurfaceHolder?) {
+        //应用退回后台会调用 SurfaceView 的 surfaceDestroyed 方法。
+        logd("surfaceDestroyed")
         EGLTestMgr.destroyEglContext()
     }
 

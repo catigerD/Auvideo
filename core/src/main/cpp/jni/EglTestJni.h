@@ -12,7 +12,7 @@
 #include <android/native_window_jni.h>
 #include "GLSurfaceRenderTest.h"
 
-shared_ptr<GLSurfaceRenderTest> eglTest;
+shared_ptr<EglTest> eglTest;
 
 static void releaseWindow(ANativeWindow *window) {
     ANativeWindow_release(window);
@@ -43,7 +43,9 @@ Java_com_dengchong_core_test_EGLTestMgr_resetRenderSize(JNIEnv *env, jclass claz
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_dengchong_core_test_EGLTestMgr_destroyEglContext(JNIEnv *env, jclass clazz) {
-    eglTest = nullptr;
+    if (eglTest) {
+        eglTest->destroyEglContext();
+    }
 }
 
 

@@ -20,13 +20,13 @@ public:
 
     void resetRenderSize(int width, int height);
 
+    void destroyEglContext();
+
 protected:
 
     void initEglContext();
 
     virtual void drawRect();
-
-    void destroyEglContext();
 
 protected:
     shared_ptr<EGLCore> eglCore;

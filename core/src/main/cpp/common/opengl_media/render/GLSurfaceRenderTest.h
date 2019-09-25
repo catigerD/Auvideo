@@ -30,6 +30,8 @@ private:
     int imageHeight{};
     int imageChannel{};
     unsigned int imageTex;
+    GLuint FBO;
+    GLuint outputTexId;
 
     shared_ptr<GLSurfaceRender> render;
 };
