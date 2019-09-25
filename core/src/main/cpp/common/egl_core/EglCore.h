@@ -21,7 +21,7 @@ public:
 
     ~EglCore();
 
-    bool init(EGLContext sharedContext = nullptr);
+    bool init(EGLContext sharedContext = EGL_NO_CONTEXT);
 
     bool initWithSharedContext();
 

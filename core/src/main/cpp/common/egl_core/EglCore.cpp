@@ -42,7 +42,8 @@ bool EglCore::init(EGLContext sharedContext) {
             EGL_CONTEXT_CLIENT_VERSION, 2,
             EGL_NONE
     };
-    if (!eglCreateContext(display, config, sharedContext, configAttrs)) {
+    if ((context = eglCreateContext(display, config, sharedContext, contextAttrs)) ==
+        EGL_NO_CONTEXT) {
         LOGE("eglCreateContext() return error %d", eglGetError());
         release();
         return false;
