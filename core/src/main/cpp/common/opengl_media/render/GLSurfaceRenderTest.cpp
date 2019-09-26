@@ -6,6 +6,8 @@
 #include "stb_image.h"
 #include "GLSurfaceRenderTest.h"
 
+#define LOG_TAG "GLSurfaceRenderTest"
+
 GLSurfaceRenderTest::GLSurfaceRenderTest(const shared_ptr<ANativeWindow> &window, int width,
                                          int height, const char *imagePath)
         : EglTest(window, width, height),
@@ -15,6 +17,7 @@ GLSurfaceRenderTest::GLSurfaceRenderTest(const shared_ptr<ANativeWindow> &window
 
 GLSurfaceRenderTest::~GLSurfaceRenderTest() {
     stbi_image_free(data);
+    LOGI("GLSurfaceRenderTest::~GLSurfaceRenderTest()");
 }
 
 void GLSurfaceRenderTest::loadImage() {
@@ -43,6 +46,9 @@ void GLSurfaceRenderTest::loadImage() {
 }
 
 void GLSurfaceRenderTest::drawRect() {
+    if (looperTest) {
+        looperTest->handler->sendMessage(LooperTest::MSG_TEST);
+    }
     if (!isLoadedImage) {
         loadImage();
     }

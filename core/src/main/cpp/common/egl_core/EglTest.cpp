@@ -4,6 +4,8 @@
 
 #include "EglTest.h"
 
+#define LOG_TAG "EglTest"
+
 EglTest::EglTest(shared_ptr<ANativeWindow> window, int width, int height)
         : window(window),
           width(width),
@@ -32,10 +34,7 @@ void EglTest::startLoop() {
             case MSG_QUIT_LOOP:
                 //解决应用退回后台崩溃 bug:eglcore is null pointer
                 enableLoop = false;
-                if (eglCore) {
-                    eglCore->releaseSurface(surface);
-                }
-                eglCore = nullptr;
+                destroy();
                 break;
             default:
                 break;
@@ -50,6 +49,7 @@ void EglTest::startLoop() {
 }
 
 void EglTest::initEglContext() {
+    looperTest = make_shared<LooperTest>();
     eglCore = make_shared<EGLCore>();
     eglCore->init();
     surface = eglCore->createWindowSurface(window);
@@ -68,4 +68,16 @@ void EglTest::drawRect() {
 
 void EglTest::destroyEglContext() {
     msg = MSG_QUIT_LOOP;
+    pthread_join(loopThreadTid, nullptr);
+    LOGI("EglTest main thread exit");
+}
+
+void EglTest::destroy() {
+    looperTest->handler->getLooper()->quit();
+    pthread_join(looperTest->testThread, nullptr);
+    if (eglCore) {
+        eglCore->releaseSurface(surface);
+    }
+    eglCore = nullptr;
+    LOGI("EglTest child thread exit");
 }

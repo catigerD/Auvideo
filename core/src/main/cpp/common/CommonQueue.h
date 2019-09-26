@@ -98,6 +98,7 @@ void CommonQueue<Element>::flush() {
 template<class Element>
 void CommonQueue<Element>::abort() {
     Lock lock(mutex);
+    pthread_cond_signal(&cond);
     abortRequest = true;
 }
 

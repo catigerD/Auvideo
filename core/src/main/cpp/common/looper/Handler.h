@@ -26,6 +26,10 @@ public:
 
     void post(MessageCallback callback);
 
+    Looper *getLooper() {
+        return looper;
+    }
+
 private:
     Looper *looper;
 };

@@ -28,6 +28,8 @@ public:
 
     int dequeueMsg(shared_ptr<Message> &msg);
 
+    void quit();
+
 private:
     CommonQueue<shared_ptr<Message>> msgQueue;
 };

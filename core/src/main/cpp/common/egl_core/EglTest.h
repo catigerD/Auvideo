@@ -9,6 +9,7 @@
 #include <pthread.h>
 #include "GLTools.h"
 #include <memory>
+#include "LooperTest.h"
 
 using namespace std;
 
@@ -28,6 +29,8 @@ protected:
 
     virtual void drawRect();
 
+    void destroy();
+
 protected:
     shared_ptr<EGLCore> eglCore;
     EGLSurface surface;
@@ -46,6 +49,8 @@ protected:
         MSG_NONE = 0, MSG_INIT_EGL_CONTEXT, MSG_QUIT_LOOP
     };
     EglTestMsg msg{MSG_NONE};
+
+    shared_ptr<LooperTest> looperTest;
 };
 
 
