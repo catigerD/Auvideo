@@ -17,7 +17,7 @@ GLSurfaceRenderTest::GLSurfaceRenderTest(const shared_ptr<ANativeWindow> &window
 
 GLSurfaceRenderTest::~GLSurfaceRenderTest() {
     stbi_image_free(data);
-    LOGI("GLSurfaceRenderTest::~GLSurfaceRenderTest()");
+//    LOGI("GLSurfaceRenderTest::~GLSurfaceRenderTest()");
 }
 
 void GLSurfaceRenderTest::loadImage() {

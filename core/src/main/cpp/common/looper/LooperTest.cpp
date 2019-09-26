@@ -11,7 +11,7 @@ void LooperTestHandler::handleMessage(const shared_ptr<Message> &msg) {
 }
 
 LooperTest::~LooperTest() {
-    LOGI("LooperTest::~LooperTest()");
+//    LOGI("LooperTest::~LooperTest()");
 }
 
 

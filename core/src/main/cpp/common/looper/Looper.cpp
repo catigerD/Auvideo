@@ -27,7 +27,7 @@ static Looper *threadLooper = nullptr;
 static pthread_once_t allocLooperKeyOnce = PTHREAD_ONCE_INIT;
 
 static void destroy_pthread_key(void *arg) {
-    LOGI("Looper : destroy----------- %p", threadLooper);
+//    LOGI("Looper : destroy----------- %p", threadLooper);
     delete threadLooper;
 }
 
@@ -50,7 +50,7 @@ Looper *Looper::getThreadLocalLooper() {
 
 void Looper::loop() {
     Looper *looper = getThreadLocalLooper();
-    LOGI("Looper : ----------- %p", looper);
+//    LOGI("Looper : ----------- %p", looper);
     while (true) {
         shared_ptr<Message> msg;
         if (looper->dequeueMsg(msg) < 0) {
