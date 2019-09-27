@@ -3,7 +3,6 @@
 //
 #define STB_IMAGE_IMPLEMENTATION
 
-#include "stb_image.h"
 #include "GLSurfaceRenderTest.h"
 
 #define LOG_TAG "GLSurfaceRenderTest"
@@ -12,26 +11,19 @@ GLSurfaceRenderTest::GLSurfaceRenderTest(const shared_ptr<ANativeWindow> &window
                                          int height, const char *imagePath)
         : EglTest(window, width, height),
           imagePath(imagePath),
-          render(make_shared<GLSurfaceRender>(width, height)) {
+          render(make_shared<GLSurfaceRender>(width, height)),
+          inputTextureFrame(make_shared<ImageTextureFrame>(imagePath, imageWidth, imageHeight,
+                                                           imageChannel)) {
 }
 
 GLSurfaceRenderTest::~GLSurfaceRenderTest() {
-    stbi_image_free(data);
 //    LOGI("GLSurfaceRenderTest::~GLSurfaceRenderTest()");
 }
 
 void GLSurfaceRenderTest::loadImage() {
     render->initProgram();
-    data = stbi_load(imagePath, &imageWidth, &imageHeight, &imageChannel, 0);
-    glGenTextures(1, &imageTex);
-    glBindTexture(GL_TEXTURE_2D, imageTex);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE,
-                 data);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    inputTextureFrame->initTexture();
+    inputTextureFrame->updateTexImage();
     isLoadedImage = true;
 
     glGenTextures(1, &outputTexId);
@@ -53,7 +45,8 @@ void GLSurfaceRenderTest::drawRect() {
         loadImage();
     }
     glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-    render->renderToAutoFillTexture(imageTex, imageWidth, imageHeight, outputTexId);
+    render->renderToAutoFillTexture(inputTextureFrame->getTexId(), imageWidth, imageHeight,
+                                    outputTexId);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     render->renderToViewWithAutoFit(outputTexId, width, height, width, height);
 }

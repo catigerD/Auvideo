@@ -9,6 +9,7 @@
 #include "GLSurfaceRender.h"
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
+#include "ImageTextureFrame.h"
 
 class GLSurfaceRenderTest : public EglTest {
 public:
@@ -29,9 +30,11 @@ private:
     int imageWidth{};
     int imageHeight{};
     int imageChannel{};
-    unsigned int imageTex;
+
     GLuint FBO;
     GLuint outputTexId;
+    shared_ptr<ImageTextureFrame> inputTextureFrame;
+
 
     shared_ptr<GLSurfaceRender> render;
 };
