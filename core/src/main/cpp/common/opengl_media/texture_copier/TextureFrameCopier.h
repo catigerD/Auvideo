@@ -46,7 +46,8 @@ public:
     virtual bool init() = 0;
 
     virtual void renderWithCoords(shared_ptr<TextureFrame> textureFrame,
-                                  GLuint texId, GLfloat *vertexCoords, GLfloat* texCoords) = 0;
+                                  GLuint texId, const GLfloat *vertexCoords,
+                                  const GLfloat *texCoords) = 0;
 
     virtual void destroy() = 0;
 

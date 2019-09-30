@@ -21,7 +21,7 @@ GLSurfaceRenderTest::~GLSurfaceRenderTest() {
 }
 
 void GLSurfaceRenderTest::loadImage() {
-    render->initProgram();
+    render->init();
     inputTextureFrame->initTexture();
     inputTextureFrame->updateTexImage();
     isLoadedImage = true;

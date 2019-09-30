@@ -19,6 +19,8 @@ public:
 
     virtual void bindTexture(GLuint *samplerLoc) = 0;
 
+    virtual void destroy() = 0;
+
 protected:
 };
 

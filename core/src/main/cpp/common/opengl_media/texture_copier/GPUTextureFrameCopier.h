@@ -26,7 +26,7 @@ public:
     bool init();
 
     void renderWithCoords(shared_ptr<TextureFrame> textureFrame,
-                          GLuint texId, GLfloat *vertexCoords, GLfloat* texCoords);
+                          GLuint texId, const GLfloat *vertexCoords, const GLfloat* texCoords);
 
     void destroy();
 

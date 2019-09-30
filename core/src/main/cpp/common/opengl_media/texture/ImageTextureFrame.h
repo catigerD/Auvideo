@@ -21,6 +21,12 @@ public:
 
     void bindTexture(GLuint *samplerLoc);
 
+    void destroy() {
+        if (texId) {
+            glDeleteTextures(1, &texId);
+        }
+    }
+
     GLuint getTexId() {
         return texId;
     }

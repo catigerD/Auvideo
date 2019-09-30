@@ -11,7 +11,7 @@ GLSurfaceRender::GLSurfaceRender(int width, int height)
           height(height) {
 }
 
-void GLSurfaceRender::initProgram() {
+void GLSurfaceRender::init() {
     programId = loadProgram(vertexSource, fragmentSource);
     if (!programId) {
         LOGE("Could not create Program");

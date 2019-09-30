@@ -12,13 +12,25 @@ public:
 
     GPUTextureFrame() = default;
 
-    ~GPUTextureFrame() = default;
+    ~GPUTextureFrame() {
+
+    };
 
     void initTexture();
 
     void updateTexImage();
 
     void bindTexture(GLuint *samplerLoc);
+
+    void destroy() {
+        if (texId) {
+            glDeleteTextures(1, &texId);
+        }
+    }
+
+    GLuint getTexId() {
+        return texId;
+    }
 
 private:
     GLuint texId{};

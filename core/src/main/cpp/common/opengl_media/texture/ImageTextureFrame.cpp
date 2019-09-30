@@ -13,9 +13,6 @@ ImageTextureFrame::ImageTextureFrame(const char *imagePath, int &width, int &hei
 
 ImageTextureFrame::~ImageTextureFrame() {
     stbi_image_free(data);
-    if (texId) {
-        glDeleteTextures(1, &texId);
-    }
 }
 
 void ImageTextureFrame::initTexture() {

@@ -30,7 +30,7 @@ bool GPUTextureFrameCopier::init() {
 }
 
 void GPUTextureFrameCopier::renderWithCoords(shared_ptr<TextureFrame> textureFrame, GLuint texId,
-                                             GLfloat *vertexCoords, GLfloat *texCoords) {
+                                             const GLfloat *vertexCoords, const GLfloat *texCoords) {
     if (!isInit) {
         LOGE("GPUTextureFrameCopier::init() not success");
         return;

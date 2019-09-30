@@ -60,7 +60,7 @@ public:
     ~GLSurfaceRender();
 
     //需要在 OpenGL线程中初始化
-    void initProgram();
+    void init();
 
     void resetRenderSize(int left, int top, int width, int height);
 
@@ -83,6 +83,12 @@ public:
 
     void renderToAutoFillTexture(GLuint inputTexId, int inputWidth, int inputHeight,
                                  GLuint outputTexId);
+
+    void destroy() {
+        if (programId) {
+            glDeleteProgram(programId);
+        }
+    }
 
 private:
     GLint left{};
