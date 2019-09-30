@@ -44,5 +44,4 @@ void ImageTextureFrame::bindTexture(GLuint *samplerLoc) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texId);
     glUniform1i(*samplerLoc, 0);
-    glBindTexture(GL_TEXTURE_2D, 0);
 }
