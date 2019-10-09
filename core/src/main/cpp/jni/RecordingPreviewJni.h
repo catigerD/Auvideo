@@ -10,6 +10,7 @@
 #include <memory>
 #include <android/native_window.h>
 #include <android/native_window_jni.h>
+#include <unistd.h>
 
 using namespace std;
 
@@ -30,7 +31,9 @@ Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_initEGLContext
                                        });
     JavaVM *vm;
     env->GetJavaVM(&vm);
-    controller->sendInitEGLContextMsg(vm, thiz, window, width, height);
+    jobject globalObj = env->NewGlobalRef(thiz);
+    usleep(100 * 1000);
+    controller->sendInitEGLContextMsg(vm, globalObj, window, width, height);
 }
 
 extern "C"

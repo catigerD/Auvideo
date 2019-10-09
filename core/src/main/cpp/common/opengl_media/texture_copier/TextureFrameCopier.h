@@ -19,7 +19,7 @@ static const char *NO_FILTER_VERTEX_SOURCE = R"(
     uniform highp mat4 verMatrix;
     uniform highp mat4 texMatrix;
     void main(){
-        gl_Postion = verMatrix * verCoords;
+        gl_Position = verMatrix * verCoords;
         v_texCoords = texMatrix * texCoords;
     }
 )";

@@ -2,20 +2,23 @@
 // Created by dengchong on 2019-09-30.
 //
 
-#ifndef AUVIDEO_DEFAULTTEXTUREFRAME_H
-#define AUVIDEO_DEFAULTTEXTUREFRAME_H
+#ifndef AUVIDEO_FBOTEXTUREFRAME_H
+#define AUVIDEO_FBOTEXTUREFRAME_H
 
 #include <TextureFrame.h>
 
-class DefaultTextureFrame : public TextureFrame {
+class FBOTextureFrame : public TextureFrame {
 
 public:
 
-    DefaultTextureFrame() = default;
+    FBOTextureFrame(int width, int height) : width(width), height(height) {
 
-    ~DefaultTextureFrame() {
+    }
+
+    ~FBOTextureFrame() {
         if (texId) {
             glDeleteTextures(1, &texId);
+            texId = 0;
         }
     }
 
@@ -28,6 +31,7 @@ public:
     void destroy() {
         if (texId) {
             glDeleteTextures(1, &texId);
+            texId = 0;
         }
     }
 
@@ -36,8 +40,10 @@ public:
     }
 
 private:
-    GLuint texId;
+    GLuint texId{};
+    int width{};
+    int height{};
 };
 
 
-#endif //AUVIDEO_DEFAULTTEXTUREFRAME_H
+#endif //AUVIDEO_FBOTEXTUREFRAME_H

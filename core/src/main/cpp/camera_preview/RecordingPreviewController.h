@@ -22,14 +22,15 @@ public:
 
     ~RecordingPreviewController();
 
-    void sendInitEGLContextMsg(JavaVM *vm, jobject obj, shared_ptr<ANativeWindow> window, int width,
-                               int height);
+    void sendInitEGLContextMsg(JavaVM *vm, jobject obj, shared_ptr<ANativeWindow> window,
+                               int surfaceWidth,
+                               int surfaceHeight);
 
     void sendFrameAvailableMsg();
 
-    void resetSurfaceSize(int width, int height) {
-        this->surfaceWidth = width;
-        this->surfaceHeight = height;
+    void resetSurfaceSize(int surfaceWidth, int surfaceHeight) {
+        this->surfaceWidth = surfaceWidth;
+        this->surfaceHeight = surfaceHeight;
     }
 
     void sendDestroyEGLContextMsg();
@@ -39,7 +40,8 @@ private:
 
     static void *startThread(void *);
 
-    shared_ptr<Handler> handler;
+    shared_ptr<RecordingPreviewHandler> handler;
+    pthread_mutex_t mutex;
     shared_ptr<RecordingPreviewRender> render;
 
 private:
@@ -68,6 +70,10 @@ private:
     void configCameraToJava();
 
     void setPreviewTextureToJava();
+
+    void releaseCameraToJava();
+
+    void deleteGlobalObj();
 };
 
 

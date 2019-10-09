@@ -17,6 +17,7 @@ GPUTextureFrameCopier::~GPUTextureFrameCopier() {
 
 bool GPUTextureFrameCopier::init() {
     programId = loadProgram(vertexSource, fragmentSource);
+    LOGI("GPUTextureFrameCopier::init() programId : %d", programId);
     if (!programId) {
         return false;
     }
@@ -30,17 +31,19 @@ bool GPUTextureFrameCopier::init() {
 }
 
 void GPUTextureFrameCopier::renderWithCoords(shared_ptr<TextureFrame> textureFrame, GLuint texId,
-                                             const GLfloat *vertexCoords, const GLfloat *texCoords) {
+                                             const GLfloat *vertexCoords,
+                                             const GLfloat *texCoords) {
     if (!isInit) {
         LOGE("GPUTextureFrameCopier::init() not success");
         return;
     }
 
-    glBindTexture(GL_TEXTURE_2D, texId);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texId, 0);
+    checkGLError("glFramebufferTexture2D");
     GLuint status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if (GL_FRAMEBUFFER_COMPLETE != status) {
-        LOGE("glCheckFramebufferStatus() not complete");
+        LOGE("glCheckFramebufferStatus() not complete， status : %d ， textureid : %d", status,
+             texId);
         return;
     }
 
@@ -62,7 +65,6 @@ void GPUTextureFrameCopier::renderWithCoords(shared_ptr<TextureFrame> textureFra
 
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-    glBindTexture(GL_TEXTURE_2D, 0);
     glDisableVertexAttribArray(texCoordsAttrLoc);
     glDisableVertexAttribArray(verCoordsAttrLoc);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

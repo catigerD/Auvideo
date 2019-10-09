@@ -52,5 +52,12 @@ class RecordingPreviewScheduler(
 
     private external fun resetSurfaceSize(width: Int, height: Int)
 
-    private external fun destroySurface();
+    private external fun destroySurface()
+
+    private fun releaseCameraFromNative() {
+        //native 调用 java方法，java 方法再调用 native 方法 crash
+        // signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x730073 JavaVM::DetachCurrentThread()
+        //todo
+//        camera.releaseCameraFromNative()
+    }
 }

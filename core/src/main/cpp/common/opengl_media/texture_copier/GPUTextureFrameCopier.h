@@ -13,7 +13,7 @@ static const char *GPU_FRAGMENT_SOURCE = R"(
     varying vec4 v_texCoords;
     uniform samplerExternalOES gpuSampler;
     void main(){
-        gl_FragColor = texture2D(gpuSampler, v_texCoords);
+        gl_FragColor = texture2D(gpuSampler, v_texCoords.xy);
     }
 )";
 

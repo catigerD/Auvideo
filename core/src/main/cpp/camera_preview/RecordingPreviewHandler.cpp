@@ -5,13 +5,16 @@
 #include "RecordingPreviewHandler.h"
 #include "RecordingPreviewController.h"
 
+#define LOG_TAG "RecordingPreviewHandler"
+
 RecordingPreviewHandler::RecordingPreviewHandler(
-        const shared_ptr<RecordingPreviewController> &controller)
+        RecordingPreviewController *controller)
         : controller(controller) {
 
 }
 
 void RecordingPreviewHandler::handleMessage(const shared_ptr<Message> &msg) {
+    LOGI("handleMessage  msg");
     switch (msg->what) {
         case MSG_INIT_EGL_CONTEXT:
             controller->initEGLContext();

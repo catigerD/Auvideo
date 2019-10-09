@@ -9,7 +9,7 @@
 #include <GPUTextureFrame.h>
 #include <GPUTextureFrameCopier.h>
 #include "GLSurfaceRender.h"
-#include "DefaultTextureFrame.h"
+#include "FBOTextureFrame.h"
 
 using namespace std;
 
@@ -30,7 +30,7 @@ static const GLfloat CAMERA_TEXTURE_ROTATED_0[8] = {
 class RecordingPreviewRender {
 public:
 
-    RecordingPreviewRender(int screenWidth, int screenHeight);
+    RecordingPreviewRender(int screenWidth, int screenHeight, int texWidth, int texHeight);
 
     ~RecordingPreviewRender();
 
@@ -50,13 +50,15 @@ private:
     GLuint FBO{};
     //传给相机的纹理 Id 封装
     shared_ptr<GPUTextureFrame> cameraTextureFrame;
-    shared_ptr<DefaultTextureFrame> formatTextureFrame;
+    shared_ptr<FBOTextureFrame> formatTextureFrame;
     shared_ptr<GPUTextureFrameCopier> copier;
     shared_ptr<GLSurfaceRender> render;
 
 private:
     int screenWidth{};
     int screenHeight{};
+    int texWidth{};
+    int texHeight{};
 };
 
 

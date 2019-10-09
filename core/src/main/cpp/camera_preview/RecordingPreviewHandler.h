@@ -19,14 +19,14 @@ enum MSG_RECORDING_PREVIEW {
     MSG_DESTROY_EGL_CONTEXT
 };
 
-class RecordingPreviewHandler : Handler {
+class RecordingPreviewHandler : public Handler {
 public:
-    RecordingPreviewHandler(const shared_ptr<RecordingPreviewController> &controller);
+    RecordingPreviewHandler(RecordingPreviewController *controller);
 
     void handleMessage(const shared_ptr<Message> &msg);
 
 private:
-    shared_ptr<RecordingPreviewController> controller;
+    RecordingPreviewController* controller;
 };
 
 

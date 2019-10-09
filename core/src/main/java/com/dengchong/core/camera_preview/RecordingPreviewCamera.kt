@@ -3,6 +3,7 @@ package com.dengchong.core.camera_preview
 import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
 import android.hardware.Camera
+import android.util.Log
 import java.lang.RuntimeException
 
 data class CameraInfo(val cameraWidth: Int, val cameraHeight: Int)
@@ -10,6 +11,8 @@ data class CameraInfo(val cameraWidth: Int, val cameraHeight: Int)
 interface RecordingPreviewCallback {
     fun onFrameAvailable()
 }
+
+private const val TAG = "RecordingPreviewCamera"
 
 class RecordingPreviewCamera {
 
@@ -37,8 +40,10 @@ class RecordingPreviewCamera {
         surfaceTexture = SurfaceTexture(textureId)
         surfaceTexture?.setOnFrameAvailableListener {
             callback?.onFrameAvailable()
+            Log.i("RecordingPreviewCamera", " set onFrameAvailable")
         }
         camera?.setPreviewTexture(surfaceTexture)
+        camera?.startPreview()
     }
 
     fun updateTexImageFromNative() {
@@ -46,13 +51,20 @@ class RecordingPreviewCamera {
     }
 
     fun releaseCameraFromNative() {
-        surfaceTexture?.apply {
-            release()
-            surfaceTexture = null
-        }
-        camera?.apply {
-            release()
-            camera = null
+        try {
+            camera?.stopPreview()
+            surfaceTexture?.apply {
+                // this causes a bunch of warnings that appear harmless but might
+                // confuse someone:
+                // W BufferQueue: [unnamed-3997-2] cancelBuffer: BufferQueue has
+                // been abandoned!
+                release()
+            }
+            camera?.apply {
+                release()
+            }
+        } catch (e: Throwable) {
+            Log.e(TAG, Log.getStackTraceString(e))
         }
     }
 }

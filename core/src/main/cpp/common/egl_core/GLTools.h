@@ -62,8 +62,7 @@ static GLuint loadProgram(const char *vertexSource, const char *fragmentSource) 
             glGetProgramInfoLog(programId, logLength, nullptr, infoLog);
             GL_LOGE("Could not link program \n%s\n", infoLog);
             glDeleteProgram(programId);
-            programId
-                    = 0;
+            programId = 0;
         }
     }
     return programId;
