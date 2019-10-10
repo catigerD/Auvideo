@@ -29,13 +29,15 @@ void *RecordingPreviewController::startThread(void *context) {
 void RecordingPreviewController::sendInitEGLContextMsg(JavaVM *vm, jobject obj,
                                                        shared_ptr<ANativeWindow> window,
                                                        int surfaceWidth,
-                                                       int surfaceHeight) {
+                                                       int surfaceHeight,
+                                                       int cameraId) {
     pthread_mutex_lock(&mutex);
     this->javaVm = vm;
     this->obj = obj;
     this->window = window;
-    surfaceWidth = surfaceWidth;
-    surfaceHeight = surfaceHeight;
+    this->surfaceWidth = surfaceWidth;
+    this->surfaceHeight = surfaceHeight;
+    this->cameraId = cameraId;
     handler->sendMessage(MSG_INIT_EGL_CONTEXT);
     LOGI("RecordingPreviewController::sendInitEGLContextMsg");
     pthread_mutex_unlock(&mutex);
@@ -48,7 +50,7 @@ void RecordingPreviewController::initEGLContext() {
     eglCore->makeCurrent(surface);
     configCameraToJava();
     render = make_shared<RecordingPreviewRender>(surfaceWidth, surfaceHeight, cameraWidth,
-                                                 cameraHeight);
+                                                 cameraHeight, degress);
     render->init();
     setPreviewTextureToJava();
 }
@@ -66,13 +68,15 @@ void RecordingPreviewController::configCameraToJava() {
     }
     jclass schedulerClz = env->GetObjectClass(obj);
     jmethodID configCameraMid = env->GetMethodID(schedulerClz, "configCameraFromNative",
-                                                 "()Lcom/dengchong/core/camera_preview/CameraInfo;");
-    jobject cameraInfoObj = env->CallObjectMethod(obj, configCameraMid);
+                                                 "(I)Lcom/dengchong/core/camera_preview/CameraInfo;");
+    jobject cameraInfoObj = env->CallObjectMethod(obj, configCameraMid, cameraId);
     jclass cameraInfoClz = env->GetObjectClass(cameraInfoObj);
     jmethodID getCameraWidthMid = env->GetMethodID(cameraInfoClz, "getCameraWidth", "()I");
     cameraWidth = env->CallIntMethod(cameraInfoObj, getCameraWidthMid);
     jmethodID getCameraHeightMid = env->GetMethodID(cameraInfoClz, "getCameraHeight", "()I");
     cameraHeight = env->CallIntMethod(cameraInfoObj, getCameraHeightMid);
+    jmethodID getDegressMid = env->GetMethodID(cameraInfoClz, "getDegress", "()I");
+    degress = env->CallIntMethod(cameraInfoObj, getDegressMid);
     if (needAttach) {
         if (javaVm->DetachCurrentThread() != JNI_OK) {
             return;

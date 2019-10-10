@@ -1,12 +1,15 @@
 package com.dengchong.core.camera_preview
 
+import android.content.Context
 import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
 import android.hardware.Camera
 import android.util.Log
+import android.view.Surface
+import android.view.WindowManager
 import java.lang.RuntimeException
 
-data class CameraInfo(val cameraWidth: Int, val cameraHeight: Int)
+data class CameraInfo(val cameraWidth: Int, val cameraHeight: Int, val degress: Int)
 
 interface RecordingPreviewCallback {
     fun onFrameAvailable()
@@ -14,25 +17,56 @@ interface RecordingPreviewCallback {
 
 private const val TAG = "RecordingPreviewCamera"
 
-class RecordingPreviewCamera {
+class RecordingPreviewCamera(val context: Context) {
 
     var camera: Camera? = null
     var surfaceTexture: SurfaceTexture? = null
     var callback: RecordingPreviewCallback? = null
+    val CAMERA_WIDTH: Int = 1280
+    val CAMERA_HEIGHT: Int = 720
 
-    fun configCameraFromNative(): CameraInfo {
-        camera = Camera.open()
+    fun configCameraFromNative(cameraId: Int): CameraInfo {
+        camera = Camera.open(cameraId)
         camera?.apply {
             if (ImageFormat.NV21 in parameters.supportedPreviewFormats) {
                 parameters.previewFormat = ImageFormat.NV21
             }
-            val size = Size(640, 480)
+            val size = Size(CAMERA_WIDTH, CAMERA_HEIGHT)
             if (size in parameters.supportedPreviewSizes) {
-                parameters.setPreviewSize(640, 480)
+                parameters.setPreviewSize(CAMERA_WIDTH, CAMERA_HEIGHT)
             }
-            return CameraInfo(640, 480)
+            return CameraInfo(CAMERA_WIDTH, CAMERA_HEIGHT, getCameraDisplayOrientation(cameraId))
         }
         throw RuntimeException("Camera Open failed")
+    }
+
+    private fun getCameraDisplayOrientation(cameraId: Int): Int {
+        val wgr = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val rotation = wgr.defaultDisplay.rotation
+        var degress: Int = 0
+        when (rotation) {
+            Surface.ROTATION_0 -> {
+                degress = 0
+            }
+            Surface.ROTATION_90 -> {
+                degress = 90
+            }
+            Surface.ROTATION_180 -> {
+                degress = 180
+            }
+            Surface.ROTATION_270 -> {
+                degress = 270
+            }
+        }
+        var result: Int
+        var cameraInfo = Camera.CameraInfo()
+        Camera.getCameraInfo(cameraId, cameraInfo)
+        if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+            result = (cameraInfo.orientation + degress) % 360
+        } else {
+            result = (cameraInfo.orientation - degress + 360) % 360
+        }
+        return result
     }
 
     fun setPreviewTextureFromNative(textureId: Int) {

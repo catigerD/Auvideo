@@ -20,17 +20,41 @@ static const GLfloat CAMERA_TRIANGLE_VERTICES[8] = {
         1.0f, 1.0f
 };
 
+//1. 先顺时针旋转 x 度。
+//2. 由于计算机图形坐标与 OpenGL坐标 y 轴相反，做 VFlip 操作
 static const GLfloat CAMERA_TEXTURE_ROTATED_0[8] = {
+        0.0f, 1.0f,
+        1.0f, 1.0f,
         0.0f, 0.0f,
+        1.0f, 0.0f
+};
+
+static const GLfloat CAMERA_TEXTURE_ROTATED_90[8] = {
+        1.0f, 1.0f,
         1.0f, 0.0f,
         0.0f, 1.0f,
+        0.0f, 0.0f
+};
+
+static const GLfloat CAMERA_TEXTURE_ROTATED_180[8] = {
+        1.0f, 0.0f,
+        0.0f, 0.0f,
+        1.0f, 1.0f,
+        0.0f, 1.0f
+};
+
+static const GLfloat CAMERA_TEXTURE_ROTATED_270[8] = {
+        0.0f, 0.0f,
+        0.0f, 1.0f,
+        1.0f, 0.0f,
         1.0f, 1.0f
 };
 
 class RecordingPreviewRender {
 public:
 
-    RecordingPreviewRender(int screenWidth, int screenHeight, int texWidth, int texHeight);
+    RecordingPreviewRender(int screenWidth, int screenHeight, int texWidth, int texHeight,
+                           int degress);
 
     ~RecordingPreviewRender();
 
@@ -59,6 +83,13 @@ private:
     int screenHeight{};
     int texWidth{};
     int texHeight{};
+    int degress{};
+
+    GLfloat *texCoords;
+
+    void fillTexCoords();
+
+    float flip(float i);
 };
 
 

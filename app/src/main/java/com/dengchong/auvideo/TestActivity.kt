@@ -14,7 +14,7 @@ class TestActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_test)
-        previewCamera = RecordingPreviewCamera()
+        previewCamera = RecordingPreviewCamera(this)
         previewScheduler = RecordingPreviewScheduler(previewCamera, sv_preview)
     }
 }

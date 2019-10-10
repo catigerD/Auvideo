@@ -23,7 +23,8 @@ Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_initEGLContext
                                                                                  jobject thiz,
                                                                                  jobject surface,
                                                                                  jint width,
-                                                                                 jint height) {
+                                                                                 jint height,
+                                                                                 jint cameraId) {
     controller = make_shared<RecordingPreviewController>();
     window = shared_ptr<ANativeWindow>(ANativeWindow_fromSurface(env, surface),
                                        [](ANativeWindow *window) {
@@ -33,7 +34,7 @@ Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_initEGLContext
     env->GetJavaVM(&vm);
     jobject globalObj = env->NewGlobalRef(thiz);
     usleep(100 * 1000);
-    controller->sendInitEGLContextMsg(vm, globalObj, window, width, height);
+    controller->sendInitEGLContextMsg(vm, globalObj, window, width, height, cameraId);
 }
 
 extern "C"

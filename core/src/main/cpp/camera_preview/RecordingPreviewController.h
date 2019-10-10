@@ -24,7 +24,8 @@ public:
 
     void sendInitEGLContextMsg(JavaVM *vm, jobject obj, shared_ptr<ANativeWindow> window,
                                int surfaceWidth,
-                               int surfaceHeight);
+                               int surfaceHeight,
+                               int cameraId);
 
     void sendFrameAvailableMsg();
 
@@ -64,8 +65,10 @@ private:
     JavaVM *javaVm{};
     jobject obj{};
 
+    int cameraId{};
     int cameraWidth{};
     int cameraHeight{};
+    int degress{};
 
     void configCameraToJava();
 

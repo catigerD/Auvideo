@@ -1,11 +1,14 @@
 package com.dengchong.core.camera_preview
 
+import android.hardware.Camera
 import android.view.Surface
 
 class RecordingPreviewScheduler(
     val camera: RecordingPreviewCamera,
     val surfaceView: RecordingPreviewSurfaceView
 ) : RecordingPreviewCallback, RecordingPreviewSurfaceViewCallback {
+
+    var defaultCameraId: Int = Camera.CameraInfo.CAMERA_FACING_BACK
 
     companion object {
         init {
@@ -19,7 +22,7 @@ class RecordingPreviewScheduler(
     }
 
     override fun surfaceCreated(surface: Surface?, width: Int, height: Int) {
-        initEGLContext(surface, width, height)
+        initEGLContext(surface, width, height, defaultCameraId)
     }
 
     override fun surfaceChanged(width: Int, height: Int) {
@@ -34,10 +37,10 @@ class RecordingPreviewScheduler(
         notifyFrameAvailable()
     }
 
-    private external fun initEGLContext(surface: Surface?, width: Int, height: Int)
+    private external fun initEGLContext(surface: Surface?, width: Int, height: Int, cameraId: Int)
 
-    private fun configCameraFromNative(): CameraInfo {
-        return camera.configCameraFromNative()
+    private fun configCameraFromNative(cameraId: Int): CameraInfo {
+        return camera.configCameraFromNative(cameraId)
     }
 
     private fun setPreviewTextureFromNative(texId: Int) {

@@ -11,7 +11,8 @@ class FBOTextureFrame : public TextureFrame {
 
 public:
 
-    FBOTextureFrame(int width, int height) : width(width), height(height) {
+    FBOTextureFrame(int width, int height, int degress) : width(width), height(height),
+                                                          degress(degress) {
 
     }
 
@@ -43,6 +44,7 @@ private:
     GLuint texId{};
     int width{};
     int height{};
+    int degress{};
 };
 
 
