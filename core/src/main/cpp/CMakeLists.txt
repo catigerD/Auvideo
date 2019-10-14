@@ -14,6 +14,10 @@ set(PATH_CAMERA_PREVIEW ${PATH_WORKSPACE}/camera_preview)
 
 set(PATH_JNI ${PATH_WORKSPACE}/jni)
 
+set(PATH_THIRD_PARTY ${PATH_WORKSPACE}/thirdparty)
+set(PATH_TO_PRE_BUILT ${PATH_THIRD_PARTY}/prebuilt/${ANDROID_ABI})
+set(PATH_FFMEPG_INCLUDE ${PATH_THIRD_PARTY}/ffmpeg/include)
+
 #include header
 include_directories(${PATH_COMMON})
 include_directories(${PATH_COMMON_EGL_CORE})
@@ -25,6 +29,8 @@ include_directories(${PATH_COMMON_LOOPER})
 include_directories(${PATH_CAMERA_PREVIEW})
 
 include_directories(${PATH_JNI})
+
+include_directories(${PATH_FFMEPG_INCLUDE})
 
 # set file path
 file(GLOB FILES_LIB_COMMON ${PATH_COMMON}/*.cpp)
@@ -63,5 +69,15 @@ target_link_libraries(
         EGL
         z
         OpenSLES
+        #ffmpeg相关库
+        ${PATH_TO_PRE_BUILT}/libavfilter.a
+        ${PATH_TO_PRE_BUILT}/libavformat.a
+        ${PATH_TO_PRE_BUILT}/libavcodec.a
+        ${PATH_TO_PRE_BUILT}/libpostproc.a
+        ${PATH_TO_PRE_BUILT}/libswresample.a
+        ${PATH_TO_PRE_BUILT}/libswscale.a
+        ${PATH_TO_PRE_BUILT}/libavutil.a
+        ${PATH_TO_PRE_BUILT}/libfdk-aac.a
+        ${PATH_TO_PRE_BUILT}/libx264.a
 )
 

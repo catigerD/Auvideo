@@ -12,6 +12,10 @@
 #include <android/native_window_jni.h>
 #include <unistd.h>
 
+extern "C" {
+#include <libavformat/avformat.h>
+};
+
 using namespace std;
 
 shared_ptr<RecordingPreviewController> controller;
@@ -42,6 +46,7 @@ JNIEXPORT void JNICALL
 Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_notifyFrameAvailable(JNIEnv *env,
                                                                                        jobject thiz) {
     if (controller) {
+        avformat_alloc_context();
         controller->sendFrameAvailableMsg();
     }
 }

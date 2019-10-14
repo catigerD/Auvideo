@@ -13,6 +13,13 @@ class RecordingPreviewScheduler(
     companion object {
         init {
             System.loadLibrary("core")
+//            System.loadLibrary("avfilter")
+//            System.loadLibrary("avformat")
+//            System.loadLibrary("avcodec")
+//            System.loadLibrary("postproc")
+//            System.loadLibrary("swresample")
+//            System.loadLibrary("swscale")
+//            System.loadLibrary("avutil")
         }
     }
 
