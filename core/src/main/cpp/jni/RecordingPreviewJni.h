@@ -63,7 +63,8 @@ Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_destroySurface
                                                                                  jobject thiz) {
     if (controller) {
         controller->sendDestroyEGLContextMsg();
-        controller = nullptr;
+        //send msg 是一个线程，destroy相关在子线程，这里置为 null有问题。
+//        controller = nullptr;
     }
 }
 
