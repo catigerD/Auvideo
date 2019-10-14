@@ -10,6 +10,7 @@
 #include <android/native_window.h>
 #include <android/native_window_jni.h>
 #include <memory>
+#include "EGLSharedContext.h"
 
 #include "CommonTools.h"
 

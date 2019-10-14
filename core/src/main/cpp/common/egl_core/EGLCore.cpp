@@ -52,8 +52,11 @@ bool EGLCore::init(EGLContext sharedContext) {
 }
 
 bool EGLCore::initWithSharedContext() {
-    //todo
-    return false;
+    EGLContext context = EGLSharedContext::getSharedContext();
+    if (context == EGL_NO_CONTEXT) {
+        return false;
+    }
+    return init(context);
 }
 
 EGLSurface EGLCore::createWindowSurface(shared_ptr<ANativeWindow> window) {
