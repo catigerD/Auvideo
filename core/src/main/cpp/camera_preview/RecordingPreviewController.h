@@ -7,7 +7,6 @@
 
 #include "RecordingPreviewHandler.h"
 #include "RecordingPreviewRender.h"
-#include <pthread.h>
 #include "Looper.h"
 #include "EGLCore.h"
 #include <android/native_window.h>
@@ -37,12 +36,11 @@ public:
     void sendDestroyEGLContextMsg();
 
 private:
-    pthread_t startThreadTid{};
+    void startThread();
 
-    static void *startThread(void *);
+    std::mutex mutex{};
 
     shared_ptr<RecordingPreviewHandler> handler;
-    pthread_mutex_t mutex;
     shared_ptr<RecordingPreviewRender> render;
 
 private:

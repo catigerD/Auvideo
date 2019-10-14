@@ -32,7 +32,6 @@ public:
     void destroy() {
         if (texId) {
             glDeleteTextures(1, &texId);
-            texId = 0;
         }
     }
 

@@ -7,22 +7,21 @@
 #define LOG_TAG "LooperTest"
 
 void LooperTestHandler::handleMessage(const shared_ptr<Message> &msg) {
-//    LOGI("LooperTestHandler::handleMessage --------------------\n");
+    LOGI("LooperTestHandler::handleMessage --------------------\n");
 }
 
 LooperTest::~LooperTest() {
-//    LOGI("LooperTest::~LooperTest()");
+    LOGI("LooperTest::~LooperTest()");
 }
 
 
 LooperTest::LooperTest() {
-    pthread_create(&testThread, nullptr, startTestThread, this);
+    std::thread thread(&LooperTest::startTestThread, this);
+    thread.detach();
 }
 
-void *LooperTest::startTestThread(void *context) {
-    LooperTest *test = static_cast<LooperTest *>(context);
-    test->loop();
-    pthread_exit(&test->testThread);
+void LooperTest::startTestThread() {
+    loop();
 }
 
 void LooperTest::loop() {

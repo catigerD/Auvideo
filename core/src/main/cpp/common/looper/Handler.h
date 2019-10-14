@@ -14,7 +14,7 @@ public:
 
     Handler();
 
-    Handler(Looper *looper);
+    Handler(shared_ptr<Looper> looper);
 
     virtual ~Handler() = default;
 
@@ -26,12 +26,12 @@ public:
 
     void post(MessageCallback callback);
 
-    Looper *getLooper() {
+    shared_ptr<Looper> getLooper() {
         return looper;
     }
 
 private:
-    Looper *looper;
+    shared_ptr<Looper> looper;
 };
 
 

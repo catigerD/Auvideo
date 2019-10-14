@@ -2,28 +2,27 @@
 // Created by dengchong on 2019-09-30.
 //
 
+#include <thread>
 #include "RecordingPreviewController.h"
 
 #define LOG_TAG "RecordingPreviewController"
 
 RecordingPreviewController::RecordingPreviewController()
         : eglCore(make_shared<EGLCore>()) {
-    pthread_mutex_init(&mutex, nullptr);
-    pthread_create(&startThreadTid, nullptr, startThread, this);
+    std::thread thread(&RecordingPreviewController::startThread, this);
+    thread.detach();
 }
 
 RecordingPreviewController::~RecordingPreviewController() {
 
 }
 
-void *RecordingPreviewController::startThread(void *context) {
-    RecordingPreviewController *controller = static_cast<RecordingPreviewController *>(context);
-    pthread_mutex_lock(&controller->mutex);
+void RecordingPreviewController::startThread() {
+    std::unique_lock<std::mutex> uniqueLock(mutex);
     Looper::prepare();
-    controller->handler = make_shared<RecordingPreviewHandler>(controller);
-    pthread_mutex_unlock(&controller->mutex);
+    handler = make_shared<RecordingPreviewHandler>(this);
+    uniqueLock.unlock();
     Looper::loop();
-    pthread_exit(&controller->startThreadTid);
 }
 
 void RecordingPreviewController::sendInitEGLContextMsg(JavaVM *vm, jobject obj,
@@ -31,7 +30,7 @@ void RecordingPreviewController::sendInitEGLContextMsg(JavaVM *vm, jobject obj,
                                                        int surfaceWidth,
                                                        int surfaceHeight,
                                                        int cameraId) {
-    pthread_mutex_lock(&mutex);
+    std::lock_guard<std::mutex> lockGuard(mutex);
     this->javaVm = vm;
     this->obj = obj;
     this->window = window;
@@ -40,7 +39,6 @@ void RecordingPreviewController::sendInitEGLContextMsg(JavaVM *vm, jobject obj,
     this->cameraId = cameraId;
     handler->sendMessage(MSG_INIT_EGL_CONTEXT);
     LOGI("RecordingPreviewController::sendInitEGLContextMsg");
-    pthread_mutex_unlock(&mutex);
 }
 
 void RecordingPreviewController::initEGLContext() {
@@ -151,7 +149,7 @@ void RecordingPreviewController::sendDestroyEGLContextMsg() {
 void RecordingPreviewController::destroyEGLContext() {
     eglCore->releaseSurface(surface);
     surface = EGL_NO_SURFACE;
-    releaseCameraToJava();
+//    releaseCameraToJava();
     if (render) {
         render->destroy();
         render = nullptr;

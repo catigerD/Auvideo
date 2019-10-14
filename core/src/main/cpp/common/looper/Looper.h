@@ -5,16 +5,17 @@
 #ifndef AUVIDEO_LOOPER_H
 #define AUVIDEO_LOOPER_H
 
-#include "CommonQueue.h"
+#include "ThreadSafeQueue.h"
 #include "Message.h"
 
 class Looper {
 
 public:
+    static const int MSG_QUIT_LOOP = -11111;
 
-    static Looper *prepare();
+    static shared_ptr<Looper> prepare();
 
-    static Looper *getThreadLocalLooper();
+    static shared_ptr<Looper> getThreadLocalLooper();
 
     static void loop();
 
@@ -24,14 +25,14 @@ public:
 
     ~Looper() = default;
 
-    int enqueueMsg(const shared_ptr<Message> &msg);
+    void enqueueMsg(const shared_ptr<Message> &msg);
 
-    int dequeueMsg(shared_ptr<Message> &msg);
+    void dequeueMsg(shared_ptr<Message> &msg);
 
     void quit();
 
 private:
-    CommonQueue<shared_ptr<Message>> msgQueue;
+    ThreadSafeQueue<shared_ptr<Message>> msgQueue;
 };
 
 

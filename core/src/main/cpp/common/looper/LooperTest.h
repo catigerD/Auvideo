@@ -5,10 +5,10 @@
 #ifndef AUVIDEO_LOOPERTEST_H
 #define AUVIDEO_LOOPERTEST_H
 
-#include <pthread.h>
 #include "Handler.h"
 #include <memory>
 #include "CommonTools.h"
+#include <thread>
 
 using namespace std;
 
@@ -32,7 +32,7 @@ public:
 
 private:
 
-    static void *startTestThread(void *);
+    void startTestThread();
 
     void loop();
 };

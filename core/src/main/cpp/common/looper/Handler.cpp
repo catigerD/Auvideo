@@ -9,7 +9,7 @@ Handler::Handler() :
 
 }
 
-Handler::Handler(Looper *looper)
+Handler::Handler(shared_ptr<Looper> looper)
         : looper(looper) {
 
 }

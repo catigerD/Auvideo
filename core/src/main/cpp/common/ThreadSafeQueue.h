@@ -70,7 +70,7 @@ public:
     }
 
     bool empty() const {
-        std::lock_guard lockGuard(mutex);
+        std::lock_guard<std::mutex> lockGuard(mutex);
         return data.empty();
     }
 };
