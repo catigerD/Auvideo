@@ -11,8 +11,6 @@
 class Looper {
 
 public:
-    static const int MSG_QUIT_LOOP = -11111;
-
     static shared_ptr<Looper> prepare();
 
     static shared_ptr<Looper> getThreadLocalLooper();
@@ -27,7 +25,7 @@ public:
 
     void enqueueMsg(const shared_ptr<Message> &msg);
 
-    void dequeueMsg(shared_ptr<Message> &msg);
+    bool dequeueMsg(shared_ptr<Message> &msg);
 
     void quit();
 

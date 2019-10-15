@@ -18,10 +18,8 @@ RecordingPreviewController::~RecordingPreviewController() {
 }
 
 void RecordingPreviewController::startThread() {
-    std::unique_lock<std::mutex> uniqueLock(mutex);
     Looper::prepare();
     handler = make_shared<RecordingPreviewHandler>(this);
-    uniqueLock.unlock();
     Looper::loop();
 }
 
@@ -30,7 +28,9 @@ void RecordingPreviewController::sendInitEGLContextMsg(JavaVM *vm, jobject obj,
                                                        int surfaceWidth,
                                                        int surfaceHeight,
                                                        int cameraId) {
-    std::lock_guard<std::mutex> lockGuard(mutex);
+    while (!handler) {
+        this_thread::sleep_for(microseconds(100));
+    }
     this->javaVm = vm;
     this->obj = obj;
     this->window = window;
@@ -140,6 +140,9 @@ void RecordingPreviewController::renderFrame() {
     render->drawToView();
     eglCore->swapBuffers(surface);
     LOGI("renderFrame");
+    if (isEncoding) {
+        encoder->encode();
+    }
 }
 
 void RecordingPreviewController::sendDestroyEGLContextMsg() {
@@ -202,4 +205,34 @@ void RecordingPreviewController::deleteGlobalObj() {
         }
     }
     LOGI("deleteGlobalObj");
+}
+
+/*--------------------------encode----------------------------------*/
+
+void RecordingPreviewController::sendStartEncodingMsg(const string &filePath, int width, int height,
+                                                      int bitRate, int frameRate, bool hwEncoding) {
+    if (!hwEncoding) {
+        encoder = make_shared<SoftEncoderAdapter>(filePath, width, height, bitRate, frameRate);
+    }
+    if (handler) {
+        handler->sendMessage(MSG_START_RECORDING);
+    }
+}
+
+void RecordingPreviewController::sendStopEncodingMsg() {
+    if (handler) {
+        handler->sendMessage(MSG_STOP_RECORDING);
+    }
+}
+
+void RecordingPreviewController::startRecording() {
+    encoder->createEncoder(eglCore, render->getCameraTexId());
+    isEncoding = true;
+}
+
+void RecordingPreviewController::stopRecording() {
+    encoder->destroyEncoder();
+    isEncoding = false;
+    //todo encoder = nullptr,会导致encoder 对象被析构但子线程还在运行导致的空指针异常。
+//    encoder = nullptr;
 }

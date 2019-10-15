@@ -70,4 +70,15 @@ class RecordingPreviewScheduler(
         //todo
         camera.releaseCameraFromNative()
     }
+
+    external fun startRecording(
+        path: String,
+        width: Int,
+        height: Int,
+        bitRate: Int,
+        frameRate: Int,
+        hwEncoding: Boolean
+    )
+
+    external fun stopRecording()
 }

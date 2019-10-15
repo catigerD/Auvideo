@@ -16,7 +16,9 @@ enum MSG_RECORDING_PREVIEW {
     MSG_INIT_EGL_CONTEXT = 0,
     MSG_UPDATE_TEX_IMAGE,
     MSG_RENDER_FRAME,
-    MSG_DESTROY_EGL_CONTEXT
+    MSG_DESTROY_EGL_CONTEXT,
+    MSG_START_RECORDING,
+    MSG_STOP_RECORDING,
 };
 
 class RecordingPreviewHandler : public Handler {
@@ -26,7 +28,7 @@ public:
     void handleMessage(const shared_ptr<Message> &msg);
 
 private:
-    RecordingPreviewController* controller;
+    RecordingPreviewController *controller;
 };
 
 

@@ -16,6 +16,7 @@ private:
     std::mutex mutex;
     std::condition_variable cond;
     std::queue<T> data;
+    bool abortFlag{false};
 public:
     ThreadSafeQueue() {
 
@@ -34,16 +35,23 @@ public:
         cond.notify_one();
     }
 
-    void waitAndPop(T &value) {
+    bool waitAndPop(T &value) {
         std::unique_lock<std::mutex> uniqueLock(mutex);
         cond.wait(uniqueLock, [this] { return !data.empty(); });
+        if (abortFlag) {
+            return false;
+        }
         value = data.front();
         data.pop();
+        return true;
     }
 
     std::shared_ptr<T> waitAndPop() {
         std::unique_lock<std::mutex> uniqueLock(mutex);
         cond.wait(uniqueLock, [this] { return !data.empty(); });
+        if (abortFlag) {
+            return nullptr;
+        }
         std::shared_ptr<T> res(std::make_shared<T>(data.front()));
         data.pop();
         return res;
@@ -72,6 +80,12 @@ public:
     bool empty() const {
         std::lock_guard<std::mutex> lockGuard(mutex);
         return data.empty();
+    }
+
+    void abort() {
+        std::lock_guard<std::mutex> lockGuard(mutex);
+        abortFlag = true;
+        cond.notify_all();
     }
 };
 

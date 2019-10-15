@@ -6,7 +6,7 @@
 
 #define LOG_TAG "EGLSharedContext"
 
-std::shared_ptr<EGLSharedContext> EGLSharedContext::instance = std::make_shared<EGLSharedContext>();
+shared_ptr<EGLSharedContext> EGLSharedContext::instance = make_shared<EGLSharedContext>();
 
 void EGLSharedContext::init() {
     sharedDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);

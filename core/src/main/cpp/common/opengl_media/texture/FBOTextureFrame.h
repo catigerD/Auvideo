@@ -11,7 +11,7 @@ class FBOTextureFrame : public TextureFrame {
 
 public:
 
-    FBOTextureFrame(int width, int height, int degress) : width(width), height(height),
+    FBOTextureFrame(int width, int height, int degress = 0) : width(width), height(height),
                                                           degress(degress) {
 
     }
@@ -19,7 +19,6 @@ public:
     ~FBOTextureFrame() {
         if (texId) {
             glDeleteTextures(1, &texId);
-            texId = 0;
         }
     }
 
@@ -28,6 +27,8 @@ public:
     void updateTexImage() {};
 
     void bindTexture(GLuint *samplerLoc);
+
+    void bindFrameBuffer();
 
     void destroy() {
         if (texId) {
@@ -41,6 +42,7 @@ public:
 
 private:
     GLuint texId{};
+    GLuint fbo;
     int width{};
     int height{};
     int degress{};

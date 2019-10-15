@@ -28,6 +28,12 @@ void RecordingPreviewHandler::handleMessage(const shared_ptr<Message> &msg) {
         case MSG_DESTROY_EGL_CONTEXT:
             controller->destroyEGLContext();
             break;
+        case MSG_START_RECORDING:
+            controller->startRecording();
+            break;
+        case MSG_STOP_RECORDING:
+            controller->stopRecording();
+            break;
         default:
             break;
     }

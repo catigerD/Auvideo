@@ -11,4 +11,8 @@ public class RecordingPreviewSchedule {
     native void resetSurfaceSize(int width, int height);
 
     native void destroySurface();
+
+    native void startRecording(String filePath, int width, int height, int bitRate, int frameRate, boolean hwEncoding);
+
+    native void stopRecording();
 }

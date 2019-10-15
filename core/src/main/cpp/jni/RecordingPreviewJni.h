@@ -10,7 +10,6 @@
 #include <memory>
 #include <android/native_window.h>
 #include <android/native_window_jni.h>
-#include <unistd.h>
 
 extern "C" {
 #include <libavformat/avformat.h>
@@ -37,7 +36,6 @@ Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_initEGLContext
     JavaVM *vm;
     env->GetJavaVM(&vm);
     jobject globalObj = env->NewGlobalRef(thiz);
-    usleep(100 * 1000);
     controller->sendInitEGLContextMsg(vm, globalObj, window, width, height, cameraId);
 }
 
@@ -73,5 +71,31 @@ Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_destroySurface
     }
 }
 
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_startRecording(JNIEnv *env,
+                                                                                 jobject thiz,
+                                                                                 jstring file_path,
+                                                                                 jint width,
+                                                                                 jint height,
+                                                                                 jint bit_rate,
+                                                                                 jint frame_rate,
+                                                                                 jboolean hw_encoding) {
+    if (controller) {
+        auto path = env->GetStringUTFChars(file_path, nullptr);
+        controller->sendStartEncodingMsg(path, width, height, bit_rate, frame_rate,
+                                         hw_encoding);
+        env->ReleaseStringUTFChars(file_path, path);
+    }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_stopRecording(JNIEnv *env,
+                                                                                jobject thiz) {
+    if (controller) {
+        controller->sendStopEncodingMsg();
+    }
+}
 
 #endif //AUVIDEO_RECORDINGPREVIEWJNI_H

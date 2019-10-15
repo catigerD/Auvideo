@@ -11,12 +11,12 @@ void Looper::enqueueMsg(const shared_ptr<Message> &msg) {
     msgQueue.push(msg);
 }
 
-void Looper::dequeueMsg(shared_ptr<Message> &msg) {
-    msgQueue.waitAndPop(msg);
+bool Looper::dequeueMsg(shared_ptr<Message> &msg) {
+    return msgQueue.waitAndPop(msg);
 }
 
 void Looper::quit() {
-    msgQueue.push(Message::obtain(MSG_QUIT_LOOP, nullptr));
+    msgQueue.abort();
 }
 
 
@@ -38,8 +38,7 @@ void Looper::loop() {
 //    LOGI("Looper : ----------- %p", looper);
     while (true) {
         shared_ptr<Message> msg;
-        looper->dequeueMsg(msg);
-        if (msg->what == MSG_QUIT_LOOP) {
+        if (!looper->dequeueMsg(msg)) {
             return;
         }
         if (msg->callback) {

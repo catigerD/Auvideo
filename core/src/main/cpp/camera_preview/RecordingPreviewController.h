@@ -12,7 +12,11 @@
 #include <android/native_window.h>
 #include <android/native_window_jni.h>
 #include <jni.h>
+#include <chrono>
+#include "SoftEncoderAdapter.h"
+#include <string>
 
+using namespace chrono;
 
 class RecordingPreviewController {
     friend RecordingPreviewHandler;
@@ -35,10 +39,13 @@ public:
 
     void sendDestroyEGLContextMsg();
 
+    void sendStartEncodingMsg(const string &filePath, int width, int height, int bitRate,
+                              int frameRate, bool hwEncoding);
+
+    void sendStopEncodingMsg();
+
 private:
     void startThread();
-
-    std::mutex mutex{};
 
     shared_ptr<RecordingPreviewHandler> handler;
     shared_ptr<RecordingPreviewRender> render;
@@ -75,6 +82,15 @@ private:
     void releaseCameraToJava();
 
     void deleteGlobalObj();
+
+private:
+    //encode
+    shared_ptr<VideoEncoderAdapter> encoder;
+    bool isEncoding{};
+
+    void startRecording();
+
+    void stopRecording();
 };
 
 
