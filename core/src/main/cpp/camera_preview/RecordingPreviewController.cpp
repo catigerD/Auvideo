@@ -150,6 +150,7 @@ void RecordingPreviewController::sendDestroyEGLContextMsg() {
 }
 
 void RecordingPreviewController::destroyEGLContext() {
+    eglCore->makeCurrent(surface);
     eglCore->releaseSurface(surface);
     surface = EGL_NO_SURFACE;
     releaseCameraToJava();

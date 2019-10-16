@@ -6,9 +6,12 @@
 
 #define LOG_TAG "GLSurfaceRender"
 
-GLSurfaceRender::GLSurfaceRender(int width, int height)
+GLSurfaceRender::GLSurfaceRender(int width, int height, const char *vertexSource,
+                                 const char *fragmentSource)
         : width(width),
-          height(height) {
+          height(height),
+          vertexSource(vertexSource),
+          fragmentSource(fragmentSource) {
 }
 
 void GLSurfaceRender::init() {

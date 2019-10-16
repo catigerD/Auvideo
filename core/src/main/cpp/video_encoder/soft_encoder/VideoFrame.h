@@ -10,7 +10,7 @@
 using namespace std;
 
 struct VideoFrame {
-    vector<unsigned char> data;
+    vector<uint8_t> data;
     int timeMills;
     int duration;
     int64_t pts;

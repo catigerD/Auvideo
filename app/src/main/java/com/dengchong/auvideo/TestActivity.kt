@@ -2,15 +2,19 @@ package com.dengchong.auvideo
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Environment
 import com.dengchong.core.camera_preview.RecordingPreviewCamera
 import com.dengchong.core.camera_preview.RecordingPreviewScheduler
 import kotlinx.android.synthetic.main.activity_test.*
+import java.io.File
 
 class TestActivity : AppCompatActivity() {
 
     private lateinit var previewCamera: RecordingPreviewCamera
     private lateinit var previewScheduler: RecordingPreviewScheduler
     private var recording: Boolean = false
+    private val path =
+        Environment.getExternalStorageDirectory().absolutePath + File.separator + "Auvideo.yuv"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,7 +24,7 @@ class TestActivity : AppCompatActivity() {
         btn_recording.setOnClickListener {
             recording = !recording
             if (recording) {
-                previewScheduler.startRecording("", 0, 0, 0, 25, false)
+                previewScheduler.startRecording(path, 360, 640, 0, 25, false)
             } else {
                 previewScheduler.stopRecording()
             }

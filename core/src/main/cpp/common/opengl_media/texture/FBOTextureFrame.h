@@ -6,13 +6,18 @@
 #define AUVIDEO_FBOTEXTUREFRAME_H
 
 #include <TextureFrame.h>
+#include <CommonTools.h>
+#include <GLTools.h>
+#include <vector>
+
+using namespace std;
 
 class FBOTextureFrame : public TextureFrame {
 
 public:
 
     FBOTextureFrame(int width, int height, int degress = 0) : width(width), height(height),
-                                                          degress(degress) {
+                                                              degress(degress) {
 
     }
 
@@ -27,8 +32,6 @@ public:
     void updateTexImage() {};
 
     void bindTexture(GLuint *samplerLoc);
-
-    void bindFrameBuffer();
 
     void destroy() {
         if (texId) {

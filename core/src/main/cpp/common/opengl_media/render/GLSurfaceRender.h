@@ -55,7 +55,8 @@ static const GLfloat OUTPUT_VIEW_VFLIP_TEXTURE_COORD[] = {
  */
 class GLSurfaceRender {
 public:
-    GLSurfaceRender(int width, int height);
+    GLSurfaceRender(int width, int height, const char *vertexSource = OUTPUT_VIEW_VERTEX_SOURCE,
+                    const char *fragmentSource = OUTPUT_VIEW_FRAGMENT_SOURCE);
 
     ~GLSurfaceRender();
 
@@ -96,8 +97,8 @@ private:
     GLint width{};
     GLint height{};
 
-    const char *vertexSource{OUTPUT_VIEW_VERTEX_SOURCE};
-    const char *fragmentSource{OUTPUT_VIEW_FRAGMENT_SOURCE};
+    const char *vertexSource;
+    const char *fragmentSource;
 
     bool isInitProgram{};
     GLuint programId{};

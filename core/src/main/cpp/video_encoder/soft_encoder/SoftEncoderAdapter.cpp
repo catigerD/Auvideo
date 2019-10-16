@@ -10,7 +10,8 @@ SoftEncoderAdapter::SoftEncoderAdapter(const string &path, int width, int height
                                        int frameRate)
         : VideoEncoderAdapter(path, width, height, bitRate, frameRate),
           render(make_shared<GLSurfaceRender>(width, height)),
-          fboTextureFrame(make_shared<FBOTextureFrame>(width, height)) {
+          fboTextureFrame(make_shared<FBOTextureFrame>(width, height)),
+          converter(make_shared<R2YConverter>()) {
 
 }
 
@@ -18,7 +19,7 @@ SoftEncoderAdapter::~SoftEncoderAdapter() {
 
 }
 
-void SoftEncoderAdapter::createEncoder(shared_ptr<EGLCore> core, int inputTexId) {
+void SoftEncoderAdapter::createEncoder(shared_ptr<EGLCore> core, GLuint inputTexId) {
     sharedContext = core;
     cameraTexId = inputTexId;
     thread encoderThread(&SoftEncoderAdapter::loopEncode, this);
@@ -84,19 +85,27 @@ void SoftEncoderAdapter::initEglContext() {
     eglCore->makeCurrent(offScreenSurface);
     render->init();
     fboTextureFrame->initTexture();
+    glGenFramebuffers(1, &fbo);
 }
 
 void SoftEncoderAdapter::downloadTexture() {
     unique_lock<mutex> uniqueLock(downloadTextureLock);
+    eglCore->makeCurrent(offScreenSurface);
     //拷贝纹理到临时纹理
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    render->renderToTexture(cameraTexId, fboTextureFrame->getTexId());
     downloadTextureCond.notify_one();
     uniqueLock.unlock();
     //从显存 download 到内存
+    vector<uint8_t> texData;
+    converter->convert(fboTextureFrame->getTexId(), videoWidth, videoHeight, texData);
     shared_ptr<VideoFrame> videoFrame = make_shared<VideoFrame>();
+    videoFrame->data = texData;
     videoFrames.push(videoFrame);
 }
 
 void SoftEncoderAdapter::destroyEglContext() {
+    eglCore->makeCurrent(offScreenSurface);
     fboTextureFrame->destroy();
     render->destroy();
     eglCore->releaseSurface(offScreenSurface);

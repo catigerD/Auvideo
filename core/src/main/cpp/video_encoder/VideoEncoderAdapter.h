@@ -15,7 +15,7 @@ using namespace std;
 class VideoEncoderAdapter {
 public:
     VideoEncoderAdapter(const string &path, int width, int height, int bitRate, int frameRate) :
-//            outFileStream(path, iostream::app),
+            outFileStream(path, iostream::app),
             videoWidth(width),
             videoHeight(height),
             videoBitRate(bitRate),
@@ -25,7 +25,7 @@ public:
 
     virtual ~VideoEncoderAdapter() = default;
 
-    virtual void createEncoder(shared_ptr<EGLCore> core, int inputTexId) = 0;
+    virtual void createEncoder(shared_ptr<EGLCore> core, GLuint inputTexId) = 0;
 
     virtual void encode() = 0;
 

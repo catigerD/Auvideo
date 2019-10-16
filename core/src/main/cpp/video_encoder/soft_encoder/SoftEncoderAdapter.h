@@ -12,6 +12,7 @@
 #include "FBOTextureFrame.h"
 #include "VideoFrame.h"
 #include "ThreadSafeQueue.h"
+#include <R2YConverter.h>
 
 using namespace chrono;
 
@@ -21,7 +22,7 @@ public:
 
     ~SoftEncoderAdapter();
 
-    void createEncoder(shared_ptr<EGLCore> core, int inputTexId);
+    void createEncoder(shared_ptr<EGLCore> core, GLuint inputTexId);
 
     void encode();
 
@@ -41,12 +42,13 @@ private:
     condition_variable downloadTextureCond;
 
     shared_ptr<EGLCore> sharedContext;
-    int cameraTexId;
+    GLuint cameraTexId;
     shared_ptr<EGLCore> eglCore{make_shared<EGLCore>()};
     bool eglInit{false};
     EGLSurface offScreenSurface = EGL_NO_SURFACE;
     shared_ptr<GLSurfaceRender> render;
     shared_ptr<FBOTextureFrame> fboTextureFrame;
+    GLuint fbo;
 
     void initEglContext();
 
@@ -59,6 +61,7 @@ private:
 
     //queue
     ThreadSafeQueue<shared_ptr<VideoFrame>> videoFrames;
+    shared_ptr<R2YConverter> converter;
 };
 
 
