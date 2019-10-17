@@ -13,6 +13,7 @@
 #include "VideoFrame.h"
 #include "ThreadSafeQueue.h"
 #include <R2YConverter.h>
+#include "VideoX264Encoder.h"
 
 using namespace chrono;
 
@@ -62,6 +63,7 @@ private:
     //queue
     ThreadSafeQueue<shared_ptr<VideoFrame>> videoFrames;
     shared_ptr<R2YConverter> converter;
+    shared_ptr<VideoX264Encoder> encoder;
 };
 
 

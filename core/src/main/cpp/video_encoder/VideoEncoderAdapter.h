@@ -15,7 +15,7 @@ using namespace std;
 class VideoEncoderAdapter {
 public:
     VideoEncoderAdapter(const string &path, int width, int height, int bitRate, int frameRate) :
-            outFileStream(path, iostream::app),
+            filePath(path),
             videoWidth(width),
             videoHeight(height),
             videoBitRate(bitRate),
@@ -32,7 +32,7 @@ public:
     virtual void destroyEncoder() = 0;
 
 protected:
-    ofstream outFileStream;
+    const string filePath;
     int videoWidth;
     int videoHeight;
     int videoBitRate;

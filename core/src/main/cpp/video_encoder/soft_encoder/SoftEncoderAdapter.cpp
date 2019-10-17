@@ -11,7 +11,8 @@ SoftEncoderAdapter::SoftEncoderAdapter(const string &path, int width, int height
         : VideoEncoderAdapter(path, width, height, bitRate, frameRate),
           render(make_shared<GLSurfaceRender>(width, height)),
           fboTextureFrame(make_shared<FBOTextureFrame>(width, height)),
-          converter(make_shared<R2YConverter>()) {
+          converter(make_shared<R2YConverter>()),
+          encoder(make_shared<VideoX264Encoder>(path, width, height, bitRate, frameRate)) {
 
 }
 
@@ -68,7 +69,7 @@ void SoftEncoderAdapter::loopEncode() {
         if (!videoFrames.waitAndPop(videoFrame)) {
             return;
         }
-        //encode
+        encoder->encode(videoFrame);
         LOGI("SoftEncoderAdapter::loopEncode() encode %d", count++);
     }
 }
@@ -90,6 +91,11 @@ void SoftEncoderAdapter::initEglContext() {
 
 void SoftEncoderAdapter::downloadTexture() {
     unique_lock<mutex> uniqueLock(downloadTextureLock);
+    if (startTime.time_since_epoch().count() == 0) {
+        return;
+    }
+    int recordingDuration = static_cast<int>(duration_cast<milliseconds>(
+            system_clock::now() - startTime).count());
     eglCore->makeCurrent(offScreenSurface);
     //拷贝纹理到临时纹理
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
@@ -101,6 +107,7 @@ void SoftEncoderAdapter::downloadTexture() {
     converter->convert(fboTextureFrame->getTexId(), videoWidth, videoHeight, texData);
     shared_ptr<VideoFrame> videoFrame = make_shared<VideoFrame>();
     videoFrame->data = texData;
+    videoFrame->timeMills = recordingDuration;
     videoFrames.push(videoFrame);
 }
 

@@ -14,7 +14,7 @@ class TestActivity : AppCompatActivity() {
     private lateinit var previewScheduler: RecordingPreviewScheduler
     private var recording: Boolean = false
     private val path =
-        Environment.getExternalStorageDirectory().absolutePath + File.separator + "Auvideo.yuv"
+        Environment.getExternalStorageDirectory().absolutePath + File.separator + "Auvideo.h264"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,7 +24,7 @@ class TestActivity : AppCompatActivity() {
         btn_recording.setOnClickListener {
             recording = !recording
             if (recording) {
-                previewScheduler.startRecording(path, 360, 640, 0, 25, false)
+                previewScheduler.startRecording(path, 360, 640, 700 * 1024, 25, false)
             } else {
                 previewScheduler.stopRecording()
             }

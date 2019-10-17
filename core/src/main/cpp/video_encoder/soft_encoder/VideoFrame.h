@@ -11,10 +11,10 @@ using namespace std;
 
 struct VideoFrame {
     vector<uint8_t> data;
-    int timeMills;
-    int duration;
-    int64_t pts;
-    int64_t dts;
+    int timeMills{};
+    int duration{};
+    int64_t pts{};
+    int64_t dts{};
 };
 
 
