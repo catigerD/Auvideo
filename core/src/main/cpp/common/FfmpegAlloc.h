@@ -35,7 +35,6 @@ struct FfmpegAlloc {
     static shared_ptr<AVCodecContext> getCodecContext(shared_ptr<AVCodec> codec) {
         return shared_ptr<AVCodecContext>(
                 avcodec_alloc_context3(codec.get()), [](AVCodecContext *codec) {
-                    avcodec_close(codec);
                     avcodec_free_context(&codec);
                 });
     }
