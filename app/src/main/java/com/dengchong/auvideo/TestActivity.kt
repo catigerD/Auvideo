@@ -3,6 +3,7 @@ package com.dengchong.auvideo
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
+import android.view.WindowManager
 import com.dengchong.core.camera_preview.RecordingPreviewCamera
 import com.dengchong.core.camera_preview.RecordingPreviewScheduler
 import kotlinx.android.synthetic.main.activity_test.*
@@ -18,6 +19,7 @@ class TestActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_test)
         previewCamera = RecordingPreviewCamera(this)
         previewScheduler = RecordingPreviewScheduler(previewCamera, sv_preview)
