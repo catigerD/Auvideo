@@ -92,11 +92,12 @@ void EncodeExamples::loopEncode() {
     int ret = 0;
     /* encode 1 second of video */
     for (int i = 0; i < 25; i++) {
-        fflush(stdout);
         /* make sure the frame data is writable */
         ret = av_frame_make_writable(frame.get());
-        if (ret < 0)
-            exit(1);
+        if (ret < 0) {
+            LOGE("av_frame_make_writable is false");
+            return;
+        }
         /* prepare a dummy image */
         /* Y */
         for (int y = 0; y < codecContext->height; y++) {
@@ -116,6 +117,33 @@ void EncodeExamples::loopEncode() {
         encode(codecContext, frame, packet, stream);
     }
     /* flush the encoder */
+    encode(codecContext, nullptr, packet, stream);
+    flush();
+    stream.close();
+}
+
+void EncodeExamples::encode(vector<uint8_t> data, int width, int height, int pts) {
+    int ret = 0;
+    ret = av_frame_make_writable(frame.get());
+    if (ret < 0) {
+        LOGE("av_frame_make_writable is false");
+        return;
+    }
+    /* prepare a dummy image */
+    /* Y */
+    memcpy(data.data(), &frame->data[0][0], width * height);
+    memcpy(data.data() + width * height, &frame->data[1][0], width * height / 4);
+    memcpy(data.data() + width * height * 5 / 4, &frame->data[2][0], width * height / 4);
+//    copy(data.begin(), data.begin() + width * height - 1, frame->data[0]);
+//    copy(data.begin() + width * height, data.begin() + width * height + width * height / 4 - 1, frame->data[1]);
+//    copy(data.begin() + width * height + width * height / 4, data.begin() + width * height + width * height / 2 - 1,
+//         frame->data[2]);
+    frame->pts = pts;
+    /* encode the image */
+    encode(codecContext, frame, packet, stream);
+}
+
+void EncodeExamples::flush() {
     encode(codecContext, nullptr, packet, stream);
     stream.close();
 }

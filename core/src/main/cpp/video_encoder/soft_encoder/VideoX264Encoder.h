@@ -19,7 +19,11 @@ public:
 
     ~VideoX264Encoder() = default;
 
-    void encode(const shared_ptr<VideoFrame>& videoFrame);
+    bool init();
+
+    void encode(const shared_ptr<VideoFrame> &videoFrame);
+
+    void flush();
 
 private:
     ofstream stream;
@@ -33,7 +37,8 @@ private:
     shared_ptr<AVFrame> frame;
     shared_ptr<AVPacket> packet;
 
-    bool init();
+    void encode(shared_ptr<AVCodecContext> context, shared_ptr<AVFrame> frame, shared_ptr<AVPacket> packet,
+                ofstream &stream);
 };
 
 

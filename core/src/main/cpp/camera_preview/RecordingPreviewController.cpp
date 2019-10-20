@@ -227,7 +227,7 @@ void RecordingPreviewController::sendStopEncodingMsg() {
 }
 
 void RecordingPreviewController::startRecording() {
-    encoder->createEncoder(eglCore, render->getCameraTexId());
+    encoder->createEncoder(eglCore, render->getRenderTexId());
     isEncoding = true;
 }
 

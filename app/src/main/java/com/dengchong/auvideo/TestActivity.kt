@@ -24,7 +24,8 @@ class TestActivity : AppCompatActivity() {
         btn_recording.setOnClickListener {
             recording = !recording
             if (recording) {
-                previewScheduler.startRecording(path, 360, 640, 700 * 1024, 25, false)
+                //width , height 会影响frame.data
+                previewScheduler.startRecording(path, 640, 320, 700 * 1024, 25, false)
             } else {
                 previewScheduler.stopRecording()
             }

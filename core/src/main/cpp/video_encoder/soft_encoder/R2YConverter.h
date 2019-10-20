@@ -17,13 +17,11 @@ public:
 
     ~R2YConverter() = default;
 
-    void convert(GLuint texId, int width, int height, vector<uint8_t> &data);
+    void convert(GLuint texId, int width, int height, uint8_t *data);
 
 private:
-    vector<uint8_t> rgbaData;
-    vector<uint8_t> yuv420pData;
 
-    void load(GLuint texId, int width, int height, vector<uint8_t> &data);
+    void load(GLuint texId, int width, int height, uint8_t *data);
 };
 
 

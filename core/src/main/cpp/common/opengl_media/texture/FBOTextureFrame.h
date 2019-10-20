@@ -21,19 +21,19 @@ public:
 
     }
 
-    ~FBOTextureFrame() {
+    ~FBOTextureFrame() override {
         if (texId) {
             glDeleteTextures(1, &texId);
         }
     }
 
-    void initTexture();
+    void initTexture() override;
 
-    void updateTexImage() {};
+    void updateTexImage() override {};
 
-    void bindTexture(GLuint *samplerLoc);
+    void bindTexture(GLuint *samplerLoc) override;
 
-    void destroy() {
+    void destroy() override {
         if (texId) {
             glDeleteTextures(1, &texId);
         }
@@ -41,6 +41,10 @@ public:
 
     GLuint getTexId() {
         return texId;
+    }
+
+    GLuint getFbo() {
+        return fbo;
     }
 
 private:

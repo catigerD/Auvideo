@@ -14,6 +14,7 @@
 #include "ThreadSafeQueue.h"
 #include <R2YConverter.h>
 #include "VideoX264Encoder.h"
+#include "EncodeExamples.h"
 
 using namespace chrono;
 
@@ -43,13 +44,12 @@ private:
     condition_variable downloadTextureCond;
 
     shared_ptr<EGLCore> sharedContext;
-    GLuint cameraTexId;
+    GLuint renderTexId;
     shared_ptr<EGLCore> eglCore{make_shared<EGLCore>()};
     bool eglInit{false};
     EGLSurface offScreenSurface = EGL_NO_SURFACE;
     shared_ptr<GLSurfaceRender> render;
     shared_ptr<FBOTextureFrame> fboTextureFrame;
-    GLuint fbo;
 
     void initEglContext();
 
@@ -64,6 +64,7 @@ private:
     ThreadSafeQueue<shared_ptr<VideoFrame>> videoFrames;
     shared_ptr<R2YConverter> converter;
     shared_ptr<VideoX264Encoder> encoder;
+    shared_ptr<EncodeExamples> encodeExamples;
 };
 
 

@@ -85,27 +85,28 @@ Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_startRecording
                                                                                  jint bit_rate,
                                                                                  jint frame_rate,
                                                                                  jboolean hw_encoding) {
-//    if (controller) {
-//        auto path = env->GetStringUTFChars(file_path, nullptr);
-//        controller->sendStartEncodingMsg(path, width, height, bit_rate, frame_rate,
-//                                         hw_encoding);
-//        env->ReleaseStringUTFChars(file_path, path);
-//    }
-    auto path = env->GetStringUTFChars(file_path, nullptr);
-    encodeExamples = make_shared<EncodeExamples>(path);
-    encodeExamples->init();
-    encodeExamples->loopEncode();
+    if (controller) {
+        auto path = env->GetStringUTFChars(file_path, nullptr);
+        controller->sendStartEncodingMsg(path, width, height, bit_rate, frame_rate,
+                                         hw_encoding);
+        env->ReleaseStringUTFChars(file_path, path);
+    }
+
+//    auto path = env->GetStringUTFChars(file_path, nullptr);
+//    encodeExamples = make_shared<EncodeExamples>(path);
+//    encodeExamples->init();
+//    encodeExamples->loopEncode();
 //    encode(path);
-    env->ReleaseStringUTFChars(file_path, path);
+//    env->ReleaseStringUTFChars(file_path, path);
 }
 
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_stopRecording(JNIEnv *env,
                                                                                 jobject thiz) {
-//    if (controller) {
-//        controller->sendStopEncodingMsg();
-//    }
+    if (controller) {
+        controller->sendStopEncodingMsg();
+    }
 }
 
 #endif //AUVIDEO_RECORDINGPREVIEWJNI_H

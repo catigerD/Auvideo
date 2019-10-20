@@ -9,6 +9,9 @@
 #include <memory>
 #include "AndroidLog.h"
 #include <fstream>
+#include <vector>
+
+using namespace std;
 
 using namespace std;
 
@@ -27,6 +30,10 @@ public:
     bool init();
 
     void loopEncode();
+
+    void encode(vector<uint8_t> data, int width, int height,int pts);
+
+    void flush();
 
 private:
     ofstream stream;

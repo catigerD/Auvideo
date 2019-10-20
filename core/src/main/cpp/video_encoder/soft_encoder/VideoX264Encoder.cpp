@@ -13,91 +13,112 @@ VideoX264Encoder::VideoX264Encoder(const string &filePath, int width, int height
           height(height),
           bitRate(bitRate),
           frameRate(frameRate) {
-    init();
 }
 
 bool VideoX264Encoder::init() {
     codec = FfmpegAlloc::getCodecById(AV_CODEC_ID_H264);
     if (!codec) {
-        LOGE("VideoX264Encoder::init() codec is not find");
+        LOGE("Codec %s not find ... ", "h264");
         return false;
     }
     codecContext = FfmpegAlloc::getCodecContext(codec);
     if (!codecContext) {
-        LOGE("VideoX264Encoder::init() could not alloc codec context");
+        LOGE("Could not allocate video codec Context");
         return false;
     }
-    //设置 CodecContext 属性
     codecContext->bit_rate = bitRate;
     codecContext->width = width;
     codecContext->height = height;
-    codecContext->time_base = AVRational{1, frameRate};
-    codecContext->framerate = AVRational{frameRate, 1};
-    codecContext->gop_size = frameRate;
-    codecContext->max_b_frames = 0;
+    codecContext->time_base = AVRational{1, 25};
+    codecContext->framerate = AVRational{25, 1};
+    codecContext->gop_size = 10;
+    codecContext->max_b_frames = 1;
     codecContext->pix_fmt = AV_PIX_FMT_YUV420P;
     if (codec->id == AV_CODEC_ID_H264) {
         av_opt_set(codecContext->priv_data, "preset", "slow", 0);
     }
-    //open it
-    int ret = avcodec_open2(codecContext.get(), codec.get(), nullptr);
-    if (ret < 0) {
-        LOGE("VideoX264Encoder::init() avcodec_open2 error : %s", av_err2str(ret));
+    packet = FfmpegAlloc::getPacket();
+    if (!packet) {
+        LOGE("Could not allocate packet");
         return false;
     }
-
     frame = FfmpegAlloc::getFrame();
     if (!frame) {
-        LOGE("VideoX264Encoder::init() could not alloc AVFrame");
+        LOGE("Could not allocate frame");
         return false;
     }
     frame->format = codecContext->pix_fmt;
     frame->width = codecContext->width;
     frame->height = codecContext->height;
+    int ret = av_frame_get_buffer(frame.get(), 0);
+    if (ret < 0) {
+        LOGE("Could not allocate frame data , %s", av_err2str(ret));
+        return false;
+    }
 
-    packet = FfmpegAlloc::getPacket();
-    if (!packet) {
-        LOGE("VideoX264Encoder::init() could not alloc AVPacket");
+    ret = avcodec_open2(codecContext.get(), codec.get(), nullptr);
+    if (ret < 0) {
+        LOGE("Could not open codec : %s", av_err2str(ret));
         return false;
     }
     return true;
 }
 
-void VideoX264Encoder::encode(const shared_ptr<VideoFrame>& videoFrame) {
-    int ret = av_frame_get_buffer(frame.get(), 0);
-    if (ret < 0) {
-        LOGE("VideoX264Encoder::encode could not alloc frame data");
-        return;
-    }
+void VideoX264Encoder::encode(const shared_ptr<VideoFrame> &videoFrame) {
+    LOGI("width : %d, height : %d", width, height);
+    int ret = 0;
     ret = av_frame_make_writable(frame.get());
     if (ret < 0) {
-        LOGE("VideoX264Encoder::av_frame_make_writable disable");
+        LOGE("av_frame_make_writable is false");
         return;
     }
-    auto begin = videoFrame->data.begin();
-    int step = videoFrame->data.size() / 6;
-    copy(begin, begin + step * 4 - 1, frame->data[0]);
-    copy(begin + step * 4, begin + step * 5 - 1, frame->data[1]);
-    copy(begin + step * 5, videoFrame->data.end(), frame->data[2]);
-
-    int64_t pts = static_cast<int64_t>(videoFrame->timeMills / 1000.0f /
-                                       av_q2d(AVRational{1, 1000}));
+    /* prepare a dummy image */
+    /* Y */
+    memcpy(&frame->data[0][0], videoFrame->data, width * height);
+    memcpy(&frame->data[1][0], videoFrame->data + width * height, width * height / 4);
+    memcpy(&frame->data[2][0], videoFrame->data + width * height * 5 / 4, width * height / 4);
+    AVRational time_base = {1, 1000};
+    int64_t pts = videoFrame->timeMills / 1000.0f / av_q2d(time_base);
     frame->pts = pts;
-    //encode
-    ret = avcodec_send_frame(codecContext.get(), frame.get());
+    /* encode the image */
+    encode(codecContext, frame, packet, stream);
+}
+
+void VideoX264Encoder::flush() {
+    encode(codecContext, nullptr, packet, stream);
+    stream.close();
+}
+
+void
+VideoX264Encoder::encode(shared_ptr<AVCodecContext> context, shared_ptr<AVFrame> frame, shared_ptr<AVPacket> packet,
+                         ofstream &stream) {
+    int ret;
+    /*send the frame to the encoder*/
+    if (frame) {
+        LOGI("Send frame pts : %lld", frame->pts);
+    }
+    ret = avcodec_send_frame(context.get(), frame.get());
     if (ret < 0) {
-        LOGE("VideoX264Encoder::encode avcodec_send_frame error : %s", av_err2str(ret));
+        LOGE("Error sending a frame for encoding !!! err msg : %s", av_err2str(ret));
         return;
     }
-    while (ret > 0) {
-        ret = avcodec_receive_packet(codecContext.get(), packet.get());
-        LOGI("VideoX264Encoder::avcodec_receive_packet");
+    while (ret >= 0) {
+        ret = avcodec_receive_packet(context.get(), packet.get());
         if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
+            LOGE("Write wait ...");
             return;
         } else if (ret < 0) {
-            LOGE("VideoX264Encoder::encode aavcodec_receive_packet error : %s", av_err2str(ret));
+            LOGE("Error during encoding");
             return;
         }
+        LOGI("Write packet , pts : %lld , packet size : %d", packet->pts, packet->size);
+//        if (stream.good()) {
+//            LOGI("Write before stream is good");
+//        }
         stream.write(reinterpret_cast<const char *>(packet->data), packet->size);
+//        if (stream.good()) {
+//            LOGI("Write after stream is good");
+//        }
+        av_packet_unref(packet.get());
     }
 }

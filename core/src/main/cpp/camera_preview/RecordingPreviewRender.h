@@ -70,6 +70,10 @@ public:
         return cameraTextureFrame->getTexId();
     }
 
+    int getRenderTexId() {
+        return formatTextureFrame->getTexId();
+    }
+
 private:
     GLuint FBO{};
     //传给相机的纹理 Id 封装

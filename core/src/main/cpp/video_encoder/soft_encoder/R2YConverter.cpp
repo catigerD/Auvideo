@@ -26,7 +26,7 @@ bool RGB24_TO_YUV420(uint8_t *RgbBuf, int w, int h, uint8_t *yuvBuf) {
     ptrV = ptrU + (w * h * 1 / 4);
     uint8_t y, u, v, r, g, b;
     for (int j = 0; j < h; j++) {
-        ptrRGB = RgbBuf + w * j * 3;
+        ptrRGB = RgbBuf + w * j * 4;
         for (int i = 0; i < w; i++) {
             r = *(ptrRGB++);
             g = *(ptrRGB++);
@@ -47,24 +47,23 @@ bool RGB24_TO_YUV420(uint8_t *RgbBuf, int w, int h, uint8_t *yuvBuf) {
     return true;
 }
 
-void R2YConverter::convert(GLuint texId, int width, int height, vector<uint8_t> &data) {
-    rgbaData = vector<uint8_t>(static_cast<unsigned int>(width * height * 3));
-    yuv420pData = vector<uint8_t>(static_cast<unsigned int>(width * height * 3 / 2));
+void R2YConverter::convert(GLuint texId, int width, int height, uint8_t *data) {
+    uint8_t *rgbaData = new uint8_t[width * height * 4];
     load(texId, width, height, rgbaData);
-    LOGI("R2YConverter:: rgbaData.size : %d", rgbaData.size());
-    RGB24_TO_YUV420(rgbaData.data(), width, height, yuv420pData.data());
-    LOGI("R2YConverter:: yuvData.size : %d", yuv420pData.size());
-    data = yuv420pData;
+    RGB24_TO_YUV420(rgbaData, width, height, data);
+    delete[]rgbaData;
 }
 
-void R2YConverter::load(GLuint texId, int width, int height, vector<uint8_t> &data) {
+void R2YConverter::load(GLuint texId, int width, int height, uint8_t *data) {
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texId, 0);
+    checkGLError("R2YConverter : glFramebufferTexture2D");
     auto status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE) {
         LOGE("failed to make complete framebuffer object %x", status);
         return;
     }
-    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data.data());
+    //glReadPixels 只有 3 种可用格式。GL_RGBA,GL_RGBA_INTEGER。。。
+    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
 }
 

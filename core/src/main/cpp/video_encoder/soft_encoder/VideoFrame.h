@@ -11,7 +11,14 @@
 using namespace std;
 
 struct VideoFrame {
-    vector<uint8_t> data;
+
+    ~VideoFrame() {
+        if (!data) {
+            delete[] data;
+        }
+    }
+
+    uint8_t *data{};
     int timeMills{};
     int duration{};
     int64_t pts{};
