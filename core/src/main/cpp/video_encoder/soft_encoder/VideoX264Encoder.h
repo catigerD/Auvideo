@@ -7,7 +7,7 @@
 
 #include "VideoFrame.h"
 #include "FfmpegAlloc.h"
-#include "CommonTools.h"
+#include "AndroidLog.h"
 #include <string>
 #include <fstream>
 

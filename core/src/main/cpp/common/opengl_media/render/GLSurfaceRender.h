@@ -8,7 +8,7 @@
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 #include "GLTools.h"
-#include "CommonTools.h"
+#include "AndroidLog.h"
 
 static const char *OUTPUT_VIEW_VERTEX_SOURCE = R"(
     attribute vec2 vertexcoord;

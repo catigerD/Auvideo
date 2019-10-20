@@ -6,7 +6,7 @@
 #define AUVIDEO_FBOTEXTUREFRAME_H
 
 #include <TextureFrame.h>
-#include <CommonTools.h>
+#include <AndroidLog.h>
 #include <GLTools.h>
 #include <vector>
 

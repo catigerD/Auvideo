@@ -7,7 +7,7 @@
 
 #include <memory>
 #include "TextureFrame.h"
-#include "CommonTools.h"
+#include "AndroidLog.h"
 #include "matrix.h"
 
 using namespace std;

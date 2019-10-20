@@ -6,6 +6,7 @@
 #define AUVIDEO_VIDEOFRAME_H
 
 #include <vector>
+#include <cstdint>
 
 using namespace std;
 

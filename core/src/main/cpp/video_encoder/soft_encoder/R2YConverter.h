@@ -7,7 +7,7 @@
 
 #include <GLTools.h>
 #include <vector>
-#include <CommonTools.h>
+#include <AndroidLog.h>
 
 using namespace std;
 

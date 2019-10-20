@@ -2,6 +2,7 @@
 // Created by dengchong on 2019-10-16.
 //
 
+#include <cstring>
 #include "R2YConverter.h"
 
 #define LOG_TAG "R2YConverter"

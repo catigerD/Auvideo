@@ -32,40 +32,44 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavutil/opt.h>
 #include <libavutil/imgutils.h>
+}
+
+#include "encode_video.h"
+#include "AndroidLog.h"
+
+#define LOG_TAG "encode_video"
 
 static void encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt,
                    FILE *outfile) {
     int ret;
     /* send the frame to the encoder */
     if (frame)
-        printf("Send frame %3"
-    PRId64
-    "\n", frame->pts);
+        LOGE("Send frame %lld", frame->pts);
     ret = avcodec_send_frame(enc_ctx, frame);
     if (ret < 0) {
-        fprintf(stderr, "Error sending a frame for encoding\n");
-        exit(1);
+        LOGE("Error sending a frame for encoding\n");
+        return;
     }
     while (ret >= 0) {
         ret = avcodec_receive_packet(enc_ctx, pkt);
         if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
             return;
         else if (ret < 0) {
-            fprintf(stderr, "Error during encoding\n");
-            exit(1);
+            LOGE("Error during encoding\n");
+            return;
         }
-        printf("Write packet %3"
-        PRId64
-        " (size=%5d)\n", pkt->pts, pkt->size);
+        LOGE("Write packet pts : %lld (size=%5d)\n", pkt->pts, pkt->size);
         fwrite(pkt->data, 1, pkt->size, outfile);
         av_packet_unref(pkt);
     }
 }
 
-int encode(int argc, char **argv) {
+int encode(const char *file) {
     const char *filename, *codec_name;
     const AVCodec *codec;
     AVCodecContext *c = NULL;
@@ -74,26 +78,21 @@ int encode(int argc, char **argv) {
     AVFrame *frame;
     AVPacket *pkt;
     uint8_t endcode[] = {0, 0, 1, 0xb7};
-    if (argc <= 2) {
-        fprintf(stderr, "Usage: %s <output file> <codec name>\n", argv[0]);
-        exit(0);
-    }
-    filename = argv[1];
-    codec_name = argv[2];
+    filename = file;
     /* find the mpeg1video encoder */
-    codec = avcodec_find_encoder_by_name(codec_name);
+    codec = avcodec_find_encoder(AV_CODEC_ID_H264);
     if (!codec) {
-        fprintf(stderr, "Codec '%s' not found\n", codec_name);
-        exit(1);
+        LOGE("Codec  not found\n");
+        return 0;
     }
     c = avcodec_alloc_context3(codec);
     if (!c) {
-        fprintf(stderr, "Could not allocate video codec context\n");
-        exit(1);
+        LOGE("Could not allocate video codec context\n");
+        return 0;
     }
     pkt = av_packet_alloc();
     if (!pkt)
-        exit(1);
+        return 0;
     /* put sample parameters */
     c->bit_rate = 400000;
     /* resolution must be a multiple of two */
@@ -116,26 +115,26 @@ int encode(int argc, char **argv) {
     /* open it */
     ret = avcodec_open2(c, codec, NULL);
     if (ret < 0) {
-        fprintf(stderr, "Could not open codec: %s\n", av_err2str(ret));
-        exit(1);
+        LOGE("Could not open codec: %s\n", av_err2str(ret));
+        return 0;
     }
     f = fopen(filename, "wb");
     if (!f) {
-        fprintf(stderr, "Could not open %s\n", filename);
-        exit(1);
+        LOGE("Could not open %s\n", filename);
+        return 0;
     }
     frame = av_frame_alloc();
     if (!frame) {
-        fprintf(stderr, "Could not allocate video frame\n");
-        exit(1);
+        LOGE("Could not allocate video frame\n");
+        return 0;
     }
     frame->format = c->pix_fmt;
     frame->width = c->width;
     frame->height = c->height;
     ret = av_frame_get_buffer(frame, 32);
     if (ret < 0) {
-        fprintf(stderr, "Could not allocate the video frame data\n");
-        exit(1);
+        LOGE("Could not allocate the video frame data\n");
+        return 0;
     }
     /* encode 1 second of video */
     for (i = 0; i < 25; i++) {
@@ -143,7 +142,7 @@ int encode(int argc, char **argv) {
         /* make sure the frame data is writable */
         ret = av_frame_make_writable(frame);
         if (ret < 0)
-            exit(1);
+            return 0;
         /* prepare a dummy image */
         /* Y */
         for (y = 0; y < c->height; y++) {

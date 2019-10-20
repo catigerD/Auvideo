@@ -12,7 +12,7 @@
 #include <memory>
 #include "EGLSharedContext.h"
 
-#include "CommonTools.h"
+#include "AndroidLog.h"
 
 using namespace std;
 

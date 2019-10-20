@@ -7,7 +7,7 @@
 
 #include "Handler.h"
 #include <memory>
-#include "CommonTools.h"
+#include "AndroidLog.h"
 #include <thread>
 
 using namespace std;

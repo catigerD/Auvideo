@@ -7,7 +7,7 @@
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
-#include <CommonTools.h>
+#include <AndroidLog.h>
 #include <memory>
 
 using namespace std;
