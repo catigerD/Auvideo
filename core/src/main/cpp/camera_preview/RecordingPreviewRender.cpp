@@ -42,8 +42,9 @@ void RecordingPreviewRender::processFrame() {
 }
 
 void RecordingPreviewRender::drawToView() {
-    render->renderToViewWithAutoFit(formatTextureFrame->getTexId(), screenWidth, screenHeight,
-                                    texWidth, texHeight);
+//    render->renderToViewWithAutoFit(formatTextureFrame->getTexId(), screenWidth, screenHeight,
+//                                    texWidth, texHeight);
+    render->renderToView(formatTextureFrame->getTexId());
 }
 
 void RecordingPreviewRender::destroy() {

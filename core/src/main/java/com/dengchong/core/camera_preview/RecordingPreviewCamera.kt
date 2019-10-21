@@ -7,6 +7,7 @@ import android.hardware.Camera
 import android.util.Log
 import android.view.Surface
 import android.view.WindowManager
+import com.dengchong.core.tools.logd
 import java.lang.RuntimeException
 
 data class CameraInfo(val cameraWidth: Int, val cameraHeight: Int, val degress: Int)
@@ -66,6 +67,7 @@ class RecordingPreviewCamera(val context: Context) {
         } else {
             result = (cameraInfo.orientation - degress + 360) % 360
         }
+        logd("------------degress : ${result}")
         return result
     }
 

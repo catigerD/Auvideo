@@ -13,9 +13,7 @@ RecordingPreviewController::RecordingPreviewController()
     thread.detach();
 }
 
-RecordingPreviewController::~RecordingPreviewController() {
-
-}
+RecordingPreviewController::~RecordingPreviewController() = default;
 
 void RecordingPreviewController::startThread() {
     Looper::prepare();
@@ -80,7 +78,8 @@ void RecordingPreviewController::configCameraToJava() {
             return;
         }
     }
-    LOGI("configCameraToJava");
+    LOGI("configCameraToJava --- previewWidth : %d, previewHeight : %d, degress : %d, surfaceWidth : %d, surfaceHeight : "
+         "%d ... ", cameraWidth, cameraHeight, degress, surfaceWidth, surfaceHeight);
 }
 
 void RecordingPreviewController::setPreviewTextureToJava() {

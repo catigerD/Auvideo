@@ -56,7 +56,7 @@ private:
     shared_ptr<ANativeWindow> window;
     int surfaceWidth{};
     int surfaceHeight{};
-    EGLSurface surface;
+    EGLSurface surface{};
 
     void initEGLContext();
 
