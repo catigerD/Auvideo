@@ -8,13 +8,13 @@
 #include "Looper.h"
 
 
-class Handler {
+class Handler : public std::enable_shared_from_this<Handler> {
 
 public:
 
     Handler();
 
-    Handler(shared_ptr<Looper> looper);
+    explicit Handler(shared_ptr<Looper> looper);
 
     virtual ~Handler() = default;
 

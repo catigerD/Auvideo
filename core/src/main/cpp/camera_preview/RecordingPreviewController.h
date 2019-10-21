@@ -18,7 +18,7 @@
 
 using namespace chrono;
 
-class RecordingPreviewController {
+class RecordingPreviewController : public enable_shared_from_this<RecordingPreviewController> {
     friend RecordingPreviewHandler;
 public:
     RecordingPreviewController();

@@ -19,7 +19,7 @@ RecordingPreviewController::~RecordingPreviewController() {
 
 void RecordingPreviewController::startThread() {
     Looper::prepare();
-    handler = make_shared<RecordingPreviewHandler>(this);
+    handler = make_shared<RecordingPreviewHandler>(shared_from_this());
     Looper::loop();
 }
 

@@ -1,3 +1,5 @@
+#include <utility>
+
 //
 // Created by dengchong on 2019-09-30.
 //
@@ -8,8 +10,8 @@
 #define LOG_TAG "RecordingPreviewHandler"
 
 RecordingPreviewHandler::RecordingPreviewHandler(
-        RecordingPreviewController *controller)
-        : controller(controller) {
+        shared_ptr<RecordingPreviewController> controller)
+        : controller(std::move(controller)) {
 
 }
 

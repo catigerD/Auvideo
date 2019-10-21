@@ -24,10 +24,13 @@ void Looper::quit() {
 
 thread_local shared_ptr<Looper> looper{};
 
+thread_local once_flag onceFlag;
+
 shared_ptr<Looper> Looper::prepare() {
-    //需要注释这行，不然 threadLooper 对象只会初始化一次。
-    //pthread_once(&allocLooperKeyOnce, alloc_pthread_key);
-    return looper = make_shared<Looper>();
+    call_once(onceFlag, []() {
+        looper = make_shared<Looper>();
+    });
+    return looper;
 }
 
 shared_ptr<Looper> Looper::getThreadLocalLooper() {
@@ -35,7 +38,6 @@ shared_ptr<Looper> Looper::getThreadLocalLooper() {
 }
 
 void Looper::loop() {
-//    LOGI("Looper : ----------- %p", looper);
     while (true) {
         shared_ptr<Message> msg;
         if (!looper->dequeueMsg(msg)) {

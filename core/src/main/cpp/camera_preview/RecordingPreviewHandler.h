@@ -23,12 +23,12 @@ enum MSG_RECORDING_PREVIEW {
 
 class RecordingPreviewHandler : public Handler {
 public:
-    RecordingPreviewHandler(RecordingPreviewController *controller);
+    explicit RecordingPreviewHandler(shared_ptr<RecordingPreviewController> controller);
 
-    void handleMessage(const shared_ptr<Message> &msg);
+    void handleMessage(const shared_ptr<Message> &msg) override;
 
 private:
-    RecordingPreviewController *controller;
+    shared_ptr<RecordingPreviewController> controller;
 };
 
 

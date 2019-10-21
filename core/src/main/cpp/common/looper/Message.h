@@ -18,27 +18,25 @@ typedef void (*MessageCallback)(const shared_ptr<Message> &msg);
 struct Message {
 public:
 
-    static const int MSG_QUIT_LOOP = INT_MAX;
-
     static shared_ptr<Message> obtain() {
         return make_shared<Message>();
     }
 
-    static shared_ptr<Message> obtain(int what, Handler *handler) {
+    static shared_ptr<Message> obtain(int what, shared_ptr<Handler> handler) {
         return make_shared<Message>(what, handler);
     }
 
 public:
     Message() = default;
 
-    Message(int what, Handler *handler);
+    Message(int what, shared_ptr<Handler> handler);
 
 public:
     int what{};
     int arg1{};
     int arg2{};
-    void *obj;
-    Handler *handler;
+    void *obj{};
+    shared_ptr<Handler> handler;
     MessageCallback callback{};
 };
 
