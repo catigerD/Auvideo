@@ -55,7 +55,7 @@ static const GLfloat OUTPUT_VIEW_VFLIP_TEXTURE_COORD[] = {
  */
 class GLSurfaceRender {
 public:
-    GLSurfaceRender(int width, int height, const char *vertexSource = OUTPUT_VIEW_VERTEX_SOURCE,
+    GLSurfaceRender(int viewWidth, int viewHeight, const char *vertexSource = OUTPUT_VIEW_VERTEX_SOURCE,
                     const char *fragmentSource = OUTPUT_VIEW_FRAGMENT_SOURCE);
 
     ~GLSurfaceRender();
@@ -67,22 +67,22 @@ public:
 
     void renderToView(GLuint texId);
 
-    void renderToView(GLuint texId, int screenWidth, int screenHeight);
+    void renderToView(GLuint texId, int viewWidth, int viewHeight);
 
-    void renderToViewWithAutoFit(GLuint texId, int screenWidth, int screenHeight, int texWidth,
+    void renderToViewWithAutoFit(GLuint texId, int viewWidth, int viewHeight, int texWidth,
                                  int texHeight);
 
-    void renderToViewWithAutoFill(GLuint texId, int screenWidth, int screenHeight, int texWidth,
+    void renderToViewWithAutoFill(GLuint texId, int viewWidth, int viewHeight, int texWidth,
                                   int texHeight);
 
     void renderToTexture(GLuint inputTexId, GLuint outputTexId);
 
     void renderToVFlipTexture(GLuint inputTexId, GLuint outputTexId);
 
-    void renderToAutoFitTexture(GLuint inputTexId, int inputWidth, int inputHeight,
+    void renderToAutoFitTexture(GLuint inputTexId, int texWidth, int texHeight,
                                 GLuint outputTexId);
 
-    void renderToAutoFillTexture(GLuint inputTexId, int inputWidth, int inputHeight,
+    void renderToAutoFillTexture(GLuint inputTexId, int texWidth, int texHeight,
                                  GLuint outputTexId);
 
     void destroy() {
@@ -94,8 +94,8 @@ public:
 private:
     GLint left{};
     GLint top{};
-    GLint width{};
-    GLint height{};
+    GLint viewWidth{};
+    GLint viewHeight{};
 
     const char *vertexSource;
     const char *fragmentSource;

@@ -16,8 +16,10 @@ class FBOTextureFrame : public TextureFrame {
 
 public:
 
-    FBOTextureFrame(int width, int height, int degress = 0) : width(width), height(height),
-                                                              degress(degress) {
+    FBOTextureFrame(int width, int height, int degress = 0)
+            : width(degress == 90 || degress == 270 ? height : width),
+              height(degress == 90 || degress == 270 ? width : height),
+              degress(degress) {
 
     }
 
@@ -45,6 +47,14 @@ public:
 
     GLuint getFbo() {
         return fbo;
+    }
+
+    int getWidth() const {
+        return width;
+    };
+
+    int getHeight() const {
+        return height;
     }
 
 private:

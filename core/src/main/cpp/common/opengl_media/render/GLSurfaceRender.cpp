@@ -6,10 +6,10 @@
 
 #define LOG_TAG "GLSurfaceRender"
 
-GLSurfaceRender::GLSurfaceRender(int width, int height, const char *vertexSource,
+GLSurfaceRender::GLSurfaceRender(int viewWidth, int viewHeight, const char *vertexSource,
                                  const char *fragmentSource)
-        : width(width),
-          height(height),
+        : viewWidth(viewWidth),
+          viewHeight(viewHeight),
           vertexSource(vertexSource),
           fragmentSource(fragmentSource) {
 }
@@ -38,12 +38,12 @@ GLSurfaceRender::~GLSurfaceRender() {
 void GLSurfaceRender::resetRenderSize(int left, int top, int width, int height) {
     this->left = left;
     this->top = top;
-    this->width = width;
-    this->height = height;
+    this->viewWidth = width;
+    this->viewHeight = height;
 }
 
 void GLSurfaceRender::renderToView(GLuint texId) {
-    glViewport(left, top, width, height);
+    glViewport(left, top, viewWidth, viewHeight);
     if (!isInitProgram) {
         LOGE("renderToView error , isInitProgram = false");
         return;
@@ -66,8 +66,8 @@ void GLSurfaceRender::renderToView(GLuint texId) {
     glDisableVertexAttribArray(vertexcoordAttrLoc);
 }
 
-void GLSurfaceRender::renderToView(GLuint texId, int screenWidth, int screenHeight) {
-    glViewport(0, 0, screenWidth, screenHeight);
+void GLSurfaceRender::renderToView(GLuint texId, int viewWidth, int viewHeight) {
+    glViewport(0, 0, viewWidth, viewHeight);
     if (!isInitProgram) {
         LOGE("renderToView error , isInitProgram = false");
         return;
@@ -90,105 +90,87 @@ void GLSurfaceRender::renderToView(GLuint texId, int screenWidth, int screenHeig
     glDisableVertexAttribArray(vertexcoordAttrLoc);
 }
 
-void GLSurfaceRender::renderToViewWithAutoFill(GLuint texId, int screenWidth, int screenHeight,
-                                               int texWidth, int texHeight) {
-    glViewport(0, 0, screenWidth, screenHeight);
-    if (!isInitProgram) {
-        LOGE("renderToView error , isInitProgram = false");
-        return;
-    }
-
-    float texAspectRatio = static_cast<float>(texHeight) / texWidth;
-    float screenAspectRatio = static_cast<float>(screenHeight) / screenWidth;
-    bool changeX = true;
-    float ratio = 1.0;
-    if (texAspectRatio > screenAspectRatio) {
-        int fitHeight = static_cast<int>(static_cast<float >(screenHeight) / screenWidth *
-                                         texWidth);
-        ratio = static_cast<float>(texHeight - fitHeight) / (2 * texHeight);
-        changeX = false;
-    } else {
-        int fitWidth = static_cast<int>(static_cast<float>(screenWidth) / screenHeight * texHeight);
-        ratio = static_cast<float>(texWidth - fitWidth) / (2 * texWidth);
-        changeX = true;
-    }
-    glUseProgram(programId);
-    //todo 使用 VAO
-    glVertexAttribPointer(vertexcoordAttrLoc, 2, GL_FLOAT, GL_FALSE, 0, OUTPUT_VIEW_VERTEX_COORD);
-    glEnableVertexAttribArray(vertexcoordAttrLoc);
-    if (changeX) {
-        const GLfloat fitTexcoord[] = {
-                ratio, 0.0f,
-                1.0f - ratio, 0.0f,
-                ratio, 1.0f,
-                1.0f - ratio, 1.0f
-        };
-        glVertexAttribPointer(texcoordAttrLoc, 2, GL_FLOAT, GL_FALSE, 0, fitTexcoord);
-    } else {
-        const GLfloat fitTexcoord[] = {
-                0.0f, ratio,
-                1.0f, ratio,
-                0.0f, 1.0f - ratio,
-                1.0f, 1.0f - ratio
-        };
-        glVertexAttribPointer(texcoordAttrLoc, 2, GL_FLOAT, GL_FALSE, 0, fitTexcoord);
-    }
-    glEnableVertexAttribArray(texcoordAttrLoc);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texId);
-    glUniform1i(textureUniformLoc, 0);
-
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glDisableVertexAttribArray(texcoordAttrLoc);
-    glDisableVertexAttribArray(vertexcoordAttrLoc);
-}
-
-void GLSurfaceRender::renderToViewWithAutoFit(GLuint texId, int screenWidth, int screenHeight,
+void GLSurfaceRender::renderToViewWithAutoFit(GLuint texId, int viewWidth, int viewHeight,
                                               int texWidth, int texHeight) {
-    glViewport(0, 0, screenWidth, screenHeight);
+    glViewport(0, 0, viewWidth, viewHeight);
     if (!isInitProgram) {
         LOGE("renderToView error , isInitProgram = false");
         return;
     }
 
     float texAspectRatio = static_cast<float>(texHeight) / texWidth;
-    float screenAspectRatio = static_cast<float>(screenHeight) / screenWidth;
-    bool changeX = true;
-    float ratio = 1.0;
+    float screenAspectRatio = static_cast<float>(viewHeight) / viewWidth;
+    float xOffset = 0.0f;
+    float yOffset = 0.0f;
     if (texAspectRatio > screenAspectRatio) {
-        int fitWidth = static_cast<int>(static_cast<float >(screenHeight) / texHeight *
-                                        texWidth);
-        ratio = static_cast<float>(fitWidth - screenWidth) / (2 * fitWidth);
-        changeX = true;
+        int fillWidth = texWidth * viewHeight / texHeight;
+        xOffset = static_cast<float >(fillWidth - viewWidth) / (2 * fillWidth);
+        LOGI("GLSurfaceRender::renderToViewWithAutoFit , fillWidth : %d, swidth : %d, texwidth : %d,sheight : %d, texheight : %d,  xOffset : %f",
+             fillWidth, viewWidth, texWidth, viewHeight, texHeight, xOffset);
     } else {
-        int fitHeight = static_cast<int>(static_cast<float>(screenWidth) / texWidth *
-                                         texHeight);
-        ratio = static_cast<float>(fitHeight - screenHeight) / (2 * fitHeight);
-        changeX = false;
+        int fillHeight = texHeight * viewWidth / texWidth;
+        yOffset = static_cast<float >(fillHeight - viewHeight) / (2 * fillHeight);
+        LOGI("GLSurfaceRender::renderToViewWithAutoFit , fillHeight : %d, swidth : %d, texwidth : %d,sheight : %d, texheight : %d,  yOffset : %f",
+             fillHeight, viewWidth, texWidth, viewHeight, texHeight, yOffset);
     }
+    LOGI("GLSurfaceRender: xOffset : %f , yOffset : %f", xOffset, yOffset);
+    const GLfloat fitTexcoord[] = {
+            xOffset, yOffset,
+            1.0f - xOffset, yOffset,
+            xOffset, 1.0f - yOffset,
+            1.0f - xOffset, 1.0f - yOffset
+    };
     glUseProgram(programId);
     //todo 使用 VAO
     glVertexAttribPointer(vertexcoordAttrLoc, 2, GL_FLOAT, GL_FALSE, 0, OUTPUT_VIEW_VERTEX_COORD);
     glEnableVertexAttribArray(vertexcoordAttrLoc);
-    if (changeX) {
-        const GLfloat fitTexcoord[] = {
-                ratio, 0.0f,
-                1.0f - ratio, 0.0f,
-                ratio, 1.0f,
-                1.0f - ratio, 1.0f
-        };
-        glVertexAttribPointer(texcoordAttrLoc, 2, GL_FLOAT, GL_FALSE, 0, fitTexcoord);
-    } else {
-        const GLfloat fitTexcoord[] = {
-                0.0f, ratio,
-                1.0f, ratio,
-                0.0f, 1.0f - ratio,
-                1.0f, 1.0f - ratio
-        };
-        glVertexAttribPointer(texcoordAttrLoc, 2, GL_FLOAT, GL_FALSE, 0, fitTexcoord);
+    glVertexAttribPointer(texcoordAttrLoc, 2, GL_FLOAT, GL_FALSE, 0, fitTexcoord);
+    glEnableVertexAttribArray(texcoordAttrLoc);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texId);
+    glUniform1i(textureUniformLoc, 0);
+
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisableVertexAttribArray(texcoordAttrLoc);
+    glDisableVertexAttribArray(vertexcoordAttrLoc);
+}
+
+void GLSurfaceRender::renderToViewWithAutoFill(GLuint texId, int viewWidth, int viewHeight,
+                                               int texWidth, int texHeight) {
+    glViewport(0, 0, viewWidth, viewHeight);
+    if (!isInitProgram) {
+        LOGE("renderToView error , isInitProgram = false");
+        return;
     }
+
+    float texAspectRatio = static_cast<float>(texHeight) / texWidth;
+    float screenAspectRatio = static_cast<float>(viewHeight) / viewWidth;
+    float xOffset = 0.0f;
+    float yOffset = 0.0f;
+    if (texAspectRatio > screenAspectRatio) {
+        int fillHeight = texWidth * viewHeight / viewWidth;
+        yOffset = static_cast<float>(texHeight - fillHeight) / (2 * texHeight);
+        LOGI("GLSurfaceRender::renderToViewWithAutoFill , fillHeight : %d, swidth : %d, texwidth : %d,sheight : %d, texheight : %d,  yOffset : %f",
+             fillHeight, viewWidth, texWidth, viewHeight, texHeight, yOffset);
+    } else {
+        int fillWidth = texHeight * viewWidth / viewHeight;
+        xOffset = static_cast<float>(texWidth - fillWidth) / (2 * texWidth);
+        LOGI("GLSurfaceRender::renderToViewWithAutoFill , fillWidth : %d, swidth : %d, texwidth : %d,sheight : %d, texheight : %d,  xOffset : %f",
+             fillWidth, viewWidth, texWidth, viewHeight, texHeight, xOffset);
+    }
+    const GLfloat fitTexcoord[] = {
+            xOffset, yOffset,
+            1.0f - xOffset, yOffset,
+            xOffset, 1.0f - yOffset,
+            1.0f - xOffset, 1.0f - yOffset
+    };
+    glUseProgram(programId);
+    //todo 使用 VAO
+    glVertexAttribPointer(vertexcoordAttrLoc, 2, GL_FLOAT, GL_FALSE, 0, OUTPUT_VIEW_VERTEX_COORD);
+    glEnableVertexAttribArray(vertexcoordAttrLoc);
+    glVertexAttribPointer(texcoordAttrLoc, 2, GL_FLOAT, GL_FALSE, 0, fitTexcoord);
     glEnableVertexAttribArray(texcoordAttrLoc);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texId);
@@ -208,7 +190,7 @@ void GLSurfaceRender::renderToViewWithAutoFit(GLuint texId, int screenWidth, int
 }
 
 void GLSurfaceRender::renderToTexture(GLuint inputTexId, GLuint outputTexId) {
-    glViewport(left, top, width, height);
+    glViewport(left, top, viewWidth, viewHeight);
     if (!isInitProgram) {
         LOGE("renderToTexture error , isInitProgram = false");
         return;
@@ -240,7 +222,7 @@ void GLSurfaceRender::renderToTexture(GLuint inputTexId, GLuint outputTexId) {
 }
 
 void GLSurfaceRender::renderToVFlipTexture(GLuint inputTexId, GLuint outputTexId) {
-    glViewport(left, top, width, height);
+    glViewport(left, top, viewWidth, viewHeight);
     if (!isInitProgram) {
         LOGE("renderToTexture error , isInitProgram = false");
         return;
@@ -272,9 +254,9 @@ void GLSurfaceRender::renderToVFlipTexture(GLuint inputTexId, GLuint outputTexId
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
 }
 
-void GLSurfaceRender::renderToAutoFitTexture(GLuint inputTexId, int inputWidth, int inputHeight,
-                                             GLuint outputTexId) {
-    glViewport(left, top, width, height);
+void GLSurfaceRender::renderToAutoFillTexture(GLuint inputTexId, int texWidth, int texHeight,
+                                              GLuint outputTexId) {
+    glViewport(left, top, viewWidth, viewHeight);
     if (!isInitProgram) {
         LOGE("renderToTexture error , isInitProgram = false");
         return;
@@ -287,43 +269,29 @@ void GLSurfaceRender::renderToAutoFitTexture(GLuint inputTexId, int inputWidth, 
         LOGE("failed to make complete framebuffer object %x", status);
     }
 
-    float texAspectRatio = static_cast<float>(inputHeight) / inputWidth;
-    float screenAspectRatio = static_cast<float>(height) / width;
-    bool changeX = true;
-    float ratio = 1.0;
+    float texAspectRatio = static_cast<float>(texHeight) / texWidth;
+    float screenAspectRatio = static_cast<float>(viewHeight) / viewWidth;
+    float xOffset = 0.0f;
+    float yOffset = 0.0f;
     if (texAspectRatio > screenAspectRatio) {
-        int fitWidth = static_cast<int>(static_cast<float >(height) / inputHeight *
-                                        inputWidth);
-        ratio = static_cast<float>(fitWidth - width) / (2 * fitWidth);
-        changeX = true;
+        int fillHeight = texWidth * viewHeight / viewWidth;
+        yOffset = static_cast<float>(texHeight - fillHeight) / (2 * texHeight);
     } else {
-        int fitHeight = static_cast<int>(static_cast<float>(width) / inputWidth *
-                                         inputHeight);
-        ratio = static_cast<float>(fitHeight - height) / (2 * fitHeight);
-        changeX = false;
+        int fillWidth = texHeight * viewWidth / viewHeight;
+        xOffset = static_cast<float>(texWidth - fillWidth) / (2 * texWidth);
     }
+    const GLfloat fitTexcoord[] = {
+            xOffset, yOffset,
+            1.0f - xOffset, yOffset,
+            xOffset, 1.0f - yOffset,
+            1.0f - xOffset, 1.0f - yOffset
+    };
 
     glUseProgram(programId);
     //todo 使用VAO
     glVertexAttribPointer(vertexcoordAttrLoc, 2, GL_FLOAT, GL_FALSE, 0, OUTPUT_VIEW_VERTEX_COORD);
     glEnableVertexAttribArray(vertexcoordAttrLoc);
-    if (changeX) {
-        const GLfloat fitTexcoord[] = {
-                ratio, 0.0f,
-                1.0f - ratio, 0.0f,
-                ratio, 1.0f,
-                1.0f - ratio, 1.0f
-        };
-        glVertexAttribPointer(texcoordAttrLoc, 2, GL_FLOAT, GL_FALSE, 0, fitTexcoord);
-    } else {
-        const GLfloat fitTexcoord[] = {
-                0.0f, ratio,
-                1.0f, ratio,
-                0.0f, 1.0f - ratio,
-                1.0f, 1.0f - ratio
-        };
-        glVertexAttribPointer(texcoordAttrLoc, 2, GL_FLOAT, GL_FALSE, 0, fitTexcoord);
-    }
+    glVertexAttribPointer(texcoordAttrLoc, 2, GL_FLOAT, GL_FALSE, 0, fitTexcoord);
     glEnableVertexAttribArray(texcoordAttrLoc);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, inputTexId);
@@ -343,9 +311,9 @@ void GLSurfaceRender::renderToAutoFitTexture(GLuint inputTexId, int inputWidth, 
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
 }
 
-void GLSurfaceRender::renderToAutoFillTexture(GLuint inputTexId, int inputWidth, int inputHeight,
-                                              GLuint outputTexId) {
-    glViewport(left, top, width, height);
+void GLSurfaceRender::renderToAutoFitTexture(GLuint inputTexId, int texWidth, int texHeight,
+                                             GLuint outputTexId) {
+    glViewport(left, top, viewWidth, viewHeight);
     if (!isInitProgram) {
         LOGE("renderToTexture error , isInitProgram = false");
         return;
@@ -358,42 +326,30 @@ void GLSurfaceRender::renderToAutoFillTexture(GLuint inputTexId, int inputWidth,
         LOGE("failed to make complete framebuffer object %x", status);
     }
 
-    float texAspectRatio = static_cast<float>(inputHeight) / inputWidth;
-    float screenAspectRatio = static_cast<float>(height) / width;
-    bool changeX = true;
-    float ratio = 1.0;
+    float texAspectRatio = static_cast<float>(texHeight) / texWidth;
+    float screenAspectRatio = static_cast<float>(viewHeight) / viewWidth;
+    float xOffset = 0.0f;
+    float yOffset = 0.0f;
     if (texAspectRatio > screenAspectRatio) {
-        int fitHeight = static_cast<int>(static_cast<float >(height) / width *
-                                         inputWidth);
-        ratio = static_cast<float>(inputHeight - fitHeight) / (2 * inputHeight);
-        changeX = false;
+        int fillWidth = texWidth * viewHeight / texHeight;
+        xOffset = static_cast<float >(fillWidth - texWidth) / (2 * fillWidth);
     } else {
-        int fitWidth = static_cast<int>(static_cast<float>(width) / height * inputHeight);
-        ratio = static_cast<float>(inputWidth - fitWidth) / (2 * inputWidth);
-        changeX = true;
+        int fillHeight = texHeight * viewWidth / texWidth;
+        yOffset = static_cast<float >(fillHeight - viewHeight) / (2 * fillHeight);
     }
+    LOGI("GLSurfaceRender: xOffset : %f , yOffset : %f", xOffset, yOffset);
+    const GLfloat fitTexcoord[] = {
+            xOffset, yOffset,
+            1.0f - xOffset, yOffset,
+            xOffset, 1.0f - yOffset,
+            1.0f - xOffset, 1.0f - yOffset
+    };
 
     glUseProgram(programId);
     //todo 使用VAO
     glVertexAttribPointer(vertexcoordAttrLoc, 2, GL_FLOAT, GL_FALSE, 0, OUTPUT_VIEW_VERTEX_COORD);
     glEnableVertexAttribArray(vertexcoordAttrLoc);
-    if (changeX) {
-        const GLfloat fitTexcoord[] = {
-                ratio, 0.0f,
-                1.0f - ratio, 0.0f,
-                ratio, 1.0f,
-                1.0f - ratio, 1.0f
-        };
-        glVertexAttribPointer(texcoordAttrLoc, 2, GL_FLOAT, GL_FALSE, 0, fitTexcoord);
-    } else {
-        const GLfloat fitTexcoord[] = {
-                0.0f, ratio,
-                1.0f, ratio,
-                0.0f, 1.0f - ratio,
-                1.0f, 1.0f - ratio
-        };
-        glVertexAttribPointer(texcoordAttrLoc, 2, GL_FLOAT, GL_FALSE, 0, fitTexcoord);
-    }
+    glVertexAttribPointer(texcoordAttrLoc, 2, GL_FLOAT, GL_FALSE, 0, fitTexcoord);
     glEnableVertexAttribArray(texcoordAttrLoc);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, inputTexId);

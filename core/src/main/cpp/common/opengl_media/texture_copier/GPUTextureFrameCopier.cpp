@@ -6,14 +6,14 @@
 
 #define LOG_TAG "GPUTextureFrameCopier"
 
-GPUTextureFrameCopier::GPUTextureFrameCopier()
-        : TextureFrameCopier(NO_FILTER_VERTEX_SOURCE, GPU_FRAGMENT_SOURCE) {
+GPUTextureFrameCopier::GPUTextureFrameCopier(int degress, int viewWidth, int viewHeight)
+        : viewWidth(degress == 90 || degress == 270 ? viewHeight : viewWidth),
+          viewHeight(degress == 90 || degress == 270 ? viewWidth : viewHeight),
+          TextureFrameCopier(NO_FILTER_VERTEX_SOURCE, GPU_FRAGMENT_SOURCE) {
 
 }
 
-GPUTextureFrameCopier::~GPUTextureFrameCopier() {
-
-}
+GPUTextureFrameCopier::~GPUTextureFrameCopier() = default;
 
 bool GPUTextureFrameCopier::init() {
     programId = loadProgram(vertexSource, fragmentSource);
@@ -37,6 +37,9 @@ void GPUTextureFrameCopier::renderWithCoords(shared_ptr<TextureFrame> textureFra
         LOGE("GPUTextureFrameCopier::init() not success");
         return;
     }
+
+    glViewport(0, 0, viewWidth, viewHeight);
+    LOGI("GPUTextureFrameCopier::renderWithCoords viewWidth : %d, view Height : %d", viewWidth, viewHeight);
 
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texId, 0);
     checkGLError("glFramebufferTexture2D");

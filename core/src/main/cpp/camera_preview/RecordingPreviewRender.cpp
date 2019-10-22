@@ -6,14 +6,14 @@
 
 #define LOG_TAG "RecordingPreviewRender"
 
-RecordingPreviewRender::RecordingPreviewRender(int screenWidth, int screenHeight, int texWidth,
+RecordingPreviewRender::RecordingPreviewRender(int viewWidth, int viewHeight, int texWidth,
                                                int texHeight, int degress)
         : cameraTextureFrame(make_shared<GPUTextureFrame>()),
           formatTextureFrame(make_shared<FBOTextureFrame>(texWidth, texHeight, degress)),
-          copier(make_shared<GPUTextureFrameCopier>()),
-          render(make_shared<GLSurfaceRender>(screenWidth, screenHeight)),
-          screenWidth(screenWidth),
-          screenHeight(screenHeight),
+          copier(make_shared<GPUTextureFrameCopier>(degress, texWidth, texHeight)),
+          render(make_shared<GLSurfaceRender>(viewWidth, viewHeight)),
+          viewWidth(viewWidth),
+          viewHeight(viewHeight),
           texWidth(texWidth),
           texHeight(texHeight),
           degress(degress) {
@@ -31,9 +31,10 @@ void RecordingPreviewRender::init() {
 }
 
 void RecordingPreviewRender::processFrame() {
-    glViewport(0, 0, screenWidth, screenHeight);
+    //这里会影响后面的 renderToView
+    //glViewport(0, 0, texHeight, texWidth);
     LOGI("processFrame , screenWidth : %d, screenHeight : %d, texWidth : %d, texHeight : %d, degress : %d",
-         screenWidth, screenHeight, texWidth, texHeight, degress);
+         viewWidth, viewHeight, texWidth, texHeight, degress);
     glBindFramebuffer(GL_FRAMEBUFFER, FBO);
     copier->renderWithCoords(cameraTextureFrame, formatTextureFrame->getTexId(),
                              CAMERA_TRIANGLE_VERTICES,
@@ -42,9 +43,9 @@ void RecordingPreviewRender::processFrame() {
 }
 
 void RecordingPreviewRender::drawToView() {
-//    render->renderToViewWithAutoFit(formatTextureFrame->getTexId(), screenWidth, screenHeight,
-//                                    texWidth, texHeight);
-    render->renderToView(formatTextureFrame->getTexId());
+    render->renderToViewWithAutoFill(formatTextureFrame->getTexId(), viewWidth, viewHeight,
+                                     formatTextureFrame->getWidth(), formatTextureFrame->getHeight());
+//    render->renderToView(formatTextureFrame->getTexId());
 }
 
 void RecordingPreviewRender::destroy() {

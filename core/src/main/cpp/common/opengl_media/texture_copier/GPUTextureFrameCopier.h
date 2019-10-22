@@ -19,18 +19,21 @@ static const char *GPU_FRAGMENT_SOURCE = R"(
 
 class GPUTextureFrameCopier : public TextureFrameCopier {
 public:
-    GPUTextureFrameCopier();
+    GPUTextureFrameCopier(int degress, int viewWidth, int viewHeight);
 
-    ~GPUTextureFrameCopier();
+    ~GPUTextureFrameCopier() override;
 
-    bool init();
+    bool init() override;
 
     void renderWithCoords(shared_ptr<TextureFrame> textureFrame,
-                          GLuint texId, const GLfloat *vertexCoords, const GLfloat* texCoords);
+                          GLuint texId, const GLfloat *vertexCoords, const GLfloat *texCoords) override;
 
-    void destroy();
+    void destroy() override;
 
 private:
+    int viewWidth;
+    int viewHeight;
+
     GLuint gpuSamplerUniformLoc{};
 };
 

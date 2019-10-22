@@ -53,7 +53,7 @@ static const GLfloat CAMERA_TEXTURE_ROTATED_270[8] = {
 class RecordingPreviewRender {
 public:
 
-    RecordingPreviewRender(int screenWidth, int screenHeight, int texWidth, int texHeight,
+    RecordingPreviewRender(int viewWidth, int viewHeight, int texWidth, int texHeight,
                            int degress);
 
     ~RecordingPreviewRender();
@@ -83,8 +83,8 @@ private:
     shared_ptr<GLSurfaceRender> render;
 
 private:
-    int screenWidth{};
-    int screenHeight{};
+    int viewWidth{};
+    int viewHeight{};
     int texWidth{};
     int texHeight{};
     int degress{};

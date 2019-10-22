@@ -33,8 +33,8 @@ public:
     void sendFrameAvailableMsg();
 
     void resetSurfaceSize(int surfaceWidth, int surfaceHeight) {
-        this->surfaceWidth = surfaceWidth;
-        this->surfaceHeight = surfaceHeight;
+        this->viewWidth = surfaceWidth;
+        this->viewHeight = surfaceHeight;
     }
 
     void sendDestroyEGLContextMsg();
@@ -54,8 +54,8 @@ private:
 
     shared_ptr<EGLCore> eglCore;
     shared_ptr<ANativeWindow> window;
-    int surfaceWidth{};
-    int surfaceHeight{};
+    int viewWidth{};
+    int viewHeight{};
     EGLSurface surface{};
 
     void initEGLContext();
@@ -71,8 +71,8 @@ private:
     jobject obj{};
 
     int cameraId{};
-    int cameraWidth{};
-    int cameraHeight{};
+    int texWidth{};
+    int texHeight{};
     int degress{};
 
     void configCameraToJava();

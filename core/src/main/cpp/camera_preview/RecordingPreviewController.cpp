@@ -32,8 +32,8 @@ void RecordingPreviewController::sendInitEGLContextMsg(JavaVM *vm, jobject obj,
     this->javaVm = vm;
     this->obj = obj;
     this->window = window;
-    this->surfaceWidth = surfaceWidth;
-    this->surfaceHeight = surfaceHeight;
+    this->viewWidth = surfaceWidth;
+    this->viewHeight = surfaceHeight;
     this->cameraId = cameraId;
     handler->sendMessage(MSG_INIT_EGL_CONTEXT);
     LOGI("RecordingPreviewController::sendInitEGLContextMsg");
@@ -45,8 +45,8 @@ void RecordingPreviewController::initEGLContext() {
     surface = eglCore->createWindowSurface(window);
     eglCore->makeCurrent(surface);
     configCameraToJava();
-    render = make_shared<RecordingPreviewRender>(surfaceWidth, surfaceHeight, cameraWidth,
-                                                 cameraHeight, degress);
+    render = make_shared<RecordingPreviewRender>(viewWidth, viewHeight, texWidth,
+                                                 texHeight, degress);
     render->init();
     setPreviewTextureToJava();
 }
@@ -68,9 +68,9 @@ void RecordingPreviewController::configCameraToJava() {
     jobject cameraInfoObj = env->CallObjectMethod(obj, configCameraMid, cameraId);
     jclass cameraInfoClz = env->GetObjectClass(cameraInfoObj);
     jmethodID getCameraWidthMid = env->GetMethodID(cameraInfoClz, "getCameraWidth", "()I");
-    cameraWidth = env->CallIntMethod(cameraInfoObj, getCameraWidthMid);
+    texWidth = env->CallIntMethod(cameraInfoObj, getCameraWidthMid);
     jmethodID getCameraHeightMid = env->GetMethodID(cameraInfoClz, "getCameraHeight", "()I");
-    cameraHeight = env->CallIntMethod(cameraInfoObj, getCameraHeightMid);
+    texHeight = env->CallIntMethod(cameraInfoObj, getCameraHeightMid);
     jmethodID getDegressMid = env->GetMethodID(cameraInfoClz, "getDegress", "()I");
     degress = env->CallIntMethod(cameraInfoObj, getDegressMid);
     if (needAttach) {
@@ -79,7 +79,7 @@ void RecordingPreviewController::configCameraToJava() {
         }
     }
     LOGI("configCameraToJava --- previewWidth : %d, previewHeight : %d, degress : %d, surfaceWidth : %d, surfaceHeight : "
-         "%d ... ", cameraWidth, cameraHeight, degress, surfaceWidth, surfaceHeight);
+         "%d ... ", texWidth, texHeight, degress, viewWidth, viewHeight);
 }
 
 void RecordingPreviewController::setPreviewTextureToJava() {
