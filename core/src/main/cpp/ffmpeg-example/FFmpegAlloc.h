@@ -11,11 +11,14 @@
 extern "C" {
 #include "libavcodec/avcodec.h"
 #include "libavutil/opt.h"
+#include "libswscale/swscale.h"
+#include "libavutil/imgutils.h"
+#include "libavutil/parseutils.h"
 };
 
 using namespace std;
 
-struct FfmpegAlloc {
+struct FFmpegAlloc {
 
     static shared_ptr<AVCodec> getCodecByName(const string &codeName) {
         return shared_ptr<AVCodec>(
@@ -49,6 +52,16 @@ struct FfmpegAlloc {
         return shared_ptr<AVFrame>(av_frame_alloc(), [](AVFrame *frame) {
             av_frame_free(&frame);
         });
+    }
+
+    static shared_ptr<SwsContext> getSwsContext(int srcW, int srcH, enum AVPixelFormat srcFormat,
+                                                int dstW, int dstH, enum AVPixelFormat dstFormat) {
+        return shared_ptr<SwsContext>(sws_getContext(srcW, srcH, srcFormat,
+                                                     dstW, dstH, dstFormat,
+                                                     SWS_BILINEAR, nullptr, nullptr, nullptr),
+                                      [](SwsContext *swsContext) {
+                                          sws_freeContext(swsContext);
+                                      });
     }
 };
 

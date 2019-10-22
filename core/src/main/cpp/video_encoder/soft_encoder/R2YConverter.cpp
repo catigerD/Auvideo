@@ -52,6 +52,7 @@ void R2YConverter::convert(GLuint texId, int width, int height, vector<uint8_t> 
     vector<uint8_t> rgbaData(width * height * 4);
     load(texId, width, height, rgbaData);
     RGB24_TO_YUV420(rgbaData.data(), width, height, yuvData.data());
+
 }
 
 void R2YConverter::load(GLuint texId, int width, int height, vector<uint8_t> &rgbaData) {

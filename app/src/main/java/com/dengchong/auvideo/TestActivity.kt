@@ -16,6 +16,8 @@ class TestActivity : AppCompatActivity() {
     private var recording: Boolean = false
     private val path =
         Environment.getExternalStorageDirectory().absolutePath + File.separator + "Auvideo.h264"
+    private val convetImagePath =
+        Environment.getExternalStorageDirectory().absolutePath + File.separator + "Auvideo-convert"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,7 +29,7 @@ class TestActivity : AppCompatActivity() {
             recording = !recording
             if (recording) {
                 //width , height 会影响frame.data
-                previewScheduler.startRecording(path, 360, 540, 700 * 1024, 25, false)
+                previewScheduler.startRecording(convetImagePath, 360, 540, 700 * 1024, 25, false)
             } else {
                 previewScheduler.stopRecording()
             }

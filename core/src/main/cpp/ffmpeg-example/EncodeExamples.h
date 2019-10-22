@@ -5,7 +5,7 @@
 #ifndef CPP_ENCODEEXAMPLER_H
 #define CPP_ENCODEEXAMPLER_H
 
-#include "FfmpegAlloc.h"
+#include "FFmpegAlloc.h"
 #include <memory>
 #include "AndroidLog.h"
 #include <fstream>

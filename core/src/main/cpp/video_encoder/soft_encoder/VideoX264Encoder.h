@@ -6,7 +6,7 @@
 #define AUVIDEO_VIDEOX264ENCODER_H
 
 #include "VideoFrame.h"
-#include "FfmpegAlloc.h"
+#include "FFmpegAlloc.h"
 #include "AndroidLog.h"
 #include <string>
 #include <fstream>

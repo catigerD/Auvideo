@@ -16,12 +16,12 @@ VideoX264Encoder::VideoX264Encoder(const string &filePath, int width, int height
 }
 
 bool VideoX264Encoder::init() {
-    codec = FfmpegAlloc::getCodecById(AV_CODEC_ID_H264);
+    codec = FFmpegAlloc::getCodecById(AV_CODEC_ID_H264);
     if (!codec) {
         LOGE("Codec %s not find ... ", "h264");
         return false;
     }
-    codecContext = FfmpegAlloc::getCodecContext(codec);
+    codecContext = FFmpegAlloc::getCodecContext(codec);
     if (!codecContext) {
         LOGE("Could not allocate video codec Context");
         return false;
@@ -37,12 +37,12 @@ bool VideoX264Encoder::init() {
     if (codec->id == AV_CODEC_ID_H264) {
         av_opt_set(codecContext->priv_data, "preset", "slow", 0);
     }
-    packet = FfmpegAlloc::getPacket();
+    packet = FFmpegAlloc::getPacket();
     if (!packet) {
         LOGE("Could not allocate packet");
         return false;
     }
-    frame = FfmpegAlloc::getFrame();
+    frame = FFmpegAlloc::getFrame();
     if (!frame) {
         LOGE("Could not allocate frame");
         return false;
