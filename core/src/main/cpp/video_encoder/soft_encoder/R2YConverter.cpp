@@ -31,6 +31,7 @@ bool RGB24_TO_YUV420(uint8_t *RgbBuf, int w, int h, uint8_t *yuvBuf) {
             r = *(ptrRGB++);
             g = *(ptrRGB++);
             b = *(ptrRGB++);
+            ptrRGB++;
             y = static_cast<uint8_t>(((66 * r + 129 * g + 25 * b + 128) >> 8) + 16);
             u = static_cast<uint8_t>(((-38 * r - 74 * g + 112 * b + 128) >> 8) + 128);
             v = static_cast<uint8_t>(((112 * r - 94 * g - 18 * b + 128) >> 8) + 128);
@@ -47,14 +48,13 @@ bool RGB24_TO_YUV420(uint8_t *RgbBuf, int w, int h, uint8_t *yuvBuf) {
     return true;
 }
 
-void R2YConverter::convert(GLuint texId, int width, int height, uint8_t *data) {
-    uint8_t *rgbaData = new uint8_t[width * height * 4];
+void R2YConverter::convert(GLuint texId, int width, int height, vector<uint8_t> &yuvData) {
+    vector<uint8_t> rgbaData(width * height * 4);
     load(texId, width, height, rgbaData);
-    RGB24_TO_YUV420(rgbaData, width, height, data);
-    delete[]rgbaData;
+    RGB24_TO_YUV420(rgbaData.data(), width, height, yuvData.data());
 }
 
-void R2YConverter::load(GLuint texId, int width, int height, uint8_t *data) {
+void R2YConverter::load(GLuint texId, int width, int height, vector<uint8_t> &rgbaData) {
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texId, 0);
     checkGLError("R2YConverter : glFramebufferTexture2D");
     auto status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -63,7 +63,7 @@ void R2YConverter::load(GLuint texId, int width, int height, uint8_t *data) {
         return;
     }
     //glReadPixels 只有 3 种可用格式。GL_RGBA,GL_RGBA_INTEGER。。。
-    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, rgbaData.data());
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
 }
 

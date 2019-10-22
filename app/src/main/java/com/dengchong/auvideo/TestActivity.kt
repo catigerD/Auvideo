@@ -27,7 +27,7 @@ class TestActivity : AppCompatActivity() {
             recording = !recording
             if (recording) {
                 //width , height 会影响frame.data
-                previewScheduler.startRecording(path, 640, 320, 700 * 1024, 25, false)
+                previewScheduler.startRecording(path, 360, 540, 700 * 1024, 25, false)
             } else {
                 previewScheduler.stopRecording()
             }

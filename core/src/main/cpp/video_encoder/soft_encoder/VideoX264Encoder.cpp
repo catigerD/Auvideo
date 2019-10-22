@@ -32,7 +32,7 @@ bool VideoX264Encoder::init() {
     codecContext->time_base = AVRational{1, 25};
     codecContext->framerate = AVRational{25, 1};
     codecContext->gop_size = 10;
-    codecContext->max_b_frames = 1;
+    codecContext->max_b_frames = 0;
     codecContext->pix_fmt = AV_PIX_FMT_YUV420P;
     if (codec->id == AV_CODEC_ID_H264) {
         av_opt_set(codecContext->priv_data, "preset", "slow", 0);
@@ -64,7 +64,7 @@ bool VideoX264Encoder::init() {
     return true;
 }
 
-void VideoX264Encoder::encode(const shared_ptr<VideoFrame> &videoFrame) {
+void VideoX264Encoder::encode(const shared_ptr <VideoFrame> &videoFrame) {
     LOGI("width : %d, height : %d", width, height);
     int ret = 0;
     ret = av_frame_make_writable(frame.get());
@@ -74,11 +74,10 @@ void VideoX264Encoder::encode(const shared_ptr<VideoFrame> &videoFrame) {
     }
     /* prepare a dummy image */
     /* Y */
-    memcpy(&frame->data[0][0], videoFrame->data, width * height);
-    memcpy(&frame->data[1][0], videoFrame->data + width * height, width * height / 4);
-    memcpy(&frame->data[2][0], videoFrame->data + width * height * 5 / 4, width * height / 4);
-    AVRational time_base = {1, 1000};
-    int64_t pts = videoFrame->timeMills / 1000.0f / av_q2d(time_base);
+    memcpy(&frame->data[0][0], videoFrame->data.data(), width * height);
+    memcpy(&frame->data[1][0], videoFrame->data.data() + width * height, width * height / 4);
+    memcpy(&frame->data[2][0], videoFrame->data.data() + width * height * 5 / 4, width * height / 4);
+    int64_t pts = videoFrame->timeMills.count();
     frame->pts = pts;
     /* encode the image */
     encode(codecContext, frame, packet, stream);
@@ -90,7 +89,8 @@ void VideoX264Encoder::flush() {
 }
 
 void
-VideoX264Encoder::encode(shared_ptr<AVCodecContext> context, shared_ptr<AVFrame> frame, shared_ptr<AVPacket> packet,
+VideoX264Encoder::encode(shared_ptr <AVCodecContext> context, shared_ptr <AVFrame> frame,
+                         shared_ptr <AVPacket> packet,
                          ofstream &stream) {
     int ret;
     /*send the frame to the encoder*/

@@ -22,13 +22,13 @@ class SoftEncoderAdapter : public VideoEncoderAdapter {
 public:
     SoftEncoderAdapter(const string &path, int width, int height, int bitRate, int frameRate);
 
-    ~SoftEncoderAdapter();
+    ~SoftEncoderAdapter() override;
 
-    void createEncoder(shared_ptr<EGLCore> core, GLuint inputTexId);
+    void createEncoder(shared_ptr<EGLCore> core, GLuint inputTexId) override;
 
-    void encode();
+    void encode() override;
 
-    void destroyEncoder();
+    void destroyEncoder() override;
 
 private:
     void loopEncode();

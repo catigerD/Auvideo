@@ -42,14 +42,14 @@ void SoftEncoderAdapter::encode() {
     if (startTime.time_since_epoch().count() == 0) {
         startTime = system_clock::now();
     }
-    auto encodingTime = duration_cast<microseconds>(system_clock::now() - startTime);
+    auto encodingTime = duration_cast<milliseconds>(system_clock::now() - startTime);
     //need drop frames,时间单位为毫秒
-    int expectedFrameCount = static_cast<int>(
-            static_cast<double>(encodingTime.count() * microseconds::period::num /
-                                microseconds::period::den) * videoFrameRate + 0.5f);
+    int expectedFrameCount = static_cast<int>(encodingTime.count() / 1000.0f * encodeFrameRate);
     if (expectedFrameCount < encodedFrameCount) {
         return;
     }
+    LOGI("encode , expectedFrameCount : %d, encodedFrameCount : %d", expectedFrameCount,
+         encodedFrameCount);
     encodedFrameCount++;
     unique_lock<mutex> downloadUniqueLock(downloadTextureLock);
     imageDownloadHandler->sendMessage(ImageDownloadHandler::MSG_DOWNLOAD_TEXTURE);
@@ -88,7 +88,7 @@ void SoftEncoderAdapter::loopImageDownload() {
 
 void SoftEncoderAdapter::initEglContext() {
     eglInit = eglCore->init(sharedContext->getContext());
-    offScreenSurface = eglCore->createOffscreenSurface(videoWidth, videoHeight);
+    offScreenSurface = eglCore->createOffscreenSurface(encodeWidth, encodeHeight);
     eglCore->makeCurrent(offScreenSurface);
     render->init();
     fboTextureFrame->initTexture();
@@ -99,8 +99,8 @@ void SoftEncoderAdapter::downloadTexture() {
     if (startTime.time_since_epoch().count() == 0) {
         return;
     }
-    int recordingDuration = static_cast<int>(duration_cast<milliseconds>(
-            system_clock::now() - startTime).count());
+    LOGI("downloadTexture start");
+    auto recordingDuration = duration_cast<milliseconds>(system_clock::now() - startTime);
     eglCore->makeCurrent(offScreenSurface);
     //拷贝纹理到临时纹理
     glBindFramebuffer(GL_FRAMEBUFFER, fboTextureFrame->getFbo());
@@ -108,14 +108,15 @@ void SoftEncoderAdapter::downloadTexture() {
     downloadTextureCond.notify_one();
     uniqueLock.unlock();
     //从显存 download 到内存
-//    vector<uint8_t> texData;
-    uint8_t *data = new uint8_t[videoWidth * videoHeight * 3 / 2];
-    converter->convert(fboTextureFrame->getTexId(), videoWidth, videoHeight, data);
+    int size = encodeWidth * encodeHeight * 3 / 2;
+    vector<uint8_t> texData(size, 0);
+    converter->convert(fboTextureFrame->getTexId(), encodeWidth, encodeHeight, texData);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     shared_ptr<VideoFrame> videoFrame = make_shared<VideoFrame>();
-    videoFrame->data = data;
+    videoFrame->data = texData;
     videoFrame->timeMills = recordingDuration;
     videoFrames.push(videoFrame);
+    LOGI("downloadTexture end");
 }
 
 void SoftEncoderAdapter::destroyEglContext() {

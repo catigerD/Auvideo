@@ -7,19 +7,15 @@
 
 #include <vector>
 #include <cstdint>
+#include <chrono>
 
 using namespace std;
+using namespace chrono;
 
 struct VideoFrame {
 
-    ~VideoFrame() {
-        if (!data) {
-            delete[] data;
-        }
-    }
-
-    uint8_t *data{};
-    int timeMills{};
+    vector<uint8_t> data{};
+    milliseconds timeMills{};
     int duration{};
     int64_t pts{};
     int64_t dts{};

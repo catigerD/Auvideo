@@ -16,10 +16,10 @@ class VideoEncoderAdapter {
 public:
     VideoEncoderAdapter(const string &path, int width, int height, int bitRate, int frameRate) :
             filePath(path),
-            videoWidth(width),
-            videoHeight(height),
-            videoBitRate(bitRate),
-            videoFrameRate(frameRate),
+            encodeWidth(width),
+            encodeHeight(height),
+            encodeBitRate(bitRate),
+            encodeFrameRate(frameRate),
             render(make_shared<GLSurfaceRender>(width, height)) {
     }
 
@@ -33,10 +33,10 @@ public:
 
 protected:
     const string filePath;
-    int videoWidth;
-    int videoHeight;
-    int videoBitRate;
-    int videoFrameRate;
+    int encodeWidth;
+    int encodeHeight;
+    int encodeBitRate;
+    int encodeFrameRate;
     shared_ptr<GLSurfaceRender> render;
 };
 
