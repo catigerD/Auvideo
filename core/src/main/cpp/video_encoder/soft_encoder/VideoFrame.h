@@ -14,7 +14,9 @@ using namespace chrono;
 
 struct VideoFrame {
 
-    vector<uint8_t> data{};
+    uint8_t **data;
+    int *lineSize;
+    int bufferSize;
     milliseconds timeMills{};
     int duration{};
     int64_t pts{};

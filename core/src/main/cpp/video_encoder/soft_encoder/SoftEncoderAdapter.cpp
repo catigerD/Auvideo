@@ -11,9 +11,8 @@ SoftEncoderAdapter::SoftEncoderAdapter(const string &path, int width, int height
         : VideoEncoderAdapter(path, width, height, bitRate, frameRate),
           render(make_shared<GLSurfaceRender>(width, height)),
           fboTextureFrame(make_shared<FBOTextureFrame>(width, height)),
-          converter(make_shared<R2YConverter>()),
-          encoder(make_shared<VideoX264Encoder>(path, width, height, bitRate, frameRate)),
-          encodeExamples(make_shared<EncodeExamples>(path)) {
+          converter(make_shared<R2YConverter>(width, height)),
+          encoder(make_shared<VideoX264Encoder>(path, width, height, bitRate, frameRate)) {
 
 }
 
@@ -66,17 +65,22 @@ void SoftEncoderAdapter::destroyEncoder() {
 void SoftEncoderAdapter::loopEncode() {
     shared_ptr<VideoFrame> videoFrame;
     int count = 0;
-//    encodeExamples->init();
     encoder->init();
     while (true) {
         if (!videoFrames.waitAndPop(videoFrame)) {
             break;
         }
         encoder->encode(videoFrame);
-//        encodeExamples->encode(videoFrame->data, videoWidth, videoHeight, count);
+
         LOGI("SoftEncoderAdapter::loopEncode() encode %d", count++);
+//        //验证从GPU 下载的 rgba 或转换后的 YUV420P 没有问题
+//        if (saveRgbaOrYUVImage) {
+//            LOGI("SoftEncoderAdapter::saveImage()");
+//            fstream stream(filePath);
+//            stream.write(reinterpret_cast<const char *>(&videoFrame->data[0][0]), videoFrame->bufferSize);
+//            saveRgbaOrYUVImage = false;
+//        }
     }
-//    encodeExamples->flush();
     encoder->flush();
 }
 
@@ -108,12 +112,14 @@ void SoftEncoderAdapter::downloadTexture() {
     downloadTextureCond.notify_one();
     uniqueLock.unlock();
     //从显存 download 到内存
-    int size = encodeWidth * encodeHeight * 3 / 2;
-    vector<uint8_t> texData(size, 0);
-    converter->convert(fboTextureFrame->getTexId(), encodeWidth, encodeHeight, texData);
+    uint8_t **outData;
+    int *lineSize;
+    int size = converter->convert(fboTextureFrame->getTexId(), &outData, &lineSize);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     shared_ptr<VideoFrame> videoFrame = make_shared<VideoFrame>();
-    videoFrame->data = texData;
+    videoFrame->data = outData;
+    videoFrame->lineSize = lineSize;
+    videoFrame->bufferSize = size;
     videoFrame->timeMills = recordingDuration;
     videoFrames.push(videoFrame);
     LOGI("downloadTexture end");

@@ -15,7 +15,7 @@ using namespace std;
 
 using namespace std;
 
-class EncodeExamples {
+class EncodingVideo {
 public:
 
     static void
@@ -23,7 +23,7 @@ public:
            ofstream &stream);
 
 public:
-    EncodeExamples(const string &file) : stream(file) {
+    EncodingVideo(const string &file) : stream(file) {
 
     }
 

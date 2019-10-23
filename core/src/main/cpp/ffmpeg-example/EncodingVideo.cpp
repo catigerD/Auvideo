@@ -2,11 +2,11 @@
 // Created by dengchong on 2019-10-18.
 //
 
-#include "EncodeExamples.h"
+#include "EncodingVideo.h"
 
 #define LOG_TAG "EncodeExamples"
 
-void EncodeExamples::encode(shared_ptr<AVCodecContext> context, shared_ptr<AVFrame> frame, shared_ptr<AVPacket> packet,
+void EncodingVideo::encode(shared_ptr<AVCodecContext> context, shared_ptr<AVFrame> frame, shared_ptr<AVPacket> packet,
                             ofstream &stream) {
     int ret;
     /*send the frame to the encoder*/
@@ -39,7 +39,7 @@ void EncodeExamples::encode(shared_ptr<AVCodecContext> context, shared_ptr<AVFra
     }
 }
 
-bool EncodeExamples::init() {
+bool EncodingVideo::init() {
     codec = FFmpegAlloc::getCodecById(AV_CODEC_ID_H264);
     if (!codec) {
         LOGE("Codec %s not find ... ", "h264");
@@ -88,7 +88,7 @@ bool EncodeExamples::init() {
     return true;
 }
 
-void EncodeExamples::loopEncode() {
+void EncodingVideo::loopEncode() {
     int ret = 0;
     /* encode 1 second of video */
     for (int i = 0; i < 25; i++) {
@@ -122,7 +122,7 @@ void EncodeExamples::loopEncode() {
     stream.close();
 }
 
-void EncodeExamples::encode(vector<uint8_t> data, int width, int height, int pts) {
+void EncodingVideo::encode(vector<uint8_t> data, int width, int height, int pts) {
     int ret = 0;
     ret = av_frame_make_writable(frame.get());
     if (ret < 0) {
@@ -143,7 +143,7 @@ void EncodeExamples::encode(vector<uint8_t> data, int width, int height, int pts
     encode(codecContext, frame, packet, stream);
 }
 
-void EncodeExamples::flush() {
+void EncodingVideo::flush() {
     encode(codecContext, nullptr, packet, stream);
     stream.close();
 }

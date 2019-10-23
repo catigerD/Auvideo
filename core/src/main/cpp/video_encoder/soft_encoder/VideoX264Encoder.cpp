@@ -50,7 +50,7 @@ bool VideoX264Encoder::init() {
     frame->format = codecContext->pix_fmt;
     frame->width = codecContext->width;
     frame->height = codecContext->height;
-    int ret = av_frame_get_buffer(frame.get(), 0);
+    int ret = av_frame_get_buffer(frame.get(), 16);
     if (ret < 0) {
         LOGE("Could not allocate frame data , %s", av_err2str(ret));
         return false;
@@ -64,7 +64,7 @@ bool VideoX264Encoder::init() {
     return true;
 }
 
-void VideoX264Encoder::encode(const shared_ptr <VideoFrame> &videoFrame) {
+void VideoX264Encoder::encode(const shared_ptr<VideoFrame> &videoFrame) {
     LOGI("width : %d, height : %d", width, height);
     int ret = 0;
     ret = av_frame_make_writable(frame.get());
@@ -74,9 +74,9 @@ void VideoX264Encoder::encode(const shared_ptr <VideoFrame> &videoFrame) {
     }
     /* prepare a dummy image */
     /* Y */
-    memcpy(&frame->data[0][0], videoFrame->data.data(), width * height);
-    memcpy(&frame->data[1][0], videoFrame->data.data() + width * height, width * height / 4);
-    memcpy(&frame->data[2][0], videoFrame->data.data() + width * height * 5 / 4, width * height / 4);
+    memcpy(&frame->data[0][0], &videoFrame->data[0][0], videoFrame->lineSize[0] * height);
+    memcpy(&frame->data[1][0], &videoFrame->data[1][0], videoFrame->lineSize[1] * height / 2);
+    memcpy(&frame->data[2][0], &videoFrame->data[2][0], videoFrame->lineSize[2] * height / 2);
     int64_t pts = videoFrame->timeMills.count();
     frame->pts = pts;
     /* encode the image */
@@ -89,8 +89,8 @@ void VideoX264Encoder::flush() {
 }
 
 void
-VideoX264Encoder::encode(shared_ptr <AVCodecContext> context, shared_ptr <AVFrame> frame,
-                         shared_ptr <AVPacket> packet,
+VideoX264Encoder::encode(shared_ptr<AVCodecContext> context, shared_ptr<AVFrame> frame,
+                         shared_ptr<AVPacket> packet,
                          ofstream &stream) {
     int ret;
     /*send the frame to the encoder*/

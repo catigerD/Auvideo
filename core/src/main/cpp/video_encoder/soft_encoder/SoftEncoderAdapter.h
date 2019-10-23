@@ -14,7 +14,7 @@
 #include "ThreadSafeQueue.h"
 #include <R2YConverter.h>
 #include "VideoX264Encoder.h"
-#include "EncodeExamples.h"
+#include "EncodingVideo.h"
 
 using namespace chrono;
 
@@ -64,7 +64,8 @@ private:
     ThreadSafeQueue<shared_ptr<VideoFrame>> videoFrames;
     shared_ptr<R2YConverter> converter;
     shared_ptr<VideoX264Encoder> encoder;
-    shared_ptr<EncodeExamples> encodeExamples;
+
+    bool saveRgbaOrYUVImage{true};
 };
 
 

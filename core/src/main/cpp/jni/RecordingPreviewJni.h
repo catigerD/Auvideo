@@ -15,7 +15,7 @@ extern "C" {
 #include <libavformat/avformat.h>
 };
 
-#include "EncodeExamples.h"
+#include "EncodingVideo.h"
 #include "encode_video.h"
 #include "ScalingVideo.h"
 
@@ -23,7 +23,7 @@ using namespace std;
 
 shared_ptr<RecordingPreviewController> controller;
 shared_ptr<ANativeWindow> window;
-shared_ptr<EncodeExamples> encodeExamples;
+shared_ptr<EncodingVideo> encodeExamples;
 shared_ptr<ScalingVideo> scaleVideo;
 
 extern "C"
@@ -87,12 +87,12 @@ Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_startRecording
                                                                                  jint bit_rate,
                                                                                  jint frame_rate,
                                                                                  jboolean hw_encoding) {
-//    if (controller) {
-//        auto path = env->GetStringUTFChars(file_path, nullptr);
-//        controller->sendStartEncodingMsg(path, width, height, bit_rate, frame_rate,
-//                                         hw_encoding);
-//        env->ReleaseStringUTFChars(file_path, path);
-//    }
+    if (controller) {
+        auto path = env->GetStringUTFChars(file_path, nullptr);
+        controller->sendStartEncodingMsg(path, width, height, bit_rate, frame_rate,
+                                         hw_encoding);
+        env->ReleaseStringUTFChars(file_path, path);
+    }
 
 //    auto path = env->GetStringUTFChars(file_path, nullptr);
 //    encodeExamples = make_shared<EncodeExamples>(path);
@@ -101,19 +101,19 @@ Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_startRecording
 //    encode(path);
 //    env->ReleaseStringUTFChars(file_path, path);
 
-    auto path = env->GetStringUTFChars(file_path, nullptr);
-    scaleVideo = make_shared<ScalingVideo>(path);
-    scaleVideo->convert("324x324");
-    env->ReleaseStringUTFChars(file_path, path);
+//    auto path = env->GetStringUTFChars(file_path, nullptr);
+//    scaleVideo = make_shared<ScalingVideo>(path);
+//    scaleVideo->convert("324x324");
+//    env->ReleaseStringUTFChars(file_path, path);
 }
 
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_stopRecording(JNIEnv *env,
                                                                                 jobject thiz) {
-//    if (controller) {
-//        controller->sendStopEncodingMsg();
-//    }
+    if (controller) {
+        controller->sendStopEncodingMsg();
+    }
 }
 
 #endif //AUVIDEO_RECORDINGPREVIEWJNI_H
