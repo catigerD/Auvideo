@@ -108,7 +108,7 @@ void SoftEncoderAdapter::downloadTexture() {
     eglCore->makeCurrent(offScreenSurface);
     //拷贝纹理到临时纹理
     glBindFramebuffer(GL_FRAMEBUFFER, fboTextureFrame->getFbo());
-    render->renderToTexture(renderTexId, fboTextureFrame->getTexId());
+    render->renderToVFlipTexture(renderTexId, fboTextureFrame->getTexId());
     downloadTextureCond.notify_one();
     uniqueLock.unlock();
     //从显存 download 到内存
