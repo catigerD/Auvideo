@@ -42,6 +42,7 @@ void SoftEncoderAdapter::encode() {
         startTime = system_clock::now();
     }
     auto encodingTime = duration_cast<milliseconds>(system_clock::now() - startTime);
+    LOGI("encode , encodingTime : %lld ms", encodingTime.count());
     //need drop frames,时间单位为毫秒
     int expectedFrameCount = static_cast<int>(encodingTime.count() / 1000.0f * encodeFrameRate);
     if (expectedFrameCount < encodedFrameCount) {
@@ -105,6 +106,7 @@ void SoftEncoderAdapter::downloadTexture() {
     }
     LOGI("downloadTexture start");
     auto recordingDuration = duration_cast<milliseconds>(system_clock::now() - startTime);
+    LOGI("encode , recordingDuration : %lld ms", recordingDuration.count());
     eglCore->makeCurrent(offScreenSurface);
     //拷贝纹理到临时纹理
     glBindFramebuffer(GL_FRAMEBUFFER, fboTextureFrame->getFbo());

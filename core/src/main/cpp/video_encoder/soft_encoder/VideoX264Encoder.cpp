@@ -35,7 +35,13 @@ bool VideoX264Encoder::init() {
     codecContext->max_b_frames = 0;
     codecContext->pix_fmt = AV_PIX_FMT_YUV420P;
     if (codec->id == AV_CODEC_ID_H264) {
-        av_opt_set(codecContext->priv_data, "preset", "slow", 0);
+        //H.264
+//        av_opt_set(codecContext->priv_data, "preset", "slow", 0);
+        // 新增语句，设置为编码延迟
+        av_opt_set(codecContext->priv_data, "preset", "ultrafast", 0);
+        // 实时编码关键看这句，上面那条无所谓
+        av_opt_set(codecContext->priv_data, "tune", "zerolatency", 0);
+        av_opt_set(codecContext->priv_data, "profile", "main", 0);
     }
     packet = FFmpegAlloc::getPacket();
     if (!packet) {
@@ -74,13 +80,20 @@ void VideoX264Encoder::encode(const shared_ptr<VideoFrame> &videoFrame) {
     }
     /* prepare a dummy image */
     /* Y */
+    auto startTime = system_clock::now();
     memcpy(&frame->data[0][0], &videoFrame->data[0][0], videoFrame->lineSize[0] * height);
     memcpy(&frame->data[1][0], &videoFrame->data[1][0], videoFrame->lineSize[1] * height / 2);
     memcpy(&frame->data[2][0], &videoFrame->data[2][0], videoFrame->lineSize[2] * height / 2);
+    auto copyDuration = duration_cast<milliseconds>(system_clock::now() - startTime);
+    LOGI("encode : copyTime : %lld", copyDuration.count());
     int64_t pts = videoFrame->timeMills.count();
     frame->pts = pts;
+    LOGI("encode pts : %lld", pts);
     /* encode the image */
+    startTime = system_clock::now();
     encode(codecContext, frame, packet, stream);
+    auto encodeTime = duration_cast<milliseconds>(system_clock::now() - startTime);
+    LOGI("encode : encodeTime : %lld", encodeTime.count());
 }
 
 void VideoX264Encoder::flush() {

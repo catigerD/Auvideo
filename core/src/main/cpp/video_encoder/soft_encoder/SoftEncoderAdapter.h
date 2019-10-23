@@ -57,7 +57,7 @@ private:
 
     void destroyEglContext();
 
-    time_point<system_clock> startTime;
+    time_point<system_clock> startTime{};
     int encodedFrameCount{};
 
     //queue
