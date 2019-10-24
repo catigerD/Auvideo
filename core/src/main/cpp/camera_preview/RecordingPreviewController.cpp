@@ -46,7 +46,7 @@ void RecordingPreviewController::initEGLContext() {
     eglCore->makeCurrent(surface);
     configCameraToJava();
     render = make_shared<RecordingPreviewRender>(viewWidth, viewHeight, texWidth,
-                                                 texHeight, degress);
+                                                 texHeight, degress, cameraId == CAMERA_FACING_FRONT);
     render->init();
     setPreviewTextureToJava();
 }
@@ -106,6 +106,9 @@ void RecordingPreviewController::setPreviewTextureToJava() {
 }
 
 void RecordingPreviewController::sendFrameAvailableMsg() {
+    if (isSwitching) {
+        return;
+    }
     handler->sendMessage(MSG_UPDATE_TEX_IMAGE);
 }
 
@@ -235,4 +238,24 @@ void RecordingPreviewController::stopRecording() {
     isEncoding = false;
     //todo encoder = nullptr,会导致encoder 对象被析构但子线程还在运行导致的空指针异常。
 //    encoder = nullptr;
+}
+
+/*--------------------------switch camera----------------------------------*/
+
+void RecordingPreviewController::sendSwitchCameraMsg() {
+    if (cameraId == CAMERA_FACING_BACK) {
+        cameraId = CAMERA_FACING_FRONT;
+    } else {
+        cameraId = CAMERA_FACING_BACK;
+    }
+    handler->sendMessage(MSG_SWITCH_CAMERA);
+}
+
+void RecordingPreviewController::switchCamera() {
+    isSwitching = true;
+    releaseCameraToJava();
+    configCameraToJava();
+    render->setDegress(degress, cameraId == CAMERA_FACING_FRONT);
+    setPreviewTextureToJava();
+    isSwitching = false;
 }

@@ -36,6 +36,9 @@ void RecordingPreviewHandler::handleMessage(const shared_ptr<Message> &msg) {
         case MSG_STOP_RECORDING:
             controller->stopRecording();
             break;
+        case MSG_SWITCH_CAMERA:
+            controller->switchCamera();
+            break;
         default:
             break;
     }

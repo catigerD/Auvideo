@@ -15,4 +15,6 @@ public class RecordingPreviewSchedule {
     native void startRecording(String filePath, int width, int height, int bitRate, int frameRate, boolean hwEncoding);
 
     native void stopRecording();
+
+    native void switchCamera();
 }

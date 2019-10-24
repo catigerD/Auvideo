@@ -19,6 +19,7 @@ enum MSG_RECORDING_PREVIEW {
     MSG_DESTROY_EGL_CONTEXT,
     MSG_START_RECORDING,
     MSG_STOP_RECORDING,
+    MSG_SWITCH_CAMERA,
 };
 
 class RecordingPreviewHandler : public Handler {

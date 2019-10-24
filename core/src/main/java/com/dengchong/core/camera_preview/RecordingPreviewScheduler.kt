@@ -8,7 +8,7 @@ class RecordingPreviewScheduler(
     val surfaceView: RecordingPreviewSurfaceView
 ) : RecordingPreviewCallback, RecordingPreviewSurfaceViewCallback {
 
-    var defaultCameraId: Int = Camera.CameraInfo.CAMERA_FACING_BACK
+    var defaultCameraId: Int = Camera.CameraInfo.CAMERA_FACING_FRONT
 
     companion object {
         init {
@@ -81,4 +81,6 @@ class RecordingPreviewScheduler(
     )
 
     external fun stopRecording()
+
+    external fun switchCamera()
 }

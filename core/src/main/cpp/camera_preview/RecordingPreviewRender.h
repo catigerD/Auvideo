@@ -54,11 +54,13 @@ class RecordingPreviewRender {
 public:
 
     RecordingPreviewRender(int viewWidth, int viewHeight, int texWidth, int texHeight,
-                           int degress);
+                           int degress, bool isVFlip);
 
     ~RecordingPreviewRender();
 
     void init();
+
+    void setDegress(int degress, bool isVFlip);
 
     void processFrame();
 
@@ -88,8 +90,9 @@ private:
     int texWidth{};
     int texHeight{};
     int degress{};
+    bool isVFlip{};
 
-    GLfloat *texCoords;
+    GLfloat texCoords[8];
 
     void fillTexCoords();
 

@@ -44,6 +44,13 @@ public:
 
     void sendStopEncodingMsg();
 
+    void sendSwitchCameraMsg();
+
+public:
+
+    static const int CAMERA_FACING_BACK{0};
+    static const int CAMERA_FACING_FRONT{1};
+
 private:
     void startThread();
 
@@ -67,6 +74,7 @@ private:
     void destroyEGLContext();
 
 private:
+    //preview
     JavaVM *javaVm{};
     jobject obj{};
 
@@ -91,6 +99,12 @@ private:
     void startRecording();
 
     void stopRecording();
+
+private:
+    bool isSwitching{};
+
+    //switch camera
+    void switchCamera();
 };
 
 

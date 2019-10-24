@@ -116,4 +116,13 @@ Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_stopRecording(
     }
 }
 
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_switchCamera(JNIEnv *env,
+                                                                              jobject thiz) {
+    if (controller) {
+        controller->sendSwitchCameraMsg();
+    }
+}
+
 #endif //AUVIDEO_RECORDINGPREVIEWJNI_H

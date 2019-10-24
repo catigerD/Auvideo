@@ -7,7 +7,7 @@
 #define LOG_TAG "RecordingPreviewRender"
 
 RecordingPreviewRender::RecordingPreviewRender(int viewWidth, int viewHeight, int texWidth,
-                                               int texHeight, int degress)
+                                               int texHeight, int degress, bool isVFlip)
         : cameraTextureFrame(make_shared<GPUTextureFrame>()),
           formatTextureFrame(make_shared<FBOTextureFrame>(texWidth, texHeight, degress)),
           copier(make_shared<GPUTextureFrameCopier>(degress, texWidth, texHeight)),
@@ -16,7 +16,8 @@ RecordingPreviewRender::RecordingPreviewRender(int viewWidth, int viewHeight, in
           viewHeight(viewHeight),
           texWidth(texWidth),
           texHeight(texHeight),
-          degress(degress) {
+          degress(degress),
+          isVFlip(isVFlip) {
     fillTexCoords();
 }
 
@@ -28,6 +29,12 @@ void RecordingPreviewRender::init() {
     copier->init();
     render->init();
     glGenFramebuffers(1, &FBO);
+}
+
+void RecordingPreviewRender::setDegress(int degress, bool isVFlip) {
+    this->degress = degress;
+    this->isVFlip = isVFlip;
+    fillTexCoords();
 }
 
 void RecordingPreviewRender::processFrame() {
@@ -61,17 +68,23 @@ void RecordingPreviewRender::destroy() {
 void RecordingPreviewRender::fillTexCoords() {
     switch (degress) {
         case 90:
-            texCoords = const_cast<GLfloat *>(CAMERA_TEXTURE_ROTATED_90);
+            memcpy(texCoords, CAMERA_TEXTURE_ROTATED_90, 8 * sizeof(GLfloat));
             break;
         case 180:
-            texCoords = const_cast<GLfloat *>(CAMERA_TEXTURE_ROTATED_180);
+            memcpy(texCoords, CAMERA_TEXTURE_ROTATED_180, 8 * sizeof(GLfloat));
             break;
         case 270:
-            texCoords = const_cast<GLfloat *>(CAMERA_TEXTURE_ROTATED_270);
+            memcpy(texCoords, CAMERA_TEXTURE_ROTATED_270, 8 * sizeof(GLfloat));
             break;
         default:
-            texCoords = const_cast<GLfloat *>(CAMERA_TEXTURE_ROTATED_0);
+            memcpy(texCoords, CAMERA_TEXTURE_ROTATED_0, 8 * sizeof(GLfloat));
             break;
+    }
+    if (isVFlip) {
+        texCoords[1] = flip(texCoords[1]);
+        texCoords[3] = flip(texCoords[3]);
+        texCoords[5] = flip(texCoords[5]);
+        texCoords[7] = flip(texCoords[7]);
     }
 }
 

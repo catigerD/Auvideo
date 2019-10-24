@@ -34,5 +34,8 @@ class TestActivity : AppCompatActivity() {
                 previewScheduler.stopRecording()
             }
         }
+        btn_switch.setOnClickListener {
+            previewScheduler.switchCamera()
+        }
     }
 }
