@@ -19,6 +19,9 @@ class TestActivity : AppCompatActivity() {
     private val convetImagePath =
         Environment.getExternalStorageDirectory().absolutePath + File.separator + "Auvideo-convert"
 
+    private val muxPath =
+        Environment.getExternalStorageDirectory().absolutePath + File.separator + "Auvideo.mp4"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);

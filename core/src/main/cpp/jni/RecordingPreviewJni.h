@@ -18,6 +18,7 @@ extern "C" {
 #include "EncodingVideo.h"
 #include "encode_video.h"
 #include "ScalingVideo.h"
+#include "MuxingExample.h"
 
 using namespace std;
 
@@ -25,6 +26,7 @@ shared_ptr<RecordingPreviewController> controller;
 shared_ptr<ANativeWindow> window;
 shared_ptr<EncodingVideo> encodeExamples;
 shared_ptr<ScalingVideo> scaleVideo;
+shared_ptr<MuxingExample> muxingExamples;
 
 extern "C"
 JNIEXPORT void JNICALL
@@ -105,6 +107,11 @@ Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_startRecording
 //    scaleVideo = make_shared<ScalingVideo>(path);
 //    scaleVideo->convert("324x324");
 //    env->ReleaseStringUTFChars(file_path, path);
+
+//    auto path = env->GetStringUTFChars(file_path, nullptr);
+//    muxingExamples = make_shared<MuxingExample>(path);
+//    muxingExamples->muxing();
+//    env->ReleaseStringUTFChars(file_path, path);
 }
 
 extern "C"
@@ -119,7 +126,7 @@ Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_stopRecording(
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_switchCamera(JNIEnv *env,
-                                                                              jobject thiz) {
+                                                                               jobject thiz) {
     if (controller) {
         controller->sendSwitchCameraMsg();
     }
