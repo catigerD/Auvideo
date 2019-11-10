@@ -4,11 +4,19 @@
 
 #include "VideoX264Encoder.h"
 
+#include <thread>
+
+#include "AndroidLog.h"
+
 #define LOG_TAG "VideoX264Encoder"
 
-VideoX264Encoder::VideoX264Encoder(const string &filePath, int width, int height, int bitRate,
+using namespace std;
+using namespace chrono;
+
+VideoX264Encoder::VideoX264Encoder(string filePath, int width, int height, int bitRate,
                                    int frameRate)
-        : stream(filePath),
+        : fileName(std::move(filePath)),
+//        stream(filePath),
           width(width),
           height(height),
           bitRate(bitRate),
@@ -43,11 +51,16 @@ bool VideoX264Encoder::init() {
         av_opt_set(codecContext->priv_data, "tune", "zerolatency", 0);
         av_opt_set(codecContext->priv_data, "profile", "main", 0);
     }
-    packet = FFmpegAlloc::getPacket();
-    if (!packet) {
-        LOGE("Could not allocate packet");
-        return false;
-    }
+    muxer = make_shared<VideoX264Muxer>(fileName, codecContext);
+
+    thread loopMuxingThread(&VideoX264Encoder::loopMuxing, this);
+    loopMuxingThread.detach();
+
+//    packet = FFmpegAlloc::getPacket();
+//    if (!packet) {
+//        LOGE("Could not allocate packet");
+//        return false;
+//    }
     frame = FFmpegAlloc::getFrame();
     if (!frame) {
         LOGE("Could not allocate frame");
@@ -91,20 +104,26 @@ void VideoX264Encoder::encode(const shared_ptr<VideoFrame> &videoFrame) {
     LOGI("encode pts : %lld", pts);
     /* encode the image */
     startTime = system_clock::now();
-    encode(codecContext, frame, packet, stream);
+    encode(codecContext, frame/*, packet, stream*/);
     auto encodeTime = duration_cast<milliseconds>(system_clock::now() - startTime);
     LOGI("encode : encodeTime : %lld", encodeTime.count());
 }
 
 void VideoX264Encoder::flush() {
-    encode(codecContext, nullptr, packet, stream);
-    stream.close();
+    LOGI("VideoX264Encoder::flush() start");
+    encode(codecContext, nullptr/*, packet, stream*/);
+    LOGI("VideoX264Encoder::flush() end");
+//    stream.close();
+    while (!packets.empty()) {
+        this_thread::sleep_for(milliseconds(100));
+    }
+    packets.abort();
+    LOGI("VideoX264Encoder::mux() end");
 }
 
 void
-VideoX264Encoder::encode(shared_ptr<AVCodecContext> context, shared_ptr<AVFrame> frame,
-                         shared_ptr<AVPacket> packet,
-                         ofstream &stream) {
+VideoX264Encoder::encode(shared_ptr<AVCodecContext> context, shared_ptr<AVFrame> frame
+        /*,shared_ptr<AVPacket> packet,ofstream &stream*/) {
     int ret;
     /*send the frame to the encoder*/
     if (frame) {
@@ -116,6 +135,7 @@ VideoX264Encoder::encode(shared_ptr<AVCodecContext> context, shared_ptr<AVFrame>
         return;
     }
     while (ret >= 0) {
+        shared_ptr<AVPacket> packet = FFmpegAlloc::getPacket();
         ret = avcodec_receive_packet(context.get(), packet.get());
         if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
             LOGE("Write wait ...");
@@ -128,10 +148,23 @@ VideoX264Encoder::encode(shared_ptr<AVCodecContext> context, shared_ptr<AVFrame>
 //        if (stream.good()) {
 //            LOGI("Write before stream is good");
 //        }
-        stream.write(reinterpret_cast<const char *>(packet->data), packet->size);
+//        stream.write(reinterpret_cast<const char *>(packet->data), packet->size);
+        packets.push(packet);
 //        if (stream.good()) {
 //            LOGI("Write after stream is good");
 //        }
-        av_packet_unref(packet.get());
+//        av_packet_unref(packet.get());
     }
+}
+
+void VideoX264Encoder::loopMuxing() {
+    muxer->initAndWriteHeader();
+    shared_ptr<AVPacket> packet{};
+    while (true) {
+        if (!packets.waitAndPop(packet)) {
+            break;
+        }
+        muxer->writePacket(packet);
+    }
+    muxer->writeTrailer();
 }

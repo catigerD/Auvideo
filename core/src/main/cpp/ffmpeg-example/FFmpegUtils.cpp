@@ -6,6 +6,8 @@
 
 #define LOG_TAG "FFmpegUtils"
 
+using namespace std;
+
 bool
 FFmpegUtils::convert(uint8_t **srcData, int *srcLineSize, AVPixelFormat srcPixFmt, int srcW, int srcH,
                      uint8_t **dstData, int *dstLineSize, AVPixelFormat dstPixFmt, int dstW, int dstH) {

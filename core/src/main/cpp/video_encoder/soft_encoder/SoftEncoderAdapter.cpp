@@ -69,6 +69,7 @@ void SoftEncoderAdapter::loopEncode() {
     encoder->init();
     while (true) {
         if (!videoFrames.waitAndPop(videoFrame)) {
+            LOGI("SoftEncoderAdapter::loopEncode() quit");
             break;
         }
         encoder->encode(videoFrame);
@@ -128,11 +129,14 @@ void SoftEncoderAdapter::downloadTexture() {
 }
 
 void SoftEncoderAdapter::destroyEglContext() {
-    videoFrames.abort();
     eglCore->makeCurrent(offScreenSurface);
     fboTextureFrame->destroy();
     render->destroy();
     eglCore->releaseSurface(offScreenSurface);
     eglCore->release();
     imageDownloadHandler->getLooper()->quit();
+    while (!videoFrames.empty()) {
+        this_thread::sleep_for(milliseconds(60));
+    }
+    videoFrames.abort();
 }

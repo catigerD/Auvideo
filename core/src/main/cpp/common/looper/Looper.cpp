@@ -7,6 +7,8 @@
 
 #define LOG_TAG "Looper"
 
+using namespace std;
+
 void Looper::enqueueMsg(const shared_ptr<Message> &msg) {
     msgQueue.push(msg);
 }

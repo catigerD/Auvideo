@@ -23,7 +23,7 @@ public:
 
     }
 
-    void handleMessage(const shared_ptr<Message> &msg);
+    void handleMessage(const std::shared_ptr<Message> &msg);
 
 private:
     SoftEncoderAdapter *adapter;

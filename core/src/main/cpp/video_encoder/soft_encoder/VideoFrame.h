@@ -9,15 +9,12 @@
 #include <cstdint>
 #include <chrono>
 
-using namespace std;
-using namespace chrono;
-
 struct VideoFrame {
 
     uint8_t **data;
     int *lineSize;
     int bufferSize;
-    milliseconds timeMills{};
+    std::chrono::milliseconds timeMills{};
     int duration{};
     int64_t pts{};
     int64_t dts{};

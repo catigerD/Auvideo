@@ -13,14 +13,12 @@
 template<typename T>
 class ThreadSafeQueue {
 private:
-    std::mutex mutex;
+    mutable std::mutex mutex;
     std::condition_variable cond;
     std::queue<T> data;
     bool abortFlag{false};
 public:
-    ThreadSafeQueue() {
-
-    }
+    ThreadSafeQueue() = default;
 
     ThreadSafeQueue(const ThreadSafeQueue &other) {
         std::lock_guard<std::mutex> lockGuard(mutex);
@@ -37,7 +35,7 @@ public:
 
     bool waitAndPop(T &value) {
         std::unique_lock<std::mutex> uniqueLock(mutex);
-        cond.wait(uniqueLock, [this] { return !data.empty(); });
+        cond.wait(uniqueLock, [this] { return abortFlag || !data.empty(); });
         if (abortFlag) {
             return false;
         }
@@ -48,7 +46,7 @@ public:
 
     std::shared_ptr<T> waitAndPop() {
         std::unique_lock<std::mutex> uniqueLock(mutex);
-        cond.wait(uniqueLock, [this] { return !data.empty(); });
+        cond.wait(uniqueLock, [this] { return abortFlag || !data.empty(); });
         if (abortFlag) {
             return nullptr;
         }

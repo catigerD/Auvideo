@@ -11,9 +11,9 @@
 class Looper {
 
 public:
-    static shared_ptr<Looper> prepare();
+    static std::shared_ptr<Looper> prepare();
 
-    static shared_ptr<Looper> getThreadLocalLooper();
+    static std::shared_ptr<Looper> getThreadLocalLooper();
 
     static void loop();
 
@@ -23,14 +23,14 @@ public:
 
     ~Looper() = default;
 
-    void enqueueMsg(const shared_ptr<Message> &msg);
+    void enqueueMsg(const std::shared_ptr<Message> &msg);
 
-    bool dequeueMsg(shared_ptr<Message> &msg);
+    bool dequeueMsg(std::shared_ptr<Message> &msg);
 
     void quit();
 
 private:
-    ThreadSafeQueue<shared_ptr<Message>> msgQueue;
+    ThreadSafeQueue<std::shared_ptr<Message>> msgQueue;
 };
 
 

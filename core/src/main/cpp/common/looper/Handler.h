@@ -14,24 +14,24 @@ public:
 
     Handler();
 
-    explicit Handler(shared_ptr<Looper> looper);
+    explicit Handler(std::shared_ptr<Looper> looper);
 
     virtual ~Handler() = default;
 
-    virtual void handleMessage(const shared_ptr<Message> &msg) {}
+    virtual void handleMessage(const std::shared_ptr<Message> &msg) {}
 
-    void sendMessage(shared_ptr<Message> &msg);
+    void sendMessage(std::shared_ptr<Message> &msg);
 
     void sendMessage(int what);
 
     void post(MessageCallback callback);
 
-    shared_ptr<Looper> getLooper() {
+    std::shared_ptr<Looper> getLooper() {
         return looper;
     }
 
 private:
-    shared_ptr<Looper> looper;
+    std::shared_ptr<Looper> looper;
 };
 
 

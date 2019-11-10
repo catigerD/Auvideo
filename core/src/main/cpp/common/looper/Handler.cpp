@@ -6,6 +6,8 @@
 
 #include "Handler.h"
 
+using namespace std;
+
 Handler::Handler() :
         looper(Looper::getThreadLocalLooper()) {
 

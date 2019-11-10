@@ -7,36 +7,34 @@
 
 #include <memory>
 
-using namespace std;
-
 class Handler;
 
 class Message;
 
-typedef void (*MessageCallback)(const shared_ptr<Message> &msg);
+typedef void (*MessageCallback)(const std::shared_ptr<Message> &msg);
 
 struct Message {
 public:
 
-    static shared_ptr<Message> obtain() {
-        return make_shared<Message>();
+    static std::shared_ptr<Message> obtain() {
+        return std::make_shared<Message>();
     }
 
-    static shared_ptr<Message> obtain(int what, shared_ptr<Handler> handler) {
-        return make_shared<Message>(what, handler);
+    static std::shared_ptr<Message> obtain(int what, std::shared_ptr<Handler> handler) {
+        return std::make_shared<Message>(what, handler);
     }
 
 public:
     Message() = default;
 
-    Message(int what, shared_ptr<Handler> handler);
+    Message(int what, std::shared_ptr<Handler> handler);
 
 public:
     int what{};
     int arg1{};
     int arg2{};
     void *obj{};
-    shared_ptr<Handler> handler;
+    std::shared_ptr<Handler> handler;
     MessageCallback callback{};
 };
 

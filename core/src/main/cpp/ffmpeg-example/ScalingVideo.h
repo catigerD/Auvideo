@@ -5,23 +5,24 @@
 #ifndef CPP_SCALINGVIDEO_H
 #define CPP_SCALINGVIDEO_H
 
-#include "FFmpegAlloc.h"
 #include <fstream>
+
+#include "FFmpegAlloc.h"
 #include "AndroidLog.h"
 
 class ScalingVideo {
 public:
 
-    ScalingVideo(const string &fileName) : stream(fileName) {
+    ScalingVideo(const std::string &fileName) : stream(fileName) {
 
     }
 
     void convert(const char* dstSize);
 
 private:
-    ofstream stream;
+    std::ofstream stream;
 
-    shared_ptr<SwsContext> swsContext;
+    std::shared_ptr<SwsContext> swsContext;
 
     uint8_t *srcData[4], *dstData[4];
     int srcLineSize[4], dstLineSize[4];

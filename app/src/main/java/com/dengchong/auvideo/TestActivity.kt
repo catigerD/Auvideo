@@ -32,7 +32,7 @@ class TestActivity : AppCompatActivity() {
             recording = !recording
             if (recording) {
                 //width , height 会影响frame.data
-                previewScheduler.startRecording(path, 360, 640, 700 * 1024, 25, false)
+                previewScheduler.startRecording(muxPath, 360, 640, 700 * 1024, 25, false)
             } else {
                 previewScheduler.stopRecording()
             }

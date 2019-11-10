@@ -6,6 +6,8 @@
 
 #include "Message.h"
 
+using namespace std;
+
 Message::Message(int what, shared_ptr<Handler> handler)
         : what(what),
           handler(std::move(handler)) {
