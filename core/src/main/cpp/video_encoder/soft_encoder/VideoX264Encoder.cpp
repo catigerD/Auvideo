@@ -37,8 +37,8 @@ bool VideoX264Encoder::init() {
     codecContext->bit_rate = bitRate;
     codecContext->width = width;
     codecContext->height = height;
-    codecContext->time_base = AVRational{1, 25};
-    codecContext->framerate = AVRational{25, 1};
+    codecContext->time_base = AVRational{1, frameRate};
+    codecContext->framerate = AVRational{frameRate, 1};
     codecContext->gop_size = 10;
     codecContext->max_b_frames = 0;
     codecContext->pix_fmt = AV_PIX_FMT_YUV420P;
@@ -99,8 +99,7 @@ void VideoX264Encoder::encode(const shared_ptr<VideoFrame> &videoFrame) {
     memcpy(&frame->data[2][0], &videoFrame->data[2][0], videoFrame->lineSize[2] * height / 2);
     auto copyDuration = duration_cast<milliseconds>(system_clock::now() - startTime);
     LOGI("encode : copyTime : %lld", copyDuration.count());
-    AVRational timeBase{1, 25};
-    int64_t pts = static_cast<int64_t>(videoFrame->timeMills.count() / av_q2d(timeBase) / 1000);
+    int64_t pts = static_cast<int64_t>(videoFrame->timeMills.count() / av_q2d(codecContext->time_base) / 1000);
     frame->pts = pts;
     LOGI("encode pts : %lld， timeMills : %lld", pts, videoFrame->timeMills.count());
     /* encode the image */
