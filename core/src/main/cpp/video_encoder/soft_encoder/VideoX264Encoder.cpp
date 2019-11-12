@@ -99,9 +99,10 @@ void VideoX264Encoder::encode(const shared_ptr<VideoFrame> &videoFrame) {
     memcpy(&frame->data[2][0], &videoFrame->data[2][0], videoFrame->lineSize[2] * height / 2);
     auto copyDuration = duration_cast<milliseconds>(system_clock::now() - startTime);
     LOGI("encode : copyTime : %lld", copyDuration.count());
-    int64_t pts = videoFrame->timeMills.count();
+    AVRational timeBase{1, 25};
+    int64_t pts = static_cast<int64_t>(videoFrame->timeMills.count() / av_q2d(timeBase) / 1000);
     frame->pts = pts;
-    LOGI("encode pts : %lld", pts);
+    LOGI("encode pts : %lld， timeMills : %lld", pts, videoFrame->timeMills.count());
     /* encode the image */
     startTime = system_clock::now();
     encode(codecContext, frame/*, packet, stream*/);

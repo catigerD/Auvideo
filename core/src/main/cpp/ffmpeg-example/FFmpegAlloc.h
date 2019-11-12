@@ -15,6 +15,7 @@ extern "C" {
 #include "libswscale/swscale.h"
 #include "libavutil/imgutils.h"
 #include "libavutil/parseutils.h"
+#include <libavutil/timestamp.h>
 };
 
 struct FFmpegAlloc {

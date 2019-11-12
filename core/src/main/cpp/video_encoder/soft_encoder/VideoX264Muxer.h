@@ -31,6 +31,8 @@ private:
     bool initSuc{};
 private:
     bool addStream();
+
+    void log_packet(const std::shared_ptr<AVPacket>& pkt);
 };
 
 

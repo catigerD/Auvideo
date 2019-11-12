@@ -55,11 +55,14 @@ void VideoX264Muxer::writePacket(const std::shared_ptr<AVPacket> &packet) {
     if (!initSuc) {
         return;
     }
-    LOGI("writePacket start");
     /* rescale output packet timestamp values from codec to stream timebase */
     av_packet_rescale_ts(packet.get(), codecContext->time_base, videoStream->time_base);
+    LOGI("writePacket start : codecTimeBase -> %d,%d; streamTimeBase -> %d, %d",
+         codecContext->time_base.num,
+         codecContext->time_base.den, videoStream->time_base.num, videoStream->time_base.den);
     packet->stream_index = videoStream->id;
     /* Write the compressed frame to the media file. */
+    log_packet(packet);
     auto ret = av_interleaved_write_frame(formatContext.get(), packet.get());
     if (ret < 0) {
         LOGI("Error while writing video frame: %s\n", av_err2str(ret));
@@ -85,7 +88,7 @@ bool VideoX264Muxer::addStream() {
         return false;
     }
     videoStream->id = formatContext->nb_streams - 1;
-    videoStream->time_base = AVRational{1, 25};
+//    videoStream->time_base = AVRational{1, 25};
     //todo 应该在编码前设置？
 //    if (formatContext->oformat->flags & AVFMT_GLOBALHEADER) {
 //        codecContext->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
@@ -96,4 +99,18 @@ bool VideoX264Muxer::addStream() {
         return false;
     }
     return true;
+}
+
+void VideoX264Muxer::log_packet(const std::shared_ptr<AVPacket> &pkt) {
+    AVRational *time_base = &formatContext->streams[pkt->stream_index]->time_base;
+    LOGI("log_packet : pts:%s pts_time:%s "
+         "dts:%s dts_time:%s "
+         "duration:%s duration_time:%s "
+         "stream_index:%d "
+         "time_base->num : %d, time_base_den : %d ",
+         av_ts2str(pkt->pts), av_ts2timestr(pkt->pts, time_base),
+         av_ts2str(pkt->dts), av_ts2timestr(pkt->dts, time_base),
+         av_ts2str(pkt->duration), av_ts2timestr(pkt->duration, time_base),
+         time_base->num, time_base->den,
+         pkt->stream_index);
 }

@@ -20,7 +20,7 @@ class TestActivity : AppCompatActivity() {
         Environment.getExternalStorageDirectory().absolutePath + File.separator + "Auvideo-convert"
 
     private val muxPath =
-        Environment.getExternalStorageDirectory().absolutePath + File.separator + "Auvideo.mp4"
+        Environment.getExternalStorageDirectory().absolutePath + File.separator + "Auvideo.flv"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
