@@ -20,20 +20,22 @@ class TestActivity : AppCompatActivity() {
         Environment.getExternalStorageDirectory().absolutePath + File.separator + "Auvideo-convert"
 
     private val muxPath =
-        Environment.getExternalStorageDirectory().absolutePath + File.separator + "Auvideo.flv"
+        Environment.getExternalStorageDirectory().absolutePath + "${File.separator}${Environment.DIRECTORY_DCIM}${File.separator}Auvido" + File.separator + "Auvideo.mp4"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_test)
         previewCamera = RecordingPreviewCamera(this)
-        previewScheduler = RecordingPreviewScheduler(previewCamera, sv_preview)
+        previewScheduler = RecordingPreviewScheduler(previewCamera, sv_preview, this)
         btn_recording.setOnClickListener {
             recording = !recording
             if (recording) {
                 //width , height 会影响frame.data
-                previewScheduler.startRecording(muxPath, 360, 640, 700 * 1024, 25, false)
+                btn_recording.text = "stop"
+                previewScheduler.startRecording(360, 640, 700 * 1024, 25, false)
             } else {
+                btn_recording.text = "start"
                 previewScheduler.stopRecording()
             }
         }

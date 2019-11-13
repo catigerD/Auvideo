@@ -1,11 +1,17 @@
 package com.dengchong.core.camera_preview
 
+import android.content.Context
+import android.content.Intent
 import android.hardware.Camera
+import android.net.Uri
+import android.os.Environment
 import android.view.Surface
+import java.io.File
 
 class RecordingPreviewScheduler(
     val camera: RecordingPreviewCamera,
-    val surfaceView: RecordingPreviewSurfaceView
+    val surfaceView: RecordingPreviewSurfaceView,
+    val context: Context
 ) : RecordingPreviewCallback, RecordingPreviewSurfaceViewCallback {
 
     var defaultCameraId: Int = Camera.CameraInfo.CAMERA_FACING_FRONT
@@ -71,7 +77,41 @@ class RecordingPreviewScheduler(
         camera.releaseCameraFromNative()
     }
 
-    external fun startRecording(
+    private val dir: String by lazy {
+        val dst =
+            Environment.getExternalStorageDirectory().absolutePath + "${File.separator}${Environment.DIRECTORY_DCIM}${File.separator}Auvido"
+        val dirFile = File(dst)
+        if (!dirFile.exists()) {
+            dirFile.mkdirs()
+        }
+        return@lazy dst
+    }
+    private var curFilePath: String = ""
+
+    fun startRecording(
+        width: Int,
+        height: Int,
+        bitRate: Int,
+        frameRate: Int,
+        hwEncoding: Boolean
+    ) {
+        val path = dir + File.separator + "Auvideo.mp4"
+        startRecording(path, width, height, bitRate, frameRate, hwEncoding)
+    }
+
+    fun startRecording(
+        path: String,
+        width: Int,
+        height: Int,
+        bitRate: Int,
+        frameRate: Int,
+        hwEncoding: Boolean
+    ) {
+        curFilePath = path
+        startRecording2Native(path, width, height, bitRate, frameRate, hwEncoding)
+    }
+
+    external fun startRecording2Native(
         path: String,
         width: Int,
         height: Int,
@@ -80,7 +120,20 @@ class RecordingPreviewScheduler(
         hwEncoding: Boolean
     )
 
-    external fun stopRecording()
+    fun stopRecording() {
+        stopRecording2Native()
+        updateDCIM()
+    }
+
+    private external fun stopRecording2Native()
+
+    private fun updateDCIM() {
+        if (File(curFilePath).exists()) {
+            val intent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
+            intent.data = Uri.fromFile(File(curFilePath))
+            context.sendBroadcast(intent)
+        }
+    }
 
     external fun switchCamera()
 }

@@ -81,14 +81,14 @@ Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_destroySurface
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_startRecording(JNIEnv *env,
-                                                                                 jobject thiz,
-                                                                                 jstring file_path,
-                                                                                 jint width,
-                                                                                 jint height,
-                                                                                 jint bit_rate,
-                                                                                 jint frame_rate,
-                                                                                 jboolean hw_encoding) {
+Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_startRecording2Native(JNIEnv *env,
+                                                                                        jobject thiz,
+                                                                                        jstring file_path,
+                                                                                        jint width,
+                                                                                        jint height,
+                                                                                        jint bit_rate,
+                                                                                        jint frame_rate,
+                                                                                        jboolean hw_encoding) {
     if (controller) {
         auto path = env->GetStringUTFChars(file_path, nullptr);
         controller->sendStartEncodingMsg(path, width, height, bit_rate, frame_rate,
@@ -116,8 +116,8 @@ Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_startRecording
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_stopRecording(JNIEnv *env,
-                                                                                jobject thiz) {
+Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_stopRecording2Native(JNIEnv *env,
+                                                                                       jobject thiz) {
     if (controller) {
         controller->sendStopEncodingMsg();
     }
