@@ -7,6 +7,7 @@
 
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
+
 #include "GLTools.h"
 #include "AndroidLog.h"
 
@@ -84,6 +85,9 @@ public:
 
     void renderToAutoFillTexture(GLuint inputTexId, int texWidth, int texHeight,
                                  GLuint outputTexId);
+
+    void renderWaterToTexture(GLuint inputTexId, int left, int top, int waterWidth, int waterHeight,
+                              GLuint outputTexId);
 
     void destroy() {
         if (programId) {

@@ -11,36 +11,31 @@
 #include <fstream>
 #include <vector>
 
-using namespace std;
-
-using namespace std;
-
 class EncodingVideo {
 public:
 
     static void
-    encode(shared_ptr<AVCodecContext> context, shared_ptr<AVFrame> frame, shared_ptr<AVPacket> packet,
-           ofstream &stream);
+    encode(std::shared_ptr<AVCodecContext> context, std::shared_ptr<AVFrame> frame, std::shared_ptr<AVPacket> packet,
+           std::ofstream &stream);
 
 public:
-    EncodingVideo(const string &file) : stream(file) {
-
+    EncodingVideo(const std::string &file) : stream(file) {
     }
 
     bool init();
 
     void loopEncode();
 
-    void encode(vector<uint8_t> data, int width, int height,int pts);
+    void encode(std::vector<uint8_t> data, int width, int height, int pts);
 
     void flush();
 
 private:
-    ofstream stream;
-    shared_ptr<AVCodecContext> codecContext;
-    shared_ptr<AVCodec> codec;
-    shared_ptr<AVPacket> packet;
-    shared_ptr<AVFrame> frame;
+    std::ofstream stream;
+    std::shared_ptr<AVCodecContext> codecContext;
+    std::shared_ptr<AVCodec> codec;
+    std::shared_ptr<AVPacket> packet;
+    std::shared_ptr<AVFrame> frame;
 
 };
 

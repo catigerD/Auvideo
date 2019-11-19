@@ -1,3 +1,5 @@
+#include <utility>
+
 //
 // Created by dengchong on 2019-10-14.
 //
@@ -10,34 +12,32 @@
 #include "GLSurfaceRender.h"
 #include "EGLCore.h"
 
-using namespace std;
-
 class VideoEncoderAdapter {
 public:
-    VideoEncoderAdapter(const string &path, int width, int height, int bitRate, int frameRate) :
-            filePath(path),
+    VideoEncoderAdapter(std::string path, int width, int height, int bitRate, int frameRate) :
+            filePath(std::move(path)),
             encodeWidth(width),
             encodeHeight(height),
             encodeBitRate(bitRate),
             encodeFrameRate(frameRate),
-            render(make_shared<GLSurfaceRender>(width, height)) {
+            render(std::make_shared<GLSurfaceRender>(width, height)) {
     }
 
     virtual ~VideoEncoderAdapter() = default;
 
-    virtual void createEncoder(shared_ptr<EGLCore> core, GLuint inputTexId) = 0;
+    virtual void createEncoder(std::shared_ptr<EGLCore> core, GLuint inputTexId) = 0;
 
     virtual void encode() = 0;
 
     virtual void destroyEncoder() = 0;
 
 protected:
-    const string filePath;
+    const std::string filePath;
     int encodeWidth;
     int encodeHeight;
     int encodeBitRate;
     int encodeFrameRate;
-    shared_ptr<GLSurfaceRender> render;
+    std::shared_ptr<GLSurfaceRender> render;
 };
 
 

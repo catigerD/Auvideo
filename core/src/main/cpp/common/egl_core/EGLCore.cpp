@@ -6,6 +6,8 @@
 
 #define LOG_TAG "EglCore"
 
+using namespace std;
+
 EGLCore::EGLCore() = default;
 
 EGLCore::~EGLCore() {

@@ -6,8 +6,10 @@
 
 #define LOG_TAG "EncodeExamples"
 
+using namespace std;
+
 void EncodingVideo::encode(shared_ptr<AVCodecContext> context, shared_ptr<AVFrame> frame, shared_ptr<AVPacket> packet,
-                            ofstream &stream) {
+                           ofstream &stream) {
     int ret;
     /*send the frame to the encoder*/
     if (frame) {

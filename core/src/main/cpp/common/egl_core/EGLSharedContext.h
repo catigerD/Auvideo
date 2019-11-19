@@ -10,8 +10,6 @@
 #include <AndroidLog.h>
 #include <memory>
 
-using namespace std;
-
 class EGLSharedContext {
 public:
     ~EGLSharedContext() {
@@ -34,7 +32,7 @@ private:
 //        init();
 //    }
 
-    static shared_ptr<EGLSharedContext> instance;
+    static std::shared_ptr<EGLSharedContext> instance;
 
     EGLDisplay sharedDisplay;
     EGLContext sharedContext;

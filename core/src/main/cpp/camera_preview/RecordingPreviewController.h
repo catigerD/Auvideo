@@ -40,7 +40,7 @@ public:
     void sendDestroyEGLContextMsg();
 
     void sendStartEncodingMsg(const string &filePath, int width, int height, int bitRate,
-                              int frameRate, bool hwEncoding);
+                              int frameRate, bool hwEncoding, const string& waterPath);
 
     void sendStopEncodingMsg();
 

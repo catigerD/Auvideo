@@ -5,12 +5,11 @@
 #ifndef AUVIDEO_FBOTEXTUREFRAME_H
 #define AUVIDEO_FBOTEXTUREFRAME_H
 
-#include <TextureFrame.h>
-#include <AndroidLog.h>
-#include <GLTools.h>
 #include <vector>
 
-using namespace std;
+#include "TextureFrame.h"
+#include "AndroidLog.h"
+#include "GLTools.h"
 
 class FBOTextureFrame : public TextureFrame {
 

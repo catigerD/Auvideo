@@ -6,12 +6,12 @@
 #define AUVIDEO_RECORDINGPREVIEWRENDER_H
 
 #include <memory>
-#include <GPUTextureFrame.h>
-#include <GPUTextureFrameCopier.h>
+
+#include "GPUTextureFrame.h"
+#include "GPUTextureFrameCopier.h"
 #include "GLSurfaceRender.h"
 #include "FBOTextureFrame.h"
-
-using namespace std;
+#include "ImageTextureFrame.h"
 
 static const GLfloat CAMERA_TRIANGLE_VERTICES[8] = {
         -1.0f, -1.0f,

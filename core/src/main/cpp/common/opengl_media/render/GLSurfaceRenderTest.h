@@ -5,6 +5,8 @@
 #ifndef AUVIDEO_GLSURFACERENDERTEST_H
 #define AUVIDEO_GLSURFACERENDERTEST_H
 
+#include <string>
+
 #include "EglTest.h"
 #include "GLSurfaceRender.h"
 #include <GLES2/gl2.h>
@@ -13,23 +15,18 @@
 
 class GLSurfaceRenderTest : public EglTest {
 public:
-    GLSurfaceRenderTest(const shared_ptr<ANativeWindow> &window, int width, int height,
-                        const char *imagePath);
+    GLSurfaceRenderTest(const shared_ptr<ANativeWindow> &window, int width, int height, std::string imagePath);
 
-    ~GLSurfaceRenderTest();
+    ~GLSurfaceRenderTest() override;
 
 private:
     void loadImage();
 
-    void drawRect();
+    void drawRect() override;
 
 private:
-    const char *imagePath;
+    std::string imagePath;
     bool isLoadedImage{};
-    unsigned char *data{};
-    int imageWidth{};
-    int imageHeight{};
-    int imageChannel{};
 
     GLuint FBO;
     GLuint outputTexId;

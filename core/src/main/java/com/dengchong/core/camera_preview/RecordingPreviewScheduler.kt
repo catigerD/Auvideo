@@ -93,10 +93,11 @@ class RecordingPreviewScheduler(
         height: Int,
         bitRate: Int,
         frameRate: Int,
-        hwEncoding: Boolean
+        hwEncoding: Boolean,
+        waterPath: String = ""
     ) {
         val path = dir + File.separator + "Auvideo.mp4"
-        startRecording(path, width, height, bitRate, frameRate, hwEncoding)
+        startRecording(path, width, height, bitRate, frameRate, hwEncoding, waterPath)
     }
 
     fun startRecording(
@@ -105,10 +106,11 @@ class RecordingPreviewScheduler(
         height: Int,
         bitRate: Int,
         frameRate: Int,
-        hwEncoding: Boolean
+        hwEncoding: Boolean,
+        waterPath: String = ""
     ) {
         curFilePath = path
-        startRecording2Native(path, width, height, bitRate, frameRate, hwEncoding)
+        startRecording2Native(path, width, height, bitRate, frameRate, hwEncoding, waterPath)
     }
 
     external fun startRecording2Native(
@@ -117,12 +119,13 @@ class RecordingPreviewScheduler(
         height: Int,
         bitRate: Int,
         frameRate: Int,
-        hwEncoding: Boolean
+        hwEncoding: Boolean,
+        waterPath: String = ""
     )
 
     fun stopRecording() {
         stopRecording2Native()
-        updateDCIM()
+//        updateDCIM()
     }
 
     private external fun stopRecording2Native()

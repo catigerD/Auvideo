@@ -10,8 +10,6 @@
 #include <AndroidLog.h>
 #include "FFmpegUtils.h"
 
-using namespace std;
-
 class R2YConverter {
 public:
     R2YConverter(int srcWidth, int srcHeight);

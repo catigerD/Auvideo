@@ -6,6 +6,8 @@
 
 #define LOG_TAG "RecordingPreviewRender"
 
+using namespace std;
+
 RecordingPreviewRender::RecordingPreviewRender(int viewWidth, int viewHeight, int texWidth,
                                                int texHeight, int degress, bool isVFlip)
         : cameraTextureFrame(make_shared<GPUTextureFrame>()),

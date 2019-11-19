@@ -88,11 +88,14 @@ Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_startRecording
                                                                                         jint height,
                                                                                         jint bit_rate,
                                                                                         jint frame_rate,
-                                                                                        jboolean hw_encoding) {
+                                                                                        jboolean hw_encoding,
+                                                                                        jstring water_path) {
     if (controller) {
         auto path = env->GetStringUTFChars(file_path, nullptr);
+        auto waterPath = env->GetStringUTFChars(water_path, nullptr);
         controller->sendStartEncodingMsg(path, width, height, bit_rate, frame_rate,
-                                         hw_encoding);
+                                         hw_encoding, waterPath);
+        env->ReleaseStringUTFChars(water_path, waterPath);
         env->ReleaseStringUTFChars(file_path, path);
     }
 

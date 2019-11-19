@@ -7,13 +7,14 @@
 
 #define LOG_TAG "GLSurfaceRenderTest"
 
+using namespace std;
+
 GLSurfaceRenderTest::GLSurfaceRenderTest(const shared_ptr<ANativeWindow> &window, int width,
-                                         int height, const char *imagePath)
+                                         int height, string imagePath)
         : EglTest(window, width, height),
-          imagePath(imagePath),
+          imagePath(std::move(imagePath)),
           render(make_shared<GLSurfaceRender>(width, height)),
-          inputTextureFrame(make_shared<ImageTextureFrame>(imagePath, imageWidth, imageHeight,
-                                                           imageChannel)) {
+          inputTextureFrame(make_shared<ImageTextureFrame>(imagePath)) {
 }
 
 GLSurfaceRenderTest::~GLSurfaceRenderTest() {
@@ -45,7 +46,7 @@ void GLSurfaceRenderTest::drawRect() {
         loadImage();
     }
     glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-    render->renderToAutoFillTexture(inputTextureFrame->getTexId(), imageWidth, imageHeight,
+    render->renderToAutoFillTexture(inputTextureFrame->getTexId(), inputTextureFrame->width, inputTextureFrame->height,
                                     outputTexId);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     render->renderToViewWithAutoFit(outputTexId, width, height, width, height);

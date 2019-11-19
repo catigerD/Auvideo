@@ -6,6 +6,8 @@
 
 #define LOG_TAG "FBOTextureFrame"
 
+using namespace std;
+
 void FBOTextureFrame::initTexture() {
     glGenTextures(1, &texId);
     glBindTexture(GL_TEXTURE_2D, texId);

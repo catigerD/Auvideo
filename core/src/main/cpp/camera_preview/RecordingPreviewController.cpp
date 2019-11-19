@@ -213,9 +213,10 @@ void RecordingPreviewController::deleteGlobalObj() {
 /*--------------------------encode----------------------------------*/
 
 void RecordingPreviewController::sendStartEncodingMsg(const string &filePath, int width, int height,
-                                                      int bitRate, int frameRate, bool hwEncoding) {
+                                                      int bitRate, int frameRate, bool hwEncoding,
+                                                      const string &waterPath) {
     if (!hwEncoding) {
-        encoder = make_shared<SoftEncoderAdapter>(filePath, width, height, bitRate, frameRate);
+        encoder = make_shared<SoftEncoderAdapter>(filePath, width, height, bitRate, frameRate, waterPath);
     }
     if (handler) {
         handler->sendMessage(MSG_START_RECORDING);

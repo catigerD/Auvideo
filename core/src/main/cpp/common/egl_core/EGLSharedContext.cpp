@@ -6,6 +6,8 @@
 
 #define LOG_TAG "EGLSharedContext"
 
+using namespace std;
+
 shared_ptr<EGLSharedContext> EGLSharedContext::instance = make_shared<EGLSharedContext>();
 
 void EGLSharedContext::init() {

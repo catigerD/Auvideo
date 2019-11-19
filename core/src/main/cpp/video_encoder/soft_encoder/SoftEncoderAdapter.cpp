@@ -6,19 +6,22 @@
 
 #define LOG_TAG "SoftEncoderAdapter"
 
+using namespace std;
+using namespace chrono;
+
 SoftEncoderAdapter::SoftEncoderAdapter(const string &path, int width, int height, int bitRate,
-                                       int frameRate)
+                                       int frameRate, const string &waterPath)
         : VideoEncoderAdapter(path, width, height, bitRate, frameRate),
           render(make_shared<GLSurfaceRender>(width, height)),
           fboTextureFrame(make_shared<FBOTextureFrame>(width, height)),
+          waterTextureFrame(make_shared<ImageTextureFrame>(waterPath)),
+          addWater{!waterPath.empty()},
           converter(make_shared<R2YConverter>(width, height)),
           encoder(make_shared<VideoX264Encoder>(path, width, height, bitRate, frameRate)) {
 
 }
 
-SoftEncoderAdapter::~SoftEncoderAdapter() {
-
-}
+SoftEncoderAdapter::~SoftEncoderAdapter() = default;
 
 void SoftEncoderAdapter::createEncoder(shared_ptr<EGLCore> core, GLuint inputTexId) {
     sharedContext = core;
@@ -98,6 +101,8 @@ void SoftEncoderAdapter::initEglContext() {
     eglCore->makeCurrent(offScreenSurface);
     render->init();
     fboTextureFrame->initTexture();
+    waterTextureFrame->initTexture();
+    waterTextureFrame->updateTexImage();
 }
 
 void SoftEncoderAdapter::downloadTexture() {
@@ -112,6 +117,11 @@ void SoftEncoderAdapter::downloadTexture() {
     //拷贝纹理到临时纹理
     glBindFramebuffer(GL_FRAMEBUFFER, fboTextureFrame->getFbo());
     render->renderToVFlipTexture(renderTexId, fboTextureFrame->getTexId());
+    if (addWater) {
+        LOGI("downloadTexture, addWater");
+        render->renderWaterToTexture(waterTextureFrame->getTexId(), 0, 0, 40,
+                                     40, fboTextureFrame->getTexId());
+    }
     downloadTextureCond.notify_one();
     uniqueLock.unlock();
     //从显存 download 到内存

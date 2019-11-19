@@ -6,6 +6,8 @@
 
 #include "SoftEncoderAdapter.h"
 
+using namespace std;
+
 void ImageDownloadHandler::handleMessage(const shared_ptr<Message> &msg) {
     switch (msg->what) {
         case MSG_INIT_EGL_CONTEXT:

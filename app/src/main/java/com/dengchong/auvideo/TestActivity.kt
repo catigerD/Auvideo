@@ -20,7 +20,10 @@ class TestActivity : AppCompatActivity() {
         Environment.getExternalStorageDirectory().absolutePath + File.separator + "Auvideo-convert"
 
     private val muxPath =
-        Environment.getExternalStorageDirectory().absolutePath + "${File.separator}${Environment.DIRECTORY_DCIM}${File.separator}Auvido" + File.separator + "Auvideo.mp4"
+        Environment.getExternalStorageDirectory().absolutePath + File.separator + "Auvideo.mp4"
+
+    private val waterPath =
+        Environment.getExternalStorageDirectory().absolutePath + File.separator + "water.jpg"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,7 +36,7 @@ class TestActivity : AppCompatActivity() {
             if (recording) {
                 //width , height 会影响frame.data
                 btn_recording.text = "stop"
-                previewScheduler.startRecording(360, 640, 700 * 1024, 25, false)
+                previewScheduler.startRecording(muxPath, 360, 640, 700 * 1024, 25, false, waterPath)
             } else {
                 btn_recording.text = "start"
                 previewScheduler.stopRecording()

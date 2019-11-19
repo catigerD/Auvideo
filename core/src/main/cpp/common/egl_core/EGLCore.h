@@ -14,8 +14,6 @@
 
 #include "AndroidLog.h"
 
-using namespace std;
-
 class EGLCore {
 public:
     EGLCore();
@@ -26,7 +24,7 @@ public:
 
     bool initWithSharedContext();
 
-    EGLSurface createWindowSurface(shared_ptr<ANativeWindow> window);
+    EGLSurface createWindowSurface(std::shared_ptr<ANativeWindow> window);
 
     EGLSurface createOffscreenSurface(int width, int height);
 

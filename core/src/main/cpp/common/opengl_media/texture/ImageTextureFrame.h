@@ -5,23 +5,25 @@
 #ifndef AUVIDEO_IMAGETEXTUREFRAME_H
 #define AUVIDEO_IMAGETEXTUREFRAME_H
 
+#include <string>
+
 #include "TextureFrame.h"
 #include "stb_image.h"
 
 class ImageTextureFrame : public TextureFrame {
 public:
 
-    ImageTextureFrame(const char *imagePath, int &width, int &height, int &channel);
+    explicit ImageTextureFrame(std::string imagePath);
 
-    ~ImageTextureFrame();
+    ~ImageTextureFrame() override;
 
-    void initTexture();
+    void initTexture() override;
 
-    void updateTexImage();
+    void updateTexImage() override;
 
-    void bindTexture(GLuint *samplerLoc);
+    void bindTexture(GLuint *samplerLoc) override;
 
-    void destroy() {
+    void destroy() override {
         if (texId) {
             glDeleteTextures(1, &texId);
         }
@@ -31,12 +33,16 @@ public:
         return texId;
     }
 
+public:
+
+    int width{};
+    int height{};
+    int channel{};
+
 private:
     GLuint texId{};
-    const char *imagePath{};
-    int &width;
-    int &height;
-    int &channel;
+    bool validPath{};
+    std::string imagePath;
     unsigned char *data{};
 };
 
