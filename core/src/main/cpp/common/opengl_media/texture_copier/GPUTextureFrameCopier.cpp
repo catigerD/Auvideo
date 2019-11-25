@@ -21,13 +21,9 @@ bool GPUTextureFrameCopier::init() {
     if (!programId) {
         return false;
     }
-    verCoordsAttrLoc = static_cast<GLuint>(glGetAttribLocation(programId, "verCoords"));
-    texCoordsAttrLoc = static_cast<GLuint>(glGetAttribLocation(programId, "texCoords"));
-    verMatrixUniformLoc = static_cast<GLuint>(glGetUniformLocation(programId, "verMatrix"));
-    texMatrixUniformLoc = static_cast<GLuint>(glGetUniformLocation(programId, "texMatrix"));
     gpuSamplerUniformLoc = static_cast<GLuint>(glGetUniformLocation(programId, "gpuSampler"));
     isInit = true;
-    return true;
+    return isInit;
 }
 
 void GPUTextureFrameCopier::renderWithCoords(shared_ptr<TextureFrame> textureFrame, GLuint texId,
@@ -51,25 +47,17 @@ void GPUTextureFrameCopier::renderWithCoords(shared_ptr<TextureFrame> textureFra
     }
 
     glUseProgram(programId);
-
-    glVertexAttribPointer(verCoordsAttrLoc, 2, GL_FLOAT, GL_FALSE, 0, vertexCoords);
-    glEnableVertexAttribArray(verCoordsAttrLoc);
-    glVertexAttribPointer(texCoordsAttrLoc, 2, GL_FLOAT, GL_FALSE, 0, texCoords);
-    glEnableVertexAttribArray(texCoordsAttrLoc);
-
-    float verMatrix[4 * 4];
-    matrixSetIdentityM(verMatrix);
-    glUniformMatrix4fv(verMatrixUniformLoc, 1, GL_FALSE, verMatrix);
-    float texMatrix[4 * 4];
-    matrixSetIdentityM(texMatrix);
-    glUniformMatrix4fv(texMatrixUniformLoc, 1, GL_FALSE, texMatrix);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vertexCoords);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, texCoords);
+    glEnableVertexAttribArray(1);
 
     textureFrame->bindTexture(&gpuSamplerUniformLoc);
 
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-    glDisableVertexAttribArray(texCoordsAttrLoc);
-    glDisableVertexAttribArray(verCoordsAttrLoc);
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 

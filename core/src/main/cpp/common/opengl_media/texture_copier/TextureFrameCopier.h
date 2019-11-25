@@ -13,24 +13,29 @@
 using namespace std;
 
 static const char *NO_FILTER_VERTEX_SOURCE = R"(
-    attribute vec4 verCoords;
-    attribute vec4 texCoords;
-    varying vec4 v_texCoords;
-    uniform highp mat4 verMatrix;
-    uniform highp mat4 texMatrix;
-    void main(){
-        gl_Position = verMatrix * verCoords;
-        v_texCoords = texMatrix * texCoords;
-    }
+#version 300 es
+
+layout(location=0) in vec4 verCoords;
+layout(location=1) in vec4 texCoords;
+out vec4 v_texCoords;
+
+void main(){
+    gl_Position = verCoords;
+    v_texCoords = texCoords;
+}
 )";
 
 static const char *NO_FILTER_FRAGMENT_SOURCE = R"(
-    precision mediump float;
-    varying vec4 v_texCoords;
-    uniform sampler2D texSampler;
-    void main(){
-        gl_FragColor = texture2D(texSampler, v_texCoords);
-    }
+#version 300 es
+precision mediump float;
+
+in vec4 v_texCoords;
+layout(location=0) out vec4 gl_FragColor;
+uniform sampler2D texSampler;
+
+void main(){
+    gl_FragColor = texture(texSampler, v_texCoords.xy);
+}
 )";
 
 class TextureFrameCopier {
@@ -55,10 +60,6 @@ protected:
     const char *vertexSource{NO_FILTER_VERTEX_SOURCE};
     const char *fragmentSource{NO_FILTER_FRAGMENT_SOURCE};
     GLuint programId{};
-    GLuint verCoordsAttrLoc{};
-    GLuint texCoordsAttrLoc{};
-    GLuint verMatrixUniformLoc{};
-    GLuint texMatrixUniformLoc{};
     bool isInit{};
 };
 

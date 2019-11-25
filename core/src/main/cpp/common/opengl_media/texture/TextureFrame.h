@@ -11,7 +11,7 @@ class TextureFrame {
 public:
     TextureFrame() = default;
 
-    virtual ~TextureFrame() {};
+    virtual ~TextureFrame() = default;;
 
     virtual void initTexture() = 0;
 

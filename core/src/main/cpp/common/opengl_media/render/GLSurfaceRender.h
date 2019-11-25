@@ -12,21 +12,28 @@
 #include "AndroidLog.h"
 
 static const char *OUTPUT_VIEW_VERTEX_SOURCE = R"(
-    attribute vec2 vertexcoord;
-    attribute vec2 texcoord;
-    varying vec2 v_texcoord;
-    void main(){
-        gl_Position = vec4(vertexcoord, 0, 1);
-        v_texcoord = texcoord;
-    }
+#version 300 es
+
+layout(location = 0) in vec4 vertexcoord;
+layout(location = 1) in vec4 texcoord;
+out vec4 v_texcoord;
+void main(){
+    gl_Position = vertexcoord;
+    v_texcoord = texcoord;
+}
 )";
 
 static const char *OUTPUT_VIEW_FRAGMENT_SOURCE = R"(
-    varying highp vec2 v_texcoord;
-    uniform sampler2D texture;
-    void main(){
-        gl_FragColor = texture2D(texture, v_texcoord);
-    }
+#version 300 es
+
+precision mediump float;
+
+in highp vec4 v_texcoord;
+layout(location = 0) out vec4 gl_FragColor;
+uniform sampler2D texture;
+void main(){
+    gl_FragColor = texture(texture, v_texcoord.xy);
+}
 )";
 
 static const GLfloat OUTPUT_VIEW_VERTEX_COORD[] = {
@@ -96,6 +103,10 @@ public:
     }
 
 private:
+    const static int VERTEX_POSITION_LOCATION = 0;
+    const static int VERTEX_TEXTURE_LOCATION = 1;
+
+private:
     GLint left{};
     GLint top{};
     GLint viewWidth{};
@@ -106,8 +117,6 @@ private:
 
     bool isInitProgram{};
     GLuint programId{};
-    GLuint vertexcoordAttrLoc{};
-    GLuint texcoordAttrLoc{};
     GLuint textureUniformLoc{};
 };
 

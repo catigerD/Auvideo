@@ -22,11 +22,7 @@ public:
 
     }
 
-    ~FBOTextureFrame() override {
-        if (texId) {
-            glDeleteTextures(1, &texId);
-        }
-    }
+    ~FBOTextureFrame() override = default;
 
     void initTexture() override;
 
@@ -37,6 +33,9 @@ public:
     void destroy() override {
         if (texId) {
             glDeleteTextures(1, &texId);
+        }
+        if (fbo) {
+            glDeleteFramebuffers(1, &fbo);
         }
     }
 

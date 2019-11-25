@@ -22,7 +22,6 @@ void FBOTextureFrame::initTexture() {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE,
                  nullptr);
     glBindTexture(GL_TEXTURE_2D, 0);
-
     glGenFramebuffers(1, &fbo);
 }
 

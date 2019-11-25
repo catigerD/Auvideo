@@ -5,13 +5,14 @@
 #ifndef AUVIDEO_EGLCORE_H
 #define AUVIDEO_EGLCORE_H
 
+#include <memory>
+
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <android/native_window.h>
 #include <android/native_window_jni.h>
-#include <memory>
-#include "EGLSharedContext.h"
 
+#include "EGLSharedContext.h"
 #include "AndroidLog.h"
 
 class EGLCore {

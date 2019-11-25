@@ -8,13 +8,16 @@
 #include "TextureFrameCopier.h"
 
 static const char *GPU_FRAGMENT_SOURCE = R"(
-    #extension GL_OES_EGL_image_external : require
-    precision mediump float;
-    varying vec4 v_texCoords;
-    uniform samplerExternalOES gpuSampler;
-    void main(){
-        gl_FragColor = texture2D(gpuSampler, v_texCoords.xy);
-    }
+#version 300 es
+#extension GL_OES_EGL_image_external_essl3 : require
+
+precision mediump float;
+in vec4 v_texCoords;
+layout(location=0) out vec4 gl_FragColor;
+uniform samplerExternalOES gpuSampler;
+void main(){
+    gl_FragColor = texture(gpuSampler, v_texCoords.xy);
+}
 )";
 
 class GPUTextureFrameCopier : public TextureFrameCopier {
@@ -33,6 +36,9 @@ public:
 private:
     int viewWidth;
     int viewHeight;
+
+    GLuint VBO;
+    GLuint VAO;
 
     GLuint gpuSamplerUniformLoc{};
 };

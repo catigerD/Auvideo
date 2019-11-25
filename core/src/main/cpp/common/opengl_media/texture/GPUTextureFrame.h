@@ -12,17 +12,15 @@ public:
 
     GPUTextureFrame() = default;
 
-    ~GPUTextureFrame() {
+    ~GPUTextureFrame() override = default;;
 
-    };
+    void initTexture() override;
 
-    void initTexture();
+    void updateTexImage() override;
 
-    void updateTexImage();
+    void bindTexture(GLuint *samplerLoc) override;
 
-    void bindTexture(GLuint *samplerLoc);
-
-    void destroy() {
+    void destroy() override {
         if (texId) {
             glDeleteTextures(1, &texId);
         }
