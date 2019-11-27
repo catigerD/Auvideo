@@ -4,6 +4,8 @@
 
 #include "RecordingPreviewRender.h"
 
+#include "GPUTextureFrameCopier.h"
+
 #define LOG_TAG "RecordingPreviewRender"
 
 using namespace std;
@@ -12,7 +14,7 @@ RecordingPreviewRender::RecordingPreviewRender(int viewWidth, int viewHeight, in
                                                int texHeight, int degress, bool isVFlip)
         : cameraTextureFrame(make_shared<GPUTextureFrame>()),
           formatTextureFrame(make_shared<FBOTextureFrame>(texWidth, texHeight, degress)),
-          copier(make_shared<GPUTextureFrameCopier>(degress, texWidth, texHeight)),
+          gpuCopier(make_shared<GPUTextureFrameCopier>(texWidth, texHeight, degress)),
           render(make_shared<GLSurfaceRender>(viewWidth, viewHeight)),
           viewWidth(viewWidth),
           viewHeight(viewHeight),
@@ -28,7 +30,7 @@ RecordingPreviewRender::~RecordingPreviewRender() = default;
 void RecordingPreviewRender::init() {
     cameraTextureFrame->initTexture();
     formatTextureFrame->initTexture();
-    copier->init();
+    gpuCopier->init();
     render->init();
     glGenFramebuffers(1, &FBO);
 }
@@ -45,9 +47,9 @@ void RecordingPreviewRender::processFrame() {
     LOGI("processFrame , screenWidth : %d, screenHeight : %d, texWidth : %d, texHeight : %d, degress : %d",
          viewWidth, viewHeight, texWidth, texHeight, degress);
     glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-    copier->renderWithCoords(cameraTextureFrame, formatTextureFrame->getTexId(),
-                             CAMERA_TRIANGLE_VERTICES,
-                             texCoords);
+    gpuCopier->renderWithCoords(cameraTextureFrame, formatTextureFrame->getTexId(),
+                                RenderConfig::VERTEX_COORD,
+                                texCoords);
 
 }
 
@@ -62,7 +64,7 @@ void RecordingPreviewRender::destroy() {
         glDeleteFramebuffers(1, &FBO);
     }
     render->destroy();
-    copier->destroy();
+    gpuCopier->destroy();
     formatTextureFrame->destroy();
     cameraTextureFrame->destroy();
 }
@@ -70,16 +72,16 @@ void RecordingPreviewRender::destroy() {
 void RecordingPreviewRender::fillTexCoords() {
     switch (degress) {
         case 90:
-            memcpy(texCoords, CAMERA_TEXTURE_ROTATED_90, 8 * sizeof(GLfloat));
+            texCoords = RenderConfig::CAMERA_TEXTURE_ROTATED_90;
             break;
         case 180:
-            memcpy(texCoords, CAMERA_TEXTURE_ROTATED_180, 8 * sizeof(GLfloat));
+            texCoords = RenderConfig::CAMERA_TEXTURE_ROTATED_180;
             break;
         case 270:
-            memcpy(texCoords, CAMERA_TEXTURE_ROTATED_270, 8 * sizeof(GLfloat));
+            texCoords = RenderConfig::CAMERA_TEXTURE_ROTATED_270;
             break;
         default:
-            memcpy(texCoords, CAMERA_TEXTURE_ROTATED_0, 8 * sizeof(GLfloat));
+            texCoords = RenderConfig::CAMERA_TEXTURE_ROTATED_0;
             break;
     }
     if (isVFlip) {

@@ -79,7 +79,7 @@ target_link_libraries(
         core
         log
         android
-        GLESv2
+        GLESv3
         EGL
         z
         OpenSLES

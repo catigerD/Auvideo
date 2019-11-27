@@ -28,8 +28,6 @@ public:
 
     void updateTexImage() override {};
 
-    void bindTexture(GLuint *samplerLoc) override;
-
     void destroy() override {
         if (texId) {
             glDeleteTextures(1, &texId);
@@ -37,10 +35,6 @@ public:
         if (fbo) {
             glDeleteFramebuffers(1, &fbo);
         }
-    }
-
-    GLuint getTexId() {
-        return texId;
     }
 
     GLuint getFbo() {
@@ -56,7 +50,6 @@ public:
     }
 
 private:
-    GLuint texId{};
     GLuint fbo;
     int width{};
     int height{};

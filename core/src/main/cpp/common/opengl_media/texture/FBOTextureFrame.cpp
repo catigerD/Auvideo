@@ -4,6 +4,8 @@
 
 #include "FBOTextureFrame.h"
 
+#include <GLES2/gl2ext.h>
+
 #define LOG_TAG "FBOTextureFrame"
 
 using namespace std;
@@ -23,10 +25,4 @@ void FBOTextureFrame::initTexture() {
                  nullptr);
     glBindTexture(GL_TEXTURE_2D, 0);
     glGenFramebuffers(1, &fbo);
-}
-
-void FBOTextureFrame::bindTexture(GLuint *samplerLoc) {
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texId);
-    glUniform1i(*samplerLoc, 0);
 }

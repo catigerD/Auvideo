@@ -18,20 +18,11 @@ public:
 
     void updateTexImage() override;
 
-    void bindTexture(GLuint *samplerLoc) override;
-
     void destroy() override {
         if (texId) {
             glDeleteTextures(1, &texId);
         }
     }
-
-    GLuint getTexId() {
-        return texId;
-    }
-
-private:
-    GLuint texId{};
 };
 
 

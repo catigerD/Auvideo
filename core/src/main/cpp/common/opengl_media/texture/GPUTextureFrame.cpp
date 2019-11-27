@@ -4,6 +4,8 @@
 
 #include "GPUTextureFrame.h"
 
+#include <GLES2/gl2ext.h>
+
 void GPUTextureFrame::initTexture() {
     glGenTextures(1, &texId);
     glBindTexture(GL_TEXTURE_EXTERNAL_OES, texId);
@@ -16,9 +18,4 @@ void GPUTextureFrame::initTexture() {
 
 void GPUTextureFrame::updateTexImage() {
     //调用 Java 层 SurfaceTexture.updateTexImage 更新纹理
-}
-
-void GPUTextureFrame::bindTexture(GLuint *samplerLoc) {
-    glBindTexture(GL_TEXTURE_EXTERNAL_OES, texId);
-    glUniform1i(*samplerLoc, 0);
 }

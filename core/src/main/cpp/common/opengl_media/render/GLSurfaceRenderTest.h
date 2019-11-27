@@ -7,10 +7,10 @@
 
 #include <string>
 
+#include <GLES3/gl3.h>
+
 #include "EglTest.h"
 #include "GLSurfaceRender.h"
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
 #include "ImageTextureFrame.h"
 
 class GLSurfaceRenderTest : public EglTest {

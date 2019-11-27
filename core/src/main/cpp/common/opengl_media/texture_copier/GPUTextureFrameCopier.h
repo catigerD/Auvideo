@@ -7,40 +7,33 @@
 
 #include "TextureFrameCopier.h"
 
-static const char *GPU_FRAGMENT_SOURCE = R"(
-#version 300 es
-#extension GL_OES_EGL_image_external_essl3 : require
-
-precision mediump float;
-in vec4 v_texCoords;
-layout(location=0) out vec4 gl_FragColor;
-uniform samplerExternalOES gpuSampler;
-void main(){
-    gl_FragColor = texture(gpuSampler, v_texCoords.xy);
-}
-)";
-
 class GPUTextureFrameCopier : public TextureFrameCopier {
 public:
-    GPUTextureFrameCopier(int degress, int viewWidth, int viewHeight);
+    static const std::string GPU_FRAGMENT_SOURCE;
 
-    ~GPUTextureFrameCopier() override;
+public:
+    GPUTextureFrameCopier(int viewWidth, int viewHeight, int degress);
 
-    bool init() override;
+    void init() override;
 
-    void renderWithCoords(shared_ptr<TextureFrame> textureFrame,
-                          GLuint texId, const GLfloat *vertexCoords, const GLfloat *texCoords) override;
+    void renderWithCoords(std::shared_ptr<TextureFrame> textureFrame, GLuint outputTexId,
+                          const std::array<GLfloat, RenderConfig::VERTEX_SIZE> &verCoord,
+                          const std::array<GLfloat, RenderConfig::VERTEX_SIZE> &texCoord) override;
 
-    void destroy() override;
+    void destroy() override {
+        glDeleteBuffers(2, VBO);
+        glDeleteVertexArrays(1, &VAO);
+        glDeleteProgram(programId);
+    }
 
 private:
     int viewWidth;
     int viewHeight;
 
-    GLuint VBO;
-    GLuint VAO;
+    GLuint VBO[2];
+    GLuint VAO{};
 
-    GLuint gpuSamplerUniformLoc{};
+    GLuint gpuSampler{};
 };
 
 

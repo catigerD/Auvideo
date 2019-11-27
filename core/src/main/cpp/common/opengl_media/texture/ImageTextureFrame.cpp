@@ -44,12 +44,3 @@ void ImageTextureFrame::updateTexImage() {
                  data);
     glBindTexture(GL_TEXTURE_2D, 0);
 }
-
-void ImageTextureFrame::bindTexture(GLuint *samplerLoc) {
-    if (!validPath) {
-        return;
-    }
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texId);
-    glUniform1i(*samplerLoc, 0);
-}

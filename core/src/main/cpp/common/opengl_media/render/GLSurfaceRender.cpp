@@ -6,30 +6,46 @@
 
 #define LOG_TAG "GLSurfaceRender"
 
-
-GLSurfaceRender::GLSurfaceRender(int viewWidth, int viewHeight, const char *vertexSource,
-                                 const char *fragmentSource)
-        : viewWidth(viewWidth),
-          viewHeight(viewHeight),
-          vertexSource(vertexSource),
-          fragmentSource(fragmentSource) {
-}
+using namespace std;
 
 void GLSurfaceRender::init() {
-    programId = loadProgram(vertexSource, fragmentSource);
+    programId = loadProgram(RenderConfig::VERTEX_SOURCE.c_str(), RenderConfig::FRAGMENT_SOURCE.c_str());
     if (!programId) {
         LOGE("Could not create Program");
         return;
     }
-    textureUniformLoc = static_cast<GLuint>(glGetAttribLocation(programId, "texture"));
-    checkGLError("glGetAttribLocation texture");
-    isInitProgram = true;
-}
+    auto sampler2DIndex = static_cast<GLuint>(glGetAttribLocation(programId, "texture"));
+    glUniform1i(sampler2DIndex, 0);
 
-GLSurfaceRender::~GLSurfaceRender() {
-    if (programId) {
-        glDeleteProgram(programId);
-    }
+    glGenBuffers(2, VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
+    glBufferData(GL_ARRAY_BUFFER, RenderConfig::VERTEX_PTR_SIZE, RenderConfig::VERTEX_COORD.data(), GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+    glBufferData(GL_ARRAY_BUFFER, RenderConfig::VERTEX_PTR_SIZE, RenderConfig::TEXTURE_COORD.data(), GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
+    glEnableVertexAttribArray(RenderConfig::VERTEX_POS_INDEX);
+    glVertexAttribPointer(RenderConfig::VERTEX_POS_INDEX, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+    glEnableVertexAttribArray(RenderConfig::VERTEX_TEX_INDEX);
+    glVertexAttribPointer(RenderConfig::VERTEX_TEX_INDEX, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    //***需要调用 glBindBuffer(GL_ARRAY_BUFFER, 0) 解绑？不然会黑屏。。。
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    glGenSamplers(1, &SMO);
+    glBindSampler(0, SMO);
+    glSamplerParameteri(SMO, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glSamplerParameteri(SMO, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    //设置纹理四周为黑色
+    float borderColor[] = {0.0f, 0.0f, 0.0f, 0.0f};
+    glSamplerParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER_OES);
+    glSamplerParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER_OES);
+    glSamplerParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR_OES, borderColor);
+    glSamplerParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR_OES, borderColor);
+    glBindSampler(0, 0);
 }
 
 void GLSurfaceRender::resetRenderSize(int left, int top, int width, int height) {
@@ -40,367 +56,233 @@ void GLSurfaceRender::resetRenderSize(int left, int top, int width, int height) 
 }
 
 void GLSurfaceRender::renderToView(GLuint texId) {
-    glViewport(left, top, viewWidth, viewHeight);
-    if (!isInitProgram) {
+    renderToView(texId, viewWidth, viewHeight);
+}
+
+void GLSurfaceRender::renderToView(GLuint texId, int renderWidth, int renderHeight) {
+    if (!programId) {
         LOGE("renderToView error , isInitProgram = false");
         return;
     }
 
+    glViewport(left, top, renderWidth, renderHeight);
+
     glUseProgram(programId);
-    //todo 使用 VAO
-    glVertexAttribPointer(VERTEX_POSITION_LOCATION, 2, GL_FLOAT, GL_FALSE, 0, OUTPUT_VIEW_VERTEX_COORD);
-    glEnableVertexAttribArray(VERTEX_POSITION_LOCATION);
-    glVertexAttribPointer(VERTEX_TEXTURE_LOCATION, 2, GL_FLOAT, GL_FALSE, 0, OUTPUT_VIEW_TEXTURE_COORD);
-    glEnableVertexAttribArray(VERTEX_TEXTURE_LOCATION);
-    glActiveTexture(GL_TEXTURE0);
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, RenderConfig::VERTEX_PTR_SIZE, RenderConfig::TEXTURE_COORD.data());
     glBindTexture(GL_TEXTURE_2D, texId);
-    glUniform1i(textureUniformLoc, 0);
 
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
     glBindTexture(GL_TEXTURE_2D, 0);
-    glDisableVertexAttribArray(VERTEX_TEXTURE_LOCATION);
-    glDisableVertexAttribArray(VERTEX_POSITION_LOCATION);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
 }
 
-void GLSurfaceRender::renderToView(GLuint texId, int viewWidth, int viewHeight) {
-    glViewport(0, 0, viewWidth, viewHeight);
-    if (!isInitProgram) {
-        LOGE("renderToView error , isInitProgram = false");
-        return;
-    }
-
-    glUseProgram(programId);
-    //todo 使用 VAO
-    glVertexAttribPointer(VERTEX_POSITION_LOCATION, 2, GL_FLOAT, GL_FALSE, 0, OUTPUT_VIEW_VERTEX_COORD);
-    glEnableVertexAttribArray(VERTEX_POSITION_LOCATION);
-    glVertexAttribPointer(VERTEX_TEXTURE_LOCATION, 2, GL_FLOAT, GL_FALSE, 0, OUTPUT_VIEW_TEXTURE_COORD);
-    glEnableVertexAttribArray(VERTEX_TEXTURE_LOCATION);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texId);
-    glUniform1i(textureUniformLoc, 0);
-
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glDisableVertexAttribArray(VERTEX_TEXTURE_LOCATION);
-    glDisableVertexAttribArray(VERTEX_POSITION_LOCATION);
-}
-
-void GLSurfaceRender::renderToViewWithAutoFit(GLuint texId, int viewWidth, int viewHeight,
+void GLSurfaceRender::renderToViewWithAutoFit(GLuint texId, int renderWidth, int renderHeight,
                                               int texWidth, int texHeight) {
-    glViewport(0, 0, viewWidth, viewHeight);
-    if (!isInitProgram) {
+    if (!programId) {
         LOGE("renderToView error , isInitProgram = false");
         return;
     }
 
-    float texAspectRatio = static_cast<float>(texHeight) / texWidth;
-    float screenAspectRatio = static_cast<float>(viewHeight) / viewWidth;
-    float xOffset = 0.0f;
-    float yOffset = 0.0f;
-    if (texAspectRatio > screenAspectRatio) {
-        int fillWidth = texWidth * viewHeight / texHeight;
-        xOffset = static_cast<float >(fillWidth - viewWidth) / (2 * fillWidth);
-        LOGI("GLSurfaceRender::renderToViewWithAutoFit , fillWidth : %d, swidth : %d, texwidth : %d,sheight : %d, texheight : %d,  xOffset : %f",
-             fillWidth, viewWidth, texWidth, viewHeight, texHeight, xOffset);
-    } else {
-        int fillHeight = texHeight * viewWidth / texWidth;
-        yOffset = static_cast<float >(fillHeight - viewHeight) / (2 * fillHeight);
-        LOGI("GLSurfaceRender::renderToViewWithAutoFit , fillHeight : %d, swidth : %d, texwidth : %d,sheight : %d, texheight : %d,  yOffset : %f",
-             fillHeight, viewWidth, texWidth, viewHeight, texHeight, yOffset);
-    }
-    LOGI("GLSurfaceRender: xOffset : %f , yOffset : %f", xOffset, yOffset);
-    const GLfloat fitTexcoord[] = {
-            xOffset, yOffset,
-            1.0f - xOffset, yOffset,
-            xOffset, 1.0f - yOffset,
-            1.0f - xOffset, 1.0f - yOffset
-    };
+    glViewport(0, 0, renderWidth, renderHeight);
+
+    array<GLfloat, RenderConfig::VERTEX_SIZE> texCoord{};
+    RenderConfig::getFitTexCoord(renderWidth, renderHeight, texWidth, texHeight, texCoord);
+
     glUseProgram(programId);
-    //todo 使用 VAO
-    glVertexAttribPointer(VERTEX_POSITION_LOCATION, 2, GL_FLOAT, GL_FALSE, 0, OUTPUT_VIEW_VERTEX_COORD);
-    glEnableVertexAttribArray(VERTEX_POSITION_LOCATION);
-    glVertexAttribPointer(VERTEX_TEXTURE_LOCATION, 2, GL_FLOAT, GL_FALSE, 0, fitTexcoord);
-    glEnableVertexAttribArray(VERTEX_TEXTURE_LOCATION);
-    glActiveTexture(GL_TEXTURE0);
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, RenderConfig::VERTEX_PTR_SIZE, texCoord.data());
     glBindTexture(GL_TEXTURE_2D, texId);
-    glUniform1i(textureUniformLoc, 0);
 
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
     glBindTexture(GL_TEXTURE_2D, 0);
-    glDisableVertexAttribArray(VERTEX_TEXTURE_LOCATION);
-    glDisableVertexAttribArray(VERTEX_POSITION_LOCATION);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
 }
 
-void GLSurfaceRender::renderToViewWithAutoFill(GLuint texId, int viewWidth, int viewHeight,
+void GLSurfaceRender::renderToViewWithAutoFill(GLuint texId, int renderWidth, int renderHeight,
                                                int texWidth, int texHeight) {
-    glViewport(0, 0, viewWidth, viewHeight);
-    if (!isInitProgram) {
+    if (!programId) {
         LOGE("renderToView error , isInitProgram = false");
         return;
     }
 
-    float texAspectRatio = static_cast<float>(texHeight) / texWidth;
-    float screenAspectRatio = static_cast<float>(viewHeight) / viewWidth;
-    float xOffset = 0.0f;
-    float yOffset = 0.0f;
-    if (texAspectRatio > screenAspectRatio) {
-        int fillHeight = texWidth * viewHeight / viewWidth;
-        yOffset = static_cast<float>(texHeight - fillHeight) / (2 * texHeight);
-//        LOGI("GLSurfaceRender::renderToViewWithAutoFill , fillHeight : %d, swidth : %d, texwidth : %d,sheight : %d, texheight : %d,  yOffset : %f",
-//             fillHeight, viewWidth, texWidth, viewHeight, texHeight, yOffset);
-    } else {
-        int fillWidth = texHeight * viewWidth / viewHeight;
-        xOffset = static_cast<float>(texWidth - fillWidth) / (2 * texWidth);
-//        LOGI("GLSurfaceRender::renderToViewWithAutoFill , fillWidth : %d, swidth : %d, texwidth : %d,sheight : %d, texheight : %d,  xOffset : %f",
-//             fillWidth, viewWidth, texWidth, viewHeight, texHeight, xOffset);
-    }
-    const GLfloat fitTexcoord[] = {
-            xOffset, yOffset,
-            1.0f - xOffset, yOffset,
-            xOffset, 1.0f - yOffset,
-            1.0f - xOffset, 1.0f - yOffset
-    };
+    glViewport(0, 0, renderWidth, renderHeight);
+
+    array<GLfloat, RenderConfig::VERTEX_SIZE> texCoord{};
+    RenderConfig::getFillTexCoord(renderWidth, renderHeight, texWidth, texHeight, texCoord);
+
     glUseProgram(programId);
-    //todo 使用 VAO
-    glVertexAttribPointer(VERTEX_POSITION_LOCATION, 2, GL_FLOAT, GL_FALSE, 0, OUTPUT_VIEW_VERTEX_COORD);
-    glEnableVertexAttribArray(VERTEX_POSITION_LOCATION);
-    glVertexAttribPointer(VERTEX_TEXTURE_LOCATION, 2, GL_FLOAT, GL_FALSE, 0, fitTexcoord);
-    glEnableVertexAttribArray(VERTEX_TEXTURE_LOCATION);
-    glActiveTexture(GL_TEXTURE0);
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, RenderConfig::VERTEX_PTR_SIZE, texCoord.data());
     glBindTexture(GL_TEXTURE_2D, texId);
-    //设置纹理四周为黑色
-    float borderColor[] = {0.0f, 0.0f, 0.0f, 0.0f};
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER_OES);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER_OES);
-    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR_OES, borderColor);
-    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR_OES, borderColor);
-    glUniform1i(textureUniformLoc, 0);
+    glBindSampler(0, SMO);
 
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
+    glBindSampler(0, 0);
     glBindTexture(GL_TEXTURE_2D, 0);
-    glDisableVertexAttribArray(VERTEX_TEXTURE_LOCATION);
-    glDisableVertexAttribArray(VERTEX_POSITION_LOCATION);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
 }
 
 void GLSurfaceRender::renderToTexture(GLuint inputTexId, GLuint outputTexId) {
-    glViewport(left, top, viewWidth, viewHeight);
-    if (!isInitProgram) {
+    if (!programId) {
         LOGE("renderToTexture error , isInitProgram = false");
         return;
     }
 
+    glViewport(left, top, viewWidth, viewHeight);
+
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, outputTexId, 0);
-    checkGLError("renderToTexture , glFramebufferTexture2D");
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE) {
         LOGE("failed to make complete framebuffer object %x", status);
+        return;
     }
 
     glUseProgram(programId);
-    //todo 使用VAO
-    glVertexAttribPointer(VERTEX_POSITION_LOCATION, 2, GL_FLOAT, GL_FALSE, 0, OUTPUT_VIEW_VERTEX_COORD);
-    glEnableVertexAttribArray(VERTEX_POSITION_LOCATION);
-    glVertexAttribPointer(VERTEX_TEXTURE_LOCATION, 2, GL_FLOAT, GL_FALSE, 0, OUTPUT_VIEW_TEXTURE_COORD);
-    glEnableVertexAttribArray(VERTEX_TEXTURE_LOCATION);
-    glActiveTexture(GL_TEXTURE0);
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, RenderConfig::VERTEX_PTR_SIZE, RenderConfig::TEXTURE_COORD.data());
     glBindTexture(GL_TEXTURE_2D, inputTexId);
-    glUniform1i(textureUniformLoc, 0);
 
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
     glBindTexture(GL_TEXTURE_2D, 0);
-    glDisableVertexAttribArray(VERTEX_TEXTURE_LOCATION);
-    glDisableVertexAttribArray(VERTEX_POSITION_LOCATION);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
 }
 
 void GLSurfaceRender::renderToVFlipTexture(GLuint inputTexId, GLuint outputTexId) {
-    glViewport(left, top, viewWidth, viewHeight);
-    if (!isInitProgram) {
+    if (!programId) {
         LOGE("renderToTexture error , isInitProgram = false");
         return;
     }
 
+    glViewport(left, top, viewWidth, viewHeight);
+
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, outputTexId, 0);
-    checkGLError("renderToTexture , glFramebufferTexture2D");
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE) {
         LOGE("failed to make complete framebuffer object %x", status);
+        return;
     }
 
     glUseProgram(programId);
-    //todo 使用VAO
-    glVertexAttribPointer(VERTEX_POSITION_LOCATION, 2, GL_FLOAT, GL_FALSE, 0, OUTPUT_VIEW_VERTEX_COORD);
-    glEnableVertexAttribArray(VERTEX_POSITION_LOCATION);
-    glVertexAttribPointer(VERTEX_TEXTURE_LOCATION, 2, GL_FLOAT, GL_FALSE, 0,
-                          OUTPUT_VIEW_VFLIP_TEXTURE_COORD);
-    glEnableVertexAttribArray(VERTEX_TEXTURE_LOCATION);
-    glActiveTexture(GL_TEXTURE0);
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, RenderConfig::VERTEX_PTR_SIZE, RenderConfig::V_FLIP_TEXTURE_COORD.data());
     glBindTexture(GL_TEXTURE_2D, inputTexId);
-    glUniform1i(textureUniformLoc, 0);
 
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
     glBindTexture(GL_TEXTURE_2D, 0);
-    glDisableVertexAttribArray(VERTEX_TEXTURE_LOCATION);
-    glDisableVertexAttribArray(VERTEX_POSITION_LOCATION);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
 }
 
 void GLSurfaceRender::renderToAutoFillTexture(GLuint inputTexId, int texWidth, int texHeight,
                                               GLuint outputTexId) {
-    glViewport(left, top, viewWidth, viewHeight);
-    if (!isInitProgram) {
+    if (!programId) {
         LOGE("renderToTexture error , isInitProgram = false");
         return;
     }
 
+    array<GLfloat, RenderConfig::VERTEX_SIZE> texCoords{};
+    RenderConfig::getFillTexCoord(viewWidth, viewHeight, texWidth, texHeight, texCoords);
+
+    glViewport(left, top, viewWidth, viewHeight);
+
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, outputTexId, 0);
-    checkGLError("renderToTexture , glFramebufferTexture2D");
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE) {
         LOGE("failed to make complete framebuffer object %x", status);
+        return;
     }
-
-    float texAspectRatio = static_cast<float>(texHeight) / texWidth;
-    float screenAspectRatio = static_cast<float>(viewHeight) / viewWidth;
-    float xOffset = 0.0f;
-    float yOffset = 0.0f;
-    if (texAspectRatio > screenAspectRatio) {
-        int fillHeight = texWidth * viewHeight / viewWidth;
-        yOffset = static_cast<float>(texHeight - fillHeight) / (2 * texHeight);
-    } else {
-        int fillWidth = texHeight * viewWidth / viewHeight;
-        xOffset = static_cast<float>(texWidth - fillWidth) / (2 * texWidth);
-    }
-    const GLfloat fitTexcoord[] = {
-            xOffset, yOffset,
-            1.0f - xOffset, yOffset,
-            xOffset, 1.0f - yOffset,
-            1.0f - xOffset, 1.0f - yOffset
-    };
 
     glUseProgram(programId);
-    //todo 使用VAO
-    glVertexAttribPointer(VERTEX_POSITION_LOCATION, 2, GL_FLOAT, GL_FALSE, 0, OUTPUT_VIEW_VERTEX_COORD);
-    glEnableVertexAttribArray(VERTEX_POSITION_LOCATION);
-    glVertexAttribPointer(VERTEX_TEXTURE_LOCATION, 2, GL_FLOAT, GL_FALSE, 0, fitTexcoord);
-    glEnableVertexAttribArray(VERTEX_TEXTURE_LOCATION);
-    glActiveTexture(GL_TEXTURE0);
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, RenderConfig::VERTEX_PTR_SIZE, texCoords.data());
     glBindTexture(GL_TEXTURE_2D, inputTexId);
-    //设置纹理四周为黑色
-    float borderColor[] = {0.0f, 0.0f, 0.0f, 0.0f};
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER_OES);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER_OES);
-    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR_OES, borderColor);
-    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR_OES, borderColor);
-    glUniform1i(textureUniformLoc, 0);
+    glBindSampler(0, SMO);
 
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
+    glBindSampler(0, 0);
     glBindTexture(GL_TEXTURE_2D, 0);
-    glDisableVertexAttribArray(VERTEX_TEXTURE_LOCATION);
-    glDisableVertexAttribArray(VERTEX_POSITION_LOCATION);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
 }
 
 void GLSurfaceRender::renderToAutoFitTexture(GLuint inputTexId, int texWidth, int texHeight,
                                              GLuint outputTexId) {
-    glViewport(left, top, viewWidth, viewHeight);
-    if (!isInitProgram) {
+    if (!programId) {
         LOGE("renderToTexture error , isInitProgram = false");
         return;
     }
 
+    glViewport(left, top, viewWidth, viewHeight);
+
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, outputTexId, 0);
-    checkGLError("renderToTexture , glFramebufferTexture2D");
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE) {
         LOGE("failed to make complete framebuffer object %x", status);
+        return;
     }
 
-    float texAspectRatio = static_cast<float>(texHeight) / texWidth;
-    float screenAspectRatio = static_cast<float>(viewHeight) / viewWidth;
-    float xOffset = 0.0f;
-    float yOffset = 0.0f;
-    if (texAspectRatio > screenAspectRatio) {
-        int fillWidth = texWidth * viewHeight / texHeight;
-        xOffset = static_cast<float >(fillWidth - texWidth) / (2 * fillWidth);
-    } else {
-        int fillHeight = texHeight * viewWidth / texWidth;
-        yOffset = static_cast<float >(fillHeight - viewHeight) / (2 * fillHeight);
-    }
-    LOGI("GLSurfaceRender: xOffset : %f , yOffset : %f", xOffset, yOffset);
-    const GLfloat fitTexcoord[] = {
-            xOffset, yOffset,
-            1.0f - xOffset, yOffset,
-            xOffset, 1.0f - yOffset,
-            1.0f - xOffset, 1.0f - yOffset
-    };
+    array<GLfloat, RenderConfig::VERTEX_SIZE> texCoord{};
+    RenderConfig::getFitTexCoord(viewWidth, viewHeight, texWidth, texHeight, texCoord);
 
     glUseProgram(programId);
-    //todo 使用VAO
-    glVertexAttribPointer(VERTEX_POSITION_LOCATION, 2, GL_FLOAT, GL_FALSE, 0, OUTPUT_VIEW_VERTEX_COORD);
-    glEnableVertexAttribArray(VERTEX_POSITION_LOCATION);
-    glVertexAttribPointer(VERTEX_TEXTURE_LOCATION, 2, GL_FLOAT, GL_FALSE, 0, fitTexcoord);
-    glEnableVertexAttribArray(VERTEX_TEXTURE_LOCATION);
-    glActiveTexture(GL_TEXTURE0);
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, RenderConfig::VERTEX_PTR_SIZE, texCoord.data());
     glBindTexture(GL_TEXTURE_2D, inputTexId);
-    //设置纹理四周为黑色
-    float borderColor[] = {0.0f, 0.0f, 0.0f, 0.0f};
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER_OES);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER_OES);
-    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR_OES, borderColor);
-    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR_OES, borderColor);
-    glUniform1i(textureUniformLoc, 0);
 
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
     glBindTexture(GL_TEXTURE_2D, 0);
-    glDisableVertexAttribArray(VERTEX_TEXTURE_LOCATION);
-    glDisableVertexAttribArray(VERTEX_POSITION_LOCATION);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
 }
 
-void GLSurfaceRender::renderWaterToTexture(GLuint inputTexId, int left, int top, int waterWidth, int waterHeight,
+void GLSurfaceRender::renderWaterToTexture(GLuint inputTexId, int left, int top, int waterWidth,
+                                           int waterHeight,
                                            GLuint outputTexId) {
-    glViewport(left, top, waterWidth, waterHeight);
-    if (!isInitProgram) {
+    if (!programId) {
         LOGE("renderWaterToTexture, renderToTexture error , isInitProgram = false");
         return;
     }
+
+    glViewport(left, top, waterWidth, waterHeight);
+
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, outputTexId, 0);
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE) {
         LOGE("renderWaterToTexture, failed to make complete framebuffer object %x", status);
         return;
     }
-    float xOffset = 0, yOffset = 0;
-    const GLfloat texcoord[] = {
-            xOffset, yOffset,
-            1.0f - xOffset, yOffset,
-            xOffset, 1.0f - yOffset,
-            1.0f - xOffset, 1.0f - yOffset
-    };
 
     glUseProgram(programId);
-    glVertexAttribPointer(VERTEX_POSITION_LOCATION, 2, GL_FLOAT, GL_FALSE, 0, OUTPUT_VIEW_VERTEX_COORD);
-    glEnableVertexAttribArray(VERTEX_POSITION_LOCATION);
-    glVertexAttribPointer(VERTEX_TEXTURE_LOCATION, 2, GL_FLOAT, GL_FALSE, 0, texcoord);
-    glEnableVertexAttribArray(VERTEX_TEXTURE_LOCATION);
-
-    glActiveTexture(GL_TEXTURE0);
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, RenderConfig::VERTEX_PTR_SIZE, RenderConfig::TEXTURE_COORD.data());
     glBindTexture(GL_TEXTURE_2D, inputTexId);
-    glUniform1i(textureUniformLoc, 0);
 
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
     glBindTexture(GL_TEXTURE_2D, 0);
-    glDisableVertexAttribArray(VERTEX_TEXTURE_LOCATION);
-    glDisableVertexAttribArray(VERTEX_POSITION_LOCATION);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
 }

@@ -21,16 +21,8 @@ public:
 
     void updateTexImage() override;
 
-    void bindTexture(GLuint *samplerLoc) override;
-
     void destroy() override {
-        if (texId) {
-            glDeleteTextures(1, &texId);
-        }
-    }
-
-    GLuint getTexId() {
-        return texId;
+        glDeleteTextures(1, &texId);
     }
 
 public:
@@ -40,7 +32,6 @@ public:
     int channel{};
 
 private:
-    GLuint texId{};
     bool validPath{};
     std::string imagePath;
     unsigned char *data{};

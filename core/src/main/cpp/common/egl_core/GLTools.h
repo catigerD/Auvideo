@@ -5,8 +5,7 @@
 #ifndef AUVIDEO_GLTOOLS_H
 #define AUVIDEO_GLTOOLS_H
 
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
+#include <GLES3/gl3.h>
 #include <android/log.h>
 
 #define GL_LOGI(...)  __android_log_print(ANDROID_LOG_INFO, "GL_TOOLS", __VA_ARGS__)
@@ -69,9 +68,7 @@ static GLuint loadProgram(const char *vertexSource, const char *fragmentSource) 
 }
 
 static void checkGLError(const char *op) {
-    for (GLint error = glGetError(); error; error = glGetError()) {
-        GL_LOGE("after %s() glError (0x%x)\n", op, error);
-    }
+    GL_LOGE("after %s() glError (0x%x)\n", op, glGetError());
 }
 
 #endif //AUVIDEO_GLTOOLS_H
