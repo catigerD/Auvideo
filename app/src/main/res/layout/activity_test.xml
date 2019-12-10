@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".TestActivity">
 
-    <com.dengchong.core.camera_preview.RecordingPreviewSurfaceView
+    <com.dengchong.core.camera_preview.RecordPreviewSurfaceView
         android:id="@+id/sv_preview"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

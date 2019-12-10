@@ -2,8 +2,8 @@
 // Created by dengchong on 2019-09-30.
 //
 
-#ifndef AUVIDEO_RECORDINGPREVIEWRENDER_H
-#define AUVIDEO_RECORDINGPREVIEWRENDER_H
+#ifndef AUVIDEO_RECORDPREVIEWRENDER_H
+#define AUVIDEO_RECORDPREVIEWRENDER_H
 
 #include <memory>
 #include <array>
@@ -14,13 +14,13 @@
 #include "FBOTextureFrame.h"
 #include "ImageTextureFrame.h"
 
-class RecordingPreviewRender {
+class RecordPreviewRender {
 public:
 
-    RecordingPreviewRender(int viewWidth, int viewHeight, int texWidth, int texHeight,
+    RecordPreviewRender(int viewWidth, int viewHeight, int texWidth, int texHeight,
                            int degress, bool isVFlip);
 
-    ~RecordingPreviewRender();
+    ~RecordPreviewRender();
 
     void init();
 
@@ -64,4 +64,4 @@ private:
 };
 
 
-#endif //AUVIDEO_RECORDINGPREVIEWRENDER_H
+#endif //AUVIDEO_RECORDPREVIEWRENDER_H

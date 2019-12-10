@@ -6,16 +6,16 @@ import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 
-interface RecordingPreviewSurfaceViewCallback {
+interface RecordPreviewSurfaceViewCallback {
     fun surfaceCreated(surface: Surface?, width: Int, height: Int)
     fun surfaceChanged(width: Int, height: Int)
     fun surfaceDestroyed()
 }
 
-class RecordingPreviewSurfaceView(context: Context?, attrs: AttributeSet? = null) :
+class RecordPreviewSurfaceView(context: Context?, attrs: AttributeSet? = null) :
     SurfaceView(context, attrs), SurfaceHolder.Callback {
 
-    var callback: RecordingPreviewSurfaceViewCallback? = null
+    var callback: RecordPreviewSurfaceViewCallback? = null
 
     init {
         holder?.addCallback(this)

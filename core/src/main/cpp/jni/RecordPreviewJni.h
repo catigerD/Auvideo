@@ -2,11 +2,11 @@
 // Created by dengchong on 2019-09-30.
 //
 
-#ifndef AUVIDEO_RECORDINGPREVIEWJNI_H
-#define AUVIDEO_RECORDINGPREVIEWJNI_H
+#ifndef AUVIDEO_RECORDPREVIEWJNI_H
+#define AUVIDEO_RECORDPREVIEWJNI_H
 
 #include <jni.h>
-#include "RecordingPreviewController.h"
+#include "RecordPreviewController.h"
 #include <memory>
 #include <android/native_window.h>
 #include <android/native_window_jni.h>
@@ -22,7 +22,7 @@ extern "C" {
 
 using namespace std;
 
-shared_ptr<RecordingPreviewController> controller;
+shared_ptr<RecordPreviewController> controller;
 shared_ptr<ANativeWindow> window;
 shared_ptr<EncodingVideo> encodeExamples;
 shared_ptr<ScalingVideo> scaleVideo;
@@ -30,13 +30,13 @@ shared_ptr<MuxingExample> muxingExamples;
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_initEGLContext(JNIEnv *env,
+Java_com_dengchong_core_camera_1preview_RecordPreviewScheduler_initEGLContext(JNIEnv *env,
                                                                                  jobject thiz,
                                                                                  jobject surface,
                                                                                  jint width,
                                                                                  jint height,
                                                                                  jint cameraId) {
-    controller = make_shared<RecordingPreviewController>();
+    controller = make_shared<RecordPreviewController>();
     window = shared_ptr<ANativeWindow>(ANativeWindow_fromSurface(env, surface),
                                        [](ANativeWindow *window) {
                                            ANativeWindow_release(window);
@@ -49,7 +49,7 @@ Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_initEGLContext
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_notifyFrameAvailable(JNIEnv *env,
+Java_com_dengchong_core_camera_1preview_RecordPreviewScheduler_notifyFrameAvailable(JNIEnv *env,
                                                                                        jobject thiz) {
     if (controller) {
         avformat_alloc_context();
@@ -59,7 +59,7 @@ Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_notifyFrameAva
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_resetSurfaceSize(JNIEnv *env,
+Java_com_dengchong_core_camera_1preview_RecordPreviewScheduler_resetSurfaceSize(JNIEnv *env,
                                                                                    jobject thiz,
                                                                                    jint width,
                                                                                    jint height) {
@@ -70,7 +70,7 @@ Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_resetSurfaceSi
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_destroySurface(JNIEnv *env,
+Java_com_dengchong_core_camera_1preview_RecordPreviewScheduler_destroySurface(JNIEnv *env,
                                                                                  jobject thiz) {
     if (controller) {
         controller->sendDestroyEGLContextMsg();
@@ -81,7 +81,7 @@ Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_destroySurface
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_startRecording2Native(JNIEnv *env,
+Java_com_dengchong_core_camera_1preview_RecordPreviewScheduler_startRecording2Native(JNIEnv *env,
                                                                                         jobject thiz,
                                                                                         jstring file_path,
                                                                                         jint width,
@@ -119,7 +119,7 @@ Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_startRecording
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_stopRecording2Native(JNIEnv *env,
+Java_com_dengchong_core_camera_1preview_RecordPreviewScheduler_stopRecording2Native(JNIEnv *env,
                                                                                        jobject thiz) {
     if (controller) {
         controller->sendStopEncodingMsg();
@@ -128,11 +128,11 @@ Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_stopRecording2
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_dengchong_core_camera_1preview_RecordingPreviewScheduler_switchCamera(JNIEnv *env,
+Java_com_dengchong_core_camera_1preview_RecordPreviewScheduler_switchCamera(JNIEnv *env,
                                                                                jobject thiz) {
     if (controller) {
         controller->sendSwitchCameraMsg();
     }
 }
 
-#endif //AUVIDEO_RECORDINGPREVIEWJNI_H
+#endif //AUVIDEO_RECORDPREVIEWJNI_H

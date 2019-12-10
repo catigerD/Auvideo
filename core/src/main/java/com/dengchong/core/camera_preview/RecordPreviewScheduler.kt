@@ -8,11 +8,11 @@ import android.os.Environment
 import android.view.Surface
 import java.io.File
 
-class RecordingPreviewScheduler(
-    val camera: RecordingPreviewCamera,
-    val surfaceView: RecordingPreviewSurfaceView,
+class RecordPreviewScheduler(
+    val camera: RecordPreviewCamera,
+    val surfaceView: RecordPreviewSurfaceView,
     val context: Context
-) : RecordingPreviewCallback, RecordingPreviewSurfaceViewCallback {
+) : FrameAvailableCallback, RecordPreviewSurfaceViewCallback {
 
     var defaultCameraId: Int = Camera.CameraInfo.CAMERA_FACING_FRONT
 

@@ -2,7 +2,7 @@
 // Created by dengchong on 2019-09-30.
 //
 
-#include "RecordingPreviewRender.h"
+#include "RecordPreviewRender.h"
 
 #include "GPUTextureFrameCopier.h"
 
@@ -10,7 +10,7 @@
 
 using namespace std;
 
-RecordingPreviewRender::RecordingPreviewRender(int viewWidth, int viewHeight, int texWidth,
+RecordPreviewRender::RecordPreviewRender(int viewWidth, int viewHeight, int texWidth,
                                                int texHeight, int degress, bool isVFlip)
         : cameraTextureFrame(make_shared<GPUTextureFrame>()),
           formatTextureFrame(make_shared<FBOTextureFrame>(texWidth, texHeight, degress)),
@@ -25,9 +25,9 @@ RecordingPreviewRender::RecordingPreviewRender(int viewWidth, int viewHeight, in
     fillTexCoords();
 }
 
-RecordingPreviewRender::~RecordingPreviewRender() = default;
+RecordPreviewRender::~RecordPreviewRender() = default;
 
-void RecordingPreviewRender::init() {
+void RecordPreviewRender::init() {
     cameraTextureFrame->initTexture();
     formatTextureFrame->initTexture();
     gpuCopier->init();
@@ -35,13 +35,13 @@ void RecordingPreviewRender::init() {
     glGenFramebuffers(1, &FBO);
 }
 
-void RecordingPreviewRender::setDegress(int degress, bool isVFlip) {
+void RecordPreviewRender::setDegress(int degress, bool isVFlip) {
     this->degress = degress;
     this->isVFlip = isVFlip;
     fillTexCoords();
 }
 
-void RecordingPreviewRender::processFrame() {
+void RecordPreviewRender::processFrame() {
     //这里会影响后面的 renderToView
     //glViewport(0, 0, texHeight, texWidth);
     LOGI("processFrame , screenWidth : %d, screenHeight : %d, texWidth : %d, texHeight : %d, degress : %d",
@@ -53,13 +53,13 @@ void RecordingPreviewRender::processFrame() {
 
 }
 
-void RecordingPreviewRender::drawToView() {
+void RecordPreviewRender::drawToView() {
     render->renderToViewWithAutoFill(formatTextureFrame->getTexId(), viewWidth, viewHeight,
                                      formatTextureFrame->getWidth(), formatTextureFrame->getHeight());
 //    render->renderToView(formatTextureFrame->getTexId());
 }
 
-void RecordingPreviewRender::destroy() {
+void RecordPreviewRender::destroy() {
     if (FBO) {
         glDeleteFramebuffers(1, &FBO);
     }
@@ -69,7 +69,7 @@ void RecordingPreviewRender::destroy() {
     cameraTextureFrame->destroy();
 }
 
-void RecordingPreviewRender::fillTexCoords() {
+void RecordPreviewRender::fillTexCoords() {
     switch (degress) {
         case 90:
             texCoords = RenderConfig::CAMERA_TEXTURE_ROTATED_90;
@@ -92,6 +92,6 @@ void RecordingPreviewRender::fillTexCoords() {
     }
 }
 
-float RecordingPreviewRender::flip(float i) {
+float RecordPreviewRender::flip(float i) {
     return 1.0f - i;
 }

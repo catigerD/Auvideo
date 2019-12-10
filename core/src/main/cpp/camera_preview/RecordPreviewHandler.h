@@ -2,15 +2,15 @@
 // Created by dengchong on 2019-09-30.
 //
 
-#ifndef AUVIDEO_RECORDINGPREVIEWHANDLER_H
-#define AUVIDEO_RECORDINGPREVIEWHANDLER_H
+#ifndef AUVIDEO_RECORDPREVIEWHANDLER_H
+#define AUVIDEO_RECORDPREVIEWHANDLER_H
 
 #include "Handler.h"
 #include <memory>
 
 using namespace std;
 
-class RecordingPreviewController;
+class RecordPreviewController;
 
 enum MSG_RECORDING_PREVIEW {
     MSG_INIT_EGL_CONTEXT = 0,
@@ -22,15 +22,15 @@ enum MSG_RECORDING_PREVIEW {
     MSG_SWITCH_CAMERA,
 };
 
-class RecordingPreviewHandler : public Handler {
+class RecordPreviewHandler : public Handler {
 public:
-    explicit RecordingPreviewHandler(shared_ptr<RecordingPreviewController> controller);
+    explicit RecordPreviewHandler(shared_ptr<RecordPreviewController> controller);
 
     void handleMessage(const shared_ptr<Message> &msg) override;
 
 private:
-    shared_ptr<RecordingPreviewController> controller;
+    shared_ptr<RecordPreviewController> controller;
 };
 
 
-#endif //AUVIDEO_RECORDINGPREVIEWHANDLER_H
+#endif //AUVIDEO_RECORDPREVIEWHANDLER_H

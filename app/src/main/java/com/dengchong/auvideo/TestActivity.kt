@@ -4,15 +4,15 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
 import android.view.WindowManager
-import com.dengchong.core.camera_preview.RecordingPreviewCamera
-import com.dengchong.core.camera_preview.RecordingPreviewScheduler
+import com.dengchong.core.camera_preview.RecordPreviewCamera
+import com.dengchong.core.camera_preview.RecordPreviewScheduler
 import kotlinx.android.synthetic.main.activity_test.*
 import java.io.File
 
 class TestActivity : AppCompatActivity() {
 
-    private lateinit var previewCamera: RecordingPreviewCamera
-    private lateinit var previewScheduler: RecordingPreviewScheduler
+    private lateinit var previewCamera: RecordPreviewCamera
+    private lateinit var previewScheduler: RecordPreviewScheduler
     private var recording: Boolean = false
     private val path =
         Environment.getExternalStorageDirectory().absolutePath + File.separator + "Auvideo.h264"
@@ -29,8 +29,8 @@ class TestActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_test)
-        previewCamera = RecordingPreviewCamera(this)
-        previewScheduler = RecordingPreviewScheduler(previewCamera, sv_preview, this)
+        previewCamera = RecordPreviewCamera(this)
+        previewScheduler = RecordPreviewScheduler(previewCamera, sv_preview, this)
         btn_recording.setOnClickListener {
             recording = !recording
             if (recording) {

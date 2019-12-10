@@ -10,21 +10,21 @@ import android.view.WindowManager
 import com.dengchong.core.tools.logd
 import java.lang.RuntimeException
 
-data class CameraInfo(val cameraWidth: Int, val cameraHeight: Int, val degress: Int)
+data class CameraInfo(val previewWidth: Int, val previewHeight: Int, val degress: Int)
 
-interface RecordingPreviewCallback {
+interface FrameAvailableCallback {
     fun onFrameAvailable()
 }
 
-private const val TAG = "RecordingPreviewCamera"
+private const val TAG = "RecordPreviewCamera"
 
-class RecordingPreviewCamera(val context: Context) {
+class RecordPreviewCamera(val context: Context) {
 
     var camera: Camera? = null
     var surfaceTexture: SurfaceTexture? = null
-    var callback: RecordingPreviewCallback? = null
-    val CAMERA_WIDTH: Int = 1280
-    val CAMERA_HEIGHT: Int = 720
+    var callback: FrameAvailableCallback? = null
+    val PREVIEW_WIDTH: Int = 1280
+    val PREVIEW_HEIGHT: Int = 720
 
     fun configCameraFromNative(cameraId: Int): CameraInfo {
         camera = Camera.open(cameraId)
@@ -32,11 +32,11 @@ class RecordingPreviewCamera(val context: Context) {
             if (ImageFormat.NV21 in parameters.supportedPreviewFormats) {
                 parameters.previewFormat = ImageFormat.NV21
             }
-            val size = Size(CAMERA_WIDTH, CAMERA_HEIGHT)
+            val size = Size(PREVIEW_WIDTH, PREVIEW_HEIGHT)
             if (size in parameters.supportedPreviewSizes) {
-                parameters.setPreviewSize(CAMERA_WIDTH, CAMERA_HEIGHT)
+                parameters.setPreviewSize(PREVIEW_WIDTH, PREVIEW_HEIGHT)
             }
-            return CameraInfo(CAMERA_WIDTH, CAMERA_HEIGHT, getCameraDisplayOrientation(cameraId))
+            return CameraInfo(PREVIEW_WIDTH, PREVIEW_HEIGHT, getCameraDisplayOrientation(cameraId))
         }
         throw RuntimeException("Camera Open failed")
     }
@@ -59,8 +59,8 @@ class RecordingPreviewCamera(val context: Context) {
                 degress = 270
             }
         }
-        var result: Int
-        var cameraInfo = Camera.CameraInfo()
+        val result: Int
+        val cameraInfo = Camera.CameraInfo()
         Camera.getCameraInfo(cameraId, cameraInfo)
         if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
             result = (cameraInfo.orientation + degress) % 360
@@ -76,7 +76,7 @@ class RecordingPreviewCamera(val context: Context) {
         surfaceTexture = SurfaceTexture(textureId)
         surfaceTexture?.setOnFrameAvailableListener {
             callback?.onFrameAvailable()
-            Log.i("RecordingPreviewCamera", " set onFrameAvailable")
+            Log.i("RecordPreviewCamera", " set onFrameAvailable")
         }
         camera?.setPreviewTexture(surfaceTexture)
         camera?.startPreview()
@@ -89,16 +89,12 @@ class RecordingPreviewCamera(val context: Context) {
     fun releaseCameraFromNative() {
         try {
             camera?.stopPreview()
-            surfaceTexture?.apply {
-                // this causes a bunch of warnings that appear harmless but might
-                // confuse someone:
-                // W BufferQueue: [unnamed-3997-2] cancelBuffer: BufferQueue has
-                // been abandoned!
-                release()
-            }
-            camera?.apply {
-                release()
-            }
+            // this causes a bunch of warnings that appear harmless but might
+            // confuse someone:
+            // W BufferQueue: [unnamed-3997-2] cancelBuffer: BufferQueue has
+            // been abandoned!
+            surfaceTexture?.release()
+            camera?.release()
         } catch (e: Throwable) {
             Log.e(TAG, Log.getStackTraceString(e))
         }

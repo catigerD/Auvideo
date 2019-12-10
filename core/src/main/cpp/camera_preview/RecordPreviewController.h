@@ -2,11 +2,11 @@
 // Created by dengchong on 2019-09-30.
 //
 
-#ifndef AUVIDEO_RECORDINGPREVIEWCONTROLLER_H
-#define AUVIDEO_RECORDINGPREVIEWCONTROLLER_H
+#ifndef AUVIDEO_RECORDPREVIEWCONTROLLER_H
+#define AUVIDEO_RECORDPREVIEWCONTROLLER_H
 
-#include "RecordingPreviewHandler.h"
-#include "RecordingPreviewRender.h"
+#include "RecordPreviewHandler.h"
+#include "RecordPreviewRender.h"
 #include "Looper.h"
 #include "EGLCore.h"
 #include <android/native_window.h>
@@ -18,12 +18,12 @@
 
 using namespace chrono;
 
-class RecordingPreviewController : public enable_shared_from_this<RecordingPreviewController> {
-    friend RecordingPreviewHandler;
+class RecordPreviewController : public enable_shared_from_this<RecordPreviewController> {
+    friend RecordPreviewHandler;
 public:
-    RecordingPreviewController();
+    RecordPreviewController();
 
-    ~RecordingPreviewController();
+    ~RecordPreviewController();
 
     void sendInitEGLContextMsg(JavaVM *vm, jobject obj, shared_ptr<ANativeWindow> window,
                                int surfaceWidth,
@@ -54,8 +54,8 @@ public:
 private:
     void startThread();
 
-    shared_ptr<RecordingPreviewHandler> handler;
-    shared_ptr<RecordingPreviewRender> render;
+    shared_ptr<RecordPreviewHandler> handler;
+    shared_ptr<RecordPreviewRender> render;
 
 private:
 
@@ -108,4 +108,4 @@ private:
 };
 
 
-#endif //AUVIDEO_RECORDINGPREVIEWCONTROLLER_H
+#endif //AUVIDEO_RECORDPREVIEWCONTROLLER_H

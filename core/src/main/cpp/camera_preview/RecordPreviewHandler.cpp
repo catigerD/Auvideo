@@ -4,18 +4,18 @@
 // Created by dengchong on 2019-09-30.
 //
 
-#include "RecordingPreviewHandler.h"
-#include "RecordingPreviewController.h"
+#include "RecordPreviewHandler.h"
+#include "RecordPreviewController.h"
 
 #define LOG_TAG "RecordingPreviewHandler"
 
-RecordingPreviewHandler::RecordingPreviewHandler(
-        shared_ptr<RecordingPreviewController> controller)
+RecordPreviewHandler::RecordPreviewHandler(
+        shared_ptr<RecordPreviewController> controller)
         : controller(std::move(controller)) {
 
 }
 
-void RecordingPreviewHandler::handleMessage(const shared_ptr<Message> &msg) {
+void RecordPreviewHandler::handleMessage(const shared_ptr<Message> &msg) {
     LOGI("handleMessage  msg");
     switch (msg->what) {
         case MSG_INIT_EGL_CONTEXT:

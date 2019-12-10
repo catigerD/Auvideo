@@ -3,25 +3,25 @@
 //
 
 #include <thread>
-#include "RecordingPreviewController.h"
+#include "RecordPreviewController.h"
 
 #define LOG_TAG "RecordingPreviewController"
 
-RecordingPreviewController::RecordingPreviewController()
+RecordPreviewController::RecordPreviewController()
         : eglCore(make_shared<EGLCore>()) {
-    std::thread thread(&RecordingPreviewController::startThread, this);
+    std::thread thread(&RecordPreviewController::startThread, this);
     thread.detach();
 }
 
-RecordingPreviewController::~RecordingPreviewController() = default;
+RecordPreviewController::~RecordPreviewController() = default;
 
-void RecordingPreviewController::startThread() {
+void RecordPreviewController::startThread() {
     Looper::prepare();
-    handler = make_shared<RecordingPreviewHandler>(shared_from_this());
+    handler = make_shared<RecordPreviewHandler>(shared_from_this());
     Looper::loop();
 }
 
-void RecordingPreviewController::sendInitEGLContextMsg(JavaVM *vm, jobject obj,
+void RecordPreviewController::sendInitEGLContextMsg(JavaVM *vm, jobject obj,
                                                        shared_ptr<ANativeWindow> window,
                                                        int surfaceWidth,
                                                        int surfaceHeight,
@@ -39,19 +39,19 @@ void RecordingPreviewController::sendInitEGLContextMsg(JavaVM *vm, jobject obj,
     LOGI("RecordingPreviewController::sendInitEGLContextMsg");
 }
 
-void RecordingPreviewController::initEGLContext() {
+void RecordPreviewController::initEGLContext() {
     LOGI("RecordingPreviewController::initEGLContext()");
     eglCore->init();
     surface = eglCore->createWindowSurface(window);
     eglCore->makeCurrent(surface);
     configCameraToJava();
-    render = make_shared<RecordingPreviewRender>(viewWidth, viewHeight, texWidth,
+    render = make_shared<RecordPreviewRender>(viewWidth, viewHeight, texWidth,
                                                  texHeight, degress, cameraId == CAMERA_FACING_FRONT);
     render->init();
     setPreviewTextureToJava();
 }
 
-void RecordingPreviewController::configCameraToJava() {
+void RecordPreviewController::configCameraToJava() {
     int status = 0;
     bool needAttach = false;
     JNIEnv *env;
@@ -67,9 +67,9 @@ void RecordingPreviewController::configCameraToJava() {
                                                  "(I)Lcom/dengchong/core/camera_preview/CameraInfo;");
     jobject cameraInfoObj = env->CallObjectMethod(obj, configCameraMid, cameraId);
     jclass cameraInfoClz = env->GetObjectClass(cameraInfoObj);
-    jmethodID getCameraWidthMid = env->GetMethodID(cameraInfoClz, "getCameraWidth", "()I");
+    jmethodID getCameraWidthMid = env->GetMethodID(cameraInfoClz, "getPreviewWidth", "()I");
     texWidth = env->CallIntMethod(cameraInfoObj, getCameraWidthMid);
-    jmethodID getCameraHeightMid = env->GetMethodID(cameraInfoClz, "getCameraHeight", "()I");
+    jmethodID getCameraHeightMid = env->GetMethodID(cameraInfoClz, "getPreviewHeight", "()I");
     texHeight = env->CallIntMethod(cameraInfoObj, getCameraHeightMid);
     jmethodID getDegressMid = env->GetMethodID(cameraInfoClz, "getDegress", "()I");
     degress = env->CallIntMethod(cameraInfoObj, getDegressMid);
@@ -82,7 +82,7 @@ void RecordingPreviewController::configCameraToJava() {
          "%d ... ", texWidth, texHeight, degress, viewWidth, viewHeight);
 }
 
-void RecordingPreviewController::setPreviewTextureToJava() {
+void RecordPreviewController::setPreviewTextureToJava() {
     int status = 0;
     bool needAttach = false;
     JNIEnv *env;
@@ -105,14 +105,14 @@ void RecordingPreviewController::setPreviewTextureToJava() {
     LOGI("setPreviewTextureToJava");
 }
 
-void RecordingPreviewController::sendFrameAvailableMsg() {
+void RecordPreviewController::sendFrameAvailableMsg() {
     if (isSwitching) {
         return;
     }
     handler->sendMessage(MSG_UPDATE_TEX_IMAGE);
 }
 
-void RecordingPreviewController::updateTexImage() {
+void RecordPreviewController::updateTexImage() {
     //call java SurfaceTexture::updateTexImage();
     int status = 0;
     bool needAttach = false;
@@ -136,7 +136,7 @@ void RecordingPreviewController::updateTexImage() {
     LOGI("updateTexImage");
 }
 
-void RecordingPreviewController::renderFrame() {
+void RecordPreviewController::renderFrame() {
     eglCore->makeCurrent(surface);
     render->processFrame();
     render->drawToView();
@@ -147,11 +147,11 @@ void RecordingPreviewController::renderFrame() {
     }
 }
 
-void RecordingPreviewController::sendDestroyEGLContextMsg() {
+void RecordPreviewController::sendDestroyEGLContextMsg() {
     handler->sendMessage(MSG_DESTROY_EGL_CONTEXT);
 }
 
-void RecordingPreviewController::destroyEGLContext() {
+void RecordPreviewController::destroyEGLContext() {
     eglCore->makeCurrent(surface);
     eglCore->releaseSurface(surface);
     surface = EGL_NO_SURFACE;
@@ -166,7 +166,7 @@ void RecordingPreviewController::destroyEGLContext() {
     handler->getLooper()->quit();
 }
 
-void RecordingPreviewController::releaseCameraToJava() {
+void RecordPreviewController::releaseCameraToJava() {
     int status = 0;
     bool needAttach = false;
     JNIEnv *env;
@@ -188,7 +188,7 @@ void RecordingPreviewController::releaseCameraToJava() {
     LOGI("releaseCameraToJava");
 }
 
-void RecordingPreviewController::deleteGlobalObj() {
+void RecordPreviewController::deleteGlobalObj() {
     int status = 0;
     bool needAttach = false;
     JNIEnv *env;
@@ -212,7 +212,7 @@ void RecordingPreviewController::deleteGlobalObj() {
 
 /*--------------------------encode----------------------------------*/
 
-void RecordingPreviewController::sendStartEncodingMsg(const string &filePath, int width, int height,
+void RecordPreviewController::sendStartEncodingMsg(const string &filePath, int width, int height,
                                                       int bitRate, int frameRate, bool hwEncoding,
                                                       const string &waterPath) {
     if (!hwEncoding) {
@@ -223,18 +223,18 @@ void RecordingPreviewController::sendStartEncodingMsg(const string &filePath, in
     }
 }
 
-void RecordingPreviewController::sendStopEncodingMsg() {
+void RecordPreviewController::sendStopEncodingMsg() {
     if (handler) {
         handler->sendMessage(MSG_STOP_RECORDING);
     }
 }
 
-void RecordingPreviewController::startRecording() {
+void RecordPreviewController::startRecording() {
     encoder->createEncoder(eglCore, render->getRenderTexId());
     isEncoding = true;
 }
 
-void RecordingPreviewController::stopRecording() {
+void RecordPreviewController::stopRecording() {
     encoder->destroyEncoder();
     isEncoding = false;
     //todo encoder = nullptr,会导致encoder 对象被析构但子线程还在运行导致的空指针异常。
@@ -243,7 +243,7 @@ void RecordingPreviewController::stopRecording() {
 
 /*--------------------------switch camera----------------------------------*/
 
-void RecordingPreviewController::sendSwitchCameraMsg() {
+void RecordPreviewController::sendSwitchCameraMsg() {
     if (cameraId == CAMERA_FACING_BACK) {
         cameraId = CAMERA_FACING_FRONT;
     } else {
@@ -252,7 +252,7 @@ void RecordingPreviewController::sendSwitchCameraMsg() {
     handler->sendMessage(MSG_SWITCH_CAMERA);
 }
 
-void RecordingPreviewController::switchCamera() {
+void RecordPreviewController::switchCamera() {
     isSwitching = true;
     releaseCameraToJava();
     configCameraToJava();

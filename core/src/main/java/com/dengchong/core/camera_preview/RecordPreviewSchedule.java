@@ -2,7 +2,7 @@ package com.dengchong.core.camera_preview;
 
 import android.view.Surface;
 
-public class RecordingPreviewSchedule {
+public class RecordPreviewSchedule {
 
     native void initEGLContext(Surface surface, int width, int height);
 
