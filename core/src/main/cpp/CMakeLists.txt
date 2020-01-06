@@ -16,6 +16,7 @@ set(PATH_CAMERA_PREVIEW ${PATH_WORKSPACE}/camera_preview)
 set(PATH_VIDEO_ENCODER ${PATH_WORKSPACE}/video_encoder)
 set(PATH_SOFT_ENCODER ${PATH_VIDEO_ENCODER}/soft_encoder)
 set(PATH_FFMPEG_EXAMPLE ${PATH_WORKSPACE}/ffmpeg-example)
+set(PATH_FFMPEG_CORE ${PATH_WORKSPACE}/ffmpeg_core)
 
 set(PATH_JNI ${PATH_WORKSPACE}/jni)
 
@@ -35,6 +36,7 @@ include_directories(${PATH_CAMERA_PREVIEW})
 include_directories(${PATH_VIDEO_ENCODER})
 include_directories(${PATH_SOFT_ENCODER})
 include_directories(${PATH_FFMPEG_EXAMPLE})
+include_directories(${PATH_FFMPEG_CORE})
 
 include_directories(${PATH_JNI})
 
@@ -52,6 +54,7 @@ file(GLOB FILES_LIB_CAMERA_PREVIEW ${PATH_CAMERA_PREVIEW}/*.cpp)
 file(GLOB FILES_LIB_VIDEO_ENCODER ${PATH_VIDEO_ENCODER}/*.cpp)
 file(GLOB FILES_LIB_SOFT_ENCODER ${PATH_SOFT_ENCODER}/*.cpp)
 file(GLOB FILES_LIB_FFMPEG_EXAMPLE ${PATH_FFMPEG_EXAMPLE}/*.cpp)
+file(GLOB FILES_LIB_FFMPEG_CORE ${PATH_FFMPEG_CORE}/*.cpp)
 
 file(GLOB FILES_LIB_JNI ${PATH_JNI}/*.cpp)
 
@@ -70,6 +73,7 @@ add_library(
         ${FILES_LIB_VIDEO_ENCODER}
         ${FILES_LIB_SOFT_ENCODER}
         ${FILES_LIB_FFMPEG_EXAMPLE}
+        ${FILES_LIB_FFMPEG_CORE}
 
         ${FILES_LIB_JNI}
 )
