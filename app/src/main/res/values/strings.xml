@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Auvideo</string>
+
+    <string name="error_gif">xxx</string>
 </resources>
